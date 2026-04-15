@@ -1,7 +1,8 @@
 # Zoe — Screen-by-Screen Mobile IA + Wireframe Spec
-**Version:** 1.0  
+**Version:** 1.1  
 **Platform:** Mobile-first (iOS and Android)  
 **Product direction:** Instagram-like shell and interaction model, RedNote-like discovery utility, Beli-like ranking integrated into profiles, feeds, and updates  
+**Visual reference:** Stitch **Home** (cream masonry + ranking badges + hamburger / Zoe / bell) and **Shorts** (dark immersive + glass actions). See `PRD/Zoe_Visual_Direction_Kit.md` §24–24.2.  
 **Document purpose:** Define the full screen-level information architecture, wireframe structure, navigation model, states, and end-to-end user flows for the Zoe mobile MVP
 
 ---
@@ -32,20 +33,20 @@ Zoe uses a fixed **5-button bottom navigation bar**.
 
 There is **no Add tab**.
 
-### Tab order
+### Tab order (Stitch-aligned)
 1. **Home**
-2. **Search / Explore**
-3. **Rank Updates**
-4. **Reels**
+2. **Explore**
+3. **Rankings**
+4. **Shorts**
 5. **Profile**
 
 ### Interaction rules
 - Tapping the current tab again should return to the top/root of that tab.
 - Home re-tap should instantly scroll the feed back to the top.
-- Search re-tap should return to the Explore landing state.
-- Reels re-tap should reset to the top/current first reel.
+- Explore re-tap should return to the Explore landing state.
+- **Rankings** re-tap should return to the user’s rankings hub root (top of list index).
+- **Shorts** re-tap should reset to the top/current first item.
 - Profile re-tap should return to the user’s profile root.
-- Rank Updates re-tap should return to the latest updates root.
 
 ## 2.2 Create content entry points
 There is **no bottom-nav Add button**.
@@ -56,12 +57,13 @@ Users create content in two ways:
 Like Instagram, the primary static creation entry lives on the user’s own profile.
 
 ### B. Swipe right from the Home feed
-Opens the camera/story composer flow.
+Opens the **camera / capture** flow (Instagram-like).
 
 This flow supports:
 - Story-like content
 - quick capture
 - optional transition into full post creation
+- **Rank new item:** choose category → pairwise compare → caption
 - optional ranking-related post creation
 
 ## 2.3 Secondary global surfaces
@@ -88,9 +90,9 @@ Accessible from icons, modals, or deep links:
 - Auth / Onboarding
 - Main App Shell
   - Home
-  - Search / Explore
-  - Rank Updates
-  - Reels
+  - Explore
+  - Rankings
+  - Shorts
   - Profile
 - Overlay / Secondary Surfaces
   - Camera / Story
@@ -121,7 +123,7 @@ The app shell should support ranking multiple types of things eventually, but th
 - Perfumes
 - Albums
 
-This gives the Rank Updates tab enough variety to feel alive while still keeping the product coherent around taste and identity.
+This gives the **Rankings** hub and Home feed enough variety to feel alive while still keeping the product coherent around taste and identity.
 
 ---
 
@@ -135,7 +137,7 @@ Instagram-like:
 - strong image/video emphasis
 - lightweight chrome
 - bottom-tab-first navigation
-- emphasis on profiles, stories, reels, and creator identity
+- emphasis on profiles, stories, Shorts, and creator identity
 
 RedNote-like:
 - recommendation-rich content
@@ -174,7 +176,7 @@ Used lightly:
 
 1. Browse home feed and discover useful content
 2. Search a place or product and make a decision
-3. Watch short-form content in Reels
+3. Watch short-form content in **Shorts**
 4. Check what people you follow recently ranked or changed
 5. Open profiles and inspect ranking lists
 6. Add a post from Profile
@@ -202,14 +204,14 @@ This section lists every primary MVP screen.
 
 ## 6.2 Main app tabs
 - Home feed
-- Search / Explore landing
-- Rank Updates landing
-- Reels feed
+- Explore landing
+- **Rankings** hub (personal lists index)
+- **Shorts** feed
 - Profile (self)
 
 ## 6.3 Content detail screens
 - Post detail
-- Reel detail
+- Short detail (vertical video)
 - Story viewer
 - Ranking list detail
 - Ranking object detail
@@ -327,24 +329,26 @@ Introduce Zoe and get the user into sign-up or log-in.
 ## SCREEN 03 — Interest Selection
 
 ### Purpose
-Seed feed and ranking relevance.
+Seed **Home**, **Explore**, **Shorts**, and suggested **Rankings** lists.
 
 ### Required components
 - title
-- selectable interest chips
-- categories grid
+- **large imagery tiles** per topic (editorial cards, not bare checkboxes)
+- multi-select topics
 - next CTA
 
 ### Example interests
-- coffee
+- **fashion**
+- **sports**
+- **music**
+- **film / TV**
+- coffee & cafés
 - fine dining
-- hidden gems
-- perfumes
+- perfumes & beauty
 - albums
-- bars
-- date spots
+- bars & nightlife
+- travel & places
 - desserts
-- fashion / beauty (future)
 
 ### States
 - nothing selected
@@ -442,19 +446,19 @@ Primary discovery feed with Instagram-like structure and RedNote-like utility.
 - app launch after auth
 - deep link to feed
 
-### Top bar components
-- Zoe wordmark
-- story tray beneath or integrated below top bar
-- inbox icon
-- notifications icon
+### Top bar components (Stitch)
+- **Hamburger** (left): account, settings, saved, help
+- **Zoe** wordmark (center), **serif**
+- **Notifications** (right) with **unread dot** when applicable
+- Optional **story tray** below the top bar when Stories ship; v1 may omit if not built yet
 
 ### Main content components
-1. **Story tray**
-2. **Main feed posts**
+1. **Optional story tray**
+2. **Masonry feed** (two-column): editorial cards, strong photography, **ranking badges** on media when relevant
 3. **Recommended posts**
 4. **Posts from followed users**
 5. **Utility cards embedded in feed**
-6. **Ranking activity snippets**
+6. **Ranking activity cards** (what friends/creators moved or added—**social ranking loop**)
 7. **Sponsored content later, not MVP**
 
 ### Feed post types
@@ -467,9 +471,9 @@ Primary discovery feed with Instagram-like structure and RedNote-like utility.
 - “added to ranking” activity card
 
 ### Required post card anatomy
-- profile row
-- media
-- actions row
+- **Media** with optional **ranking badge** overlay (rank #, ↑/↓/STABLE, editorial tag)
+- **Serif title** + short **sans** description (magazine-style)
+- Footer: **avatar**, **name**, **♥ count**
 - ranking context line if applicable
 - caption / useful note snippet
 - object tags
@@ -503,22 +507,18 @@ If user is already on Home and taps Home again:
 ### Wireframe
 ```text
 +----------------------------------+
-| Zoe                     inbox  🔔 |
-| [story][story][story][story]     |
+| ☰        Z o e            🔔 ·    |
+| [optional story tray]          |
 |----------------------------------|
-| avatar  username     ...         |
-| [large media post]               |
-|                                  |
-| ♥  💬  ↗             🔖          |
-| Ranked #3 in her café list       |
-| “Beautiful quiet spot...”        |
-| View 12 comments                 |
+| [card img #2▲] [card img #1 ST]|
+| serif title    serif title     |
+| snippet...     snippet...       |
+| av name ♥2.1k  av name ♥890    |
 |----------------------------------|
-| avatar  username     ...         |
-| [carousel / utility post]        |
-| ...                              |
+| [ranking activity card]          |
+| “Maya moved Sumi Café → #2”    |
 +----------------------------------+
-| home | search | rank | reels | p |
+| home | explore | rank | shorts | profile |
 +----------------------------------+
 ```
 
@@ -609,7 +609,7 @@ Allow threaded lightweight conversation on a post.
 Share any object internally or externally.
 
 ### Entry points
-- share icon on post, reel, ranking item, profile, object detail
+- share icon on post, short, ranking item, profile, object detail
 
 ### Required components
 - share target preview
@@ -713,13 +713,13 @@ Support in-app conversation about posts, places, rankings, and plans.
 
 ---
 
-## SCREEN 13 — Search / Explore Landing
+## SCREEN 13 — Explore Landing
 
 ### Purpose
 Instagram-like explore shell with RedNote-like utility and search depth.
 
 ### Entry points
-- bottom tab Search
+- bottom tab **Explore**
 - search interactions from elsewhere
 
 ### Top components
@@ -763,7 +763,7 @@ Supports:
 | [wide tile      ][grid tile]     |
 | [grid tile][grid tile][grid tile]|
 +----------------------------------+
-| home | search | rank | reels | p |
+| home | explore | rank | shorts | profile |
 +----------------------------------+
 ```
 
@@ -849,133 +849,100 @@ Unified detail page for any ranked object:
 
 ---
 
-## SCREEN 16 — Reels Feed
+## SCREEN 16 — Shorts Feed
 
 ### Purpose
-Short-form immersive video discovery.
+Short-form **immersive** vertical video (Stitch: dark UI, glass controls).
 
 ### Entry points
-- bottom tab Reels
+- bottom tab **Shorts**
 - tap video post from feed
 
 ### Required components
-- full-screen vertical video
-- creator info
-- caption snippet
-- ranking context badge if applicable
-- object tag link
-- actions stacked right
-- swipe up for next
+- full-screen vertical **image/video** (warm dark blacks, not pure #000)
+- **Top-left** contextual pill (e.g. consensus / trend—optional)
+- **Right rail:** **RANK**, **SAVE**, **SEND**, creator avatar
+- **Bottom:** @handle, **Follow**, **large serif title**, **More detail**
+- swipe for next
 
-### Right-side action stack
-- like
-- comment
-- share
-- save
-- ranking action / add to ranking if relevant
+### Right-side action stack (priority order)
+- **RANK** (entry to ranking flow when relevant)
+- **SAVE**
+- **SEND** (share)
+- creator avatar
 
 ### States
 - playing
 - paused
 - muted/unmuted
-- loading next reel
-- no more reels
+- loading next item
+- no more items
 - poor connection
 
 ### Wireframe
 ```text
 +----------------------------------+
-|                                  |
-|        [full-screen video]       |
-|                                  |
-| creator                          |
-| “This might be the best...”      |
-| #perfume #clean-girl             |
-|                                  |
-|                           ♥      |
-|                           💬      |
-|                           ↗      |
-|                           🔖      |
+| [ Popular consensus ]            |
+|                           RANK   |
+|  [fullscreen media]       SAVE   |
+|                           SEND   |
+|                            [av]  |
+| @user  [Follow]                  |
+| Serif Title Here                 |
+| MORE DETAIL ▾                    |
 +----------------------------------+
-| home | search | rank | reels | p |
+| home | explore | rank | shorts | profile |
 +----------------------------------+
 ```
 
 ---
 
-## SCREEN 17 — Rank Updates Feed
+## SCREEN 17 — Rankings Hub (MVP)
 
 ### Purpose
-Dedicated tab for ranking activity from followed users, creators, celebrities, and friends.
-
-This is one of the most important differentiators in Zoe.
+Primary place to **browse and edit the user’s own rankings** across categories (movies, music, fashion, sports, restaurants, perfumes, etc.) and to **add** new items via compare flows, **music links**, or **camera**.
 
 ### Entry points
-- bottom tab Rank Updates
+- bottom tab **Rankings**
+- deep link to a specific list
+- “RANK” from Shorts
+- **Swipe-right** camera → rank flow
 
-### Core concept
-A feed of **ranking actions**, not just regular posts.
+### Core layout
+- **Calm, editorial** index: category sections or **filter chips** (My lists / Music / Film / Fashion / Sports / Food…)
+- Each list shows **cover**, **title** (serif), **last updated**, **movement** hints
+- **Primary add:** prominent “**Add to ranking**” (opens capture, library pick, or **Spotify / Apple Music** picker for music)
 
-Examples:
-- Maya added Sumi Café to her all-time café ranking at #4
-- Elton moved Baccarat Rouge 540 down from #2 to #5
-- Cody added a new album to his all-time top 20
-- A celebrity followed by user ranked a new restaurant
-- 8 people you follow added the same album this week
-
-### Top components
-- filter chips: All / Friends / Creators / Restaurants / Perfumes / Albums
-- optional “Following only” toggle
-- ranking search or quick jump later
-
-### Feed card types
-1. single ranking add
-2. ranking move up/down
-3. newly published ranking list
-4. comparison card
-5. multi-user trend card
-
-### Required card anatomy
-- avatar / user
-- action language
-- object card
-- new ranking position
-- old ranking position if changed
-- list name
-- reaction / comment / share
-- “open ranking” CTA
-
-### States
-- active update feed
-- empty because no follows
-- filtered category view
-- highly active / grouped cards
+### Add flow (high level)
+1. Choose **category / list** (only lists the user maintains—or create new)
+2. **Photo** upload or **music** link → item preview
+3. **Pairwise compare** against existing entries until position stabilizes
+4. Optional **caption** / note; publish to profile or Home as ranking update
 
 ### Wireframe
 ```text
 +----------------------------------+
-| Rank Updates                     |
-| All  Friends  Creators  Albums   |
+| Rankings              [+] add    |
+|  My lists   Music   Film   ...   |
 |----------------------------------|
-| avatar  Maya updated her cafés   |
-| Sumi Café moved from #6 → #3     |
-| [Open list]   [Comment] [Share]  |
+| [cover] All-Time Movies          |
+|         updated 2d ago      →    |
 |----------------------------------|
-| avatar  Cody added “Blonde”      |
-| to All-Time Albums at #8         |
-| [Open ranking]                   |
+| [cover] Sneakers                 |
+|         updated 1w ago      →    |
+|----------------------------------|
+| [cover] Late Night Albums        |
+|         updated 3h ago      →    |
 +----------------------------------+
-| home | search | rank | reels | p |
+| home | explore | rank | shorts | profile |
 +----------------------------------+
 ```
 
 ### Design note
-This tab should feel like a hybrid of:
-- activity feed
-- ranking ticker
-- taste-network pulse
+This tab should feel like a **personal museum** of taste—**not** a spreadsheet. Comparison screens should use **side-by-side** imagery wherever possible.
 
-It should not feel like a generic notifications screen.
+### Social ranking activity
+Feeds of **other people’s** ranking moves are **not** the primary job of this tab in MVP; that content belongs in **Home** (and notifications). A future **“Friends’ moves”** sub-segment or tab is optional.
 
 ---
 
@@ -1042,7 +1009,7 @@ Let user add an object into a ranking using Beli-like attraction mechanics.
 - object detail
 - post composer
 - profile rankings section
-- Rank Updates card prompt
+- Home ranking activity card prompt
 
 ### Step structure
 1. select ranking list
@@ -1112,14 +1079,14 @@ Supports highlights like:
 
 ### Main profile content tabs
 1. Posts grid
-2. Reels grid
+2. Shorts grid
 3. Tagged / mentions later
 4. Rankings
 5. Saved optional shortcut, not primary tab in MVP
 
 For MVP, if limited to three visible content tabs:
 - Posts
-- Reels
+- Shorts
 - Rankings
 
 ### Ranking section requirements
@@ -1152,12 +1119,12 @@ For MVP, if limited to three visible content tabs:
 | 45 posts  1,204 followers  38 fol|
 | [highlights][highlights][+]       |
 |----------------------------------|
-| [Posts] [Reels] [Rankings]       |
+| [Posts] [Shorts] [Rankings]      |
 |----------------------------------|
 | [grid][grid][grid]               |
 | [grid][grid][grid]               |
 +----------------------------------+
-| home | search | rank | reels | p |
+| home | explore | rank | shorts | profile |
 +----------------------------------+
 ```
 
@@ -1183,7 +1150,7 @@ Inspect another user’s identity, content, and ranking taste.
 - message button
 - taste match module
 - ranking previews
-- posts/reels/rankings tabs
+- posts/shorts/rankings tabs
 
 ---
 
@@ -1342,18 +1309,19 @@ Consume stories from followed users.
 ## SCREEN 27 — Notifications Center
 
 ### Purpose
-System and social notifications outside the Rank Updates tab.
+System and social notifications (ranking-related alerts can also appear **in Home** as cards).
 
-### Distinction from Rank Updates
-Notifications are about:
+### Distinction from Home ranking cards
+**Notifications** are about:
 - follows
 - likes
 - comments
 - message alerts
 - story replies
 - post engagement
+- optional digest of ranking moves
 
-Rank Updates is specifically ranking activity from followed users.
+**Home** can surface **ranking activity** inline in the feed; **Notifications** is the explicit inbox for alerts.
 
 ### Required components
 - grouped notifications
@@ -1427,7 +1395,7 @@ Allow control over how public ranking identity is.
 - public rankings
 - followers only
 - private lists
-- hide changes from Rank Updates
+- hide ranking changes from Home / notifications
 - show recent ranking moves on profile
 - allow comments on ranking updates
 
@@ -1447,7 +1415,7 @@ Allow control over how public ranking identity is.
   - Story Viewer
 - Swipe Right → Camera / Story
 
-## 8.2 Search tab IA
+## 8.2 Explore tab IA
 - Explore Landing
   - Search Results
   - Post Detail
@@ -1457,30 +1425,29 @@ Allow control over how public ranking identity is.
   - Comments
   - Share
 
-## 8.3 Rank Updates tab IA
-- Rank Updates Feed
-  - Ranking Detail
+## 8.3 Rankings tab IA
+- Rankings Hub
+  - Ranking Detail List
+  - Add to Ranking / Compare flow
+  - Music link pickers (Spotify / Apple Music)
+  - Camera capture (from hub or swipe-right)
   - Object Detail
-  - Profile
-  - Comments
-  - Share Sheet
-  - Add to Ranking
 
-## 8.4 Reels tab IA
-- Reels Feed
-  - Reel Detail if needed
+## 8.4 Shorts tab IA
+- Shorts Feed
+  - Short Detail if needed
   - Comments
   - Share
   - Object Detail
   - Profile
-  - Add to Ranking
+  - Add to Ranking (via **RANK**)
 
 ## 8.5 Profile tab IA
 - Self Profile
   - Edit Profile
   - Create Menu
   - Posts Grid item → Post Detail
-  - Reels Grid item → Reel Detail
+  - Shorts Grid item → Short Detail
   - Ranking Preview → Ranking Detail
   - Saved
   - Followers / Following
@@ -1508,8 +1475,8 @@ Users can:
 ## 9.3 In profile
 Rankings are a core tab, not a hidden subpage.
 
-## 9.4 In Rank Updates
-Dedicated activity feed for ranking changes.
+## 9.4 In Home (and Notifications)
+Surfacing of **others’** ranking changes—activity feed for taste movement, not buried in settings.
 
 ## 9.5 In share/chat
 Users can share ranking updates as rich cards.
@@ -1529,7 +1496,7 @@ It preserves the Instagram-like 5-tab shell while keeping messaging deeply integ
 
 ## 10.3 Shareable objects in chat
 - post
-- reel
+- short (vertical video)
 - ranking update
 - object detail
 - ranking list
@@ -1538,7 +1505,7 @@ It preserves the Instagram-like 5-tab shell while keeping messaging deeply integ
 ## 10.4 Comments placement
 Comments live on:
 - posts
-- reels
+- Shorts
 - ranking updates optionally
 - ranking lists later if desired
 
@@ -1582,35 +1549,35 @@ Comments live on:
 5. confirms slot
 6. saves
 7. optionally publishes ranking update
-8. appears in Rank Updates and profile rankings
+8. appears in Home (as activity), notifications, and profile rankings
 
-## FLOW E — Discover via Search
-1. user taps Search tab
+## FLOW E — Discover via Explore
+1. user taps Explore tab
 2. sees explore grid
 3. enters query
 4. result tabs appear
 5. opens object or post
 6. saves, shares, or adds to ranking
 
-## FLOW F — Follow ranking activity
-1. user taps Rank Updates
-2. sees friends/creators ranking changes
+## FLOW F — Follow ranking activity (Home)
+1. user stays on **Home** (or opens **Notifications**)
+2. sees friends/creators ranking changes as **cards**
 3. taps ranking card
 4. opens full ranking list
 5. comments or shares to chat
 6. maybe adds same object to own ranking
 
-## FLOW G — Reels discovery to ranking
-1. user taps Reels tab
+## FLOW G — Shorts discovery to ranking
+1. user taps **Shorts** tab
 2. swipes through short-form videos
-3. sees a reel about perfume
-4. taps object tag
+3. sees a clip about perfume
+4. taps object tag or **RANK**
 5. opens perfume detail
 6. saves or adds to ranking
 
 ## FLOW H — Profile-driven identity browsing
 1. user opens another user profile
-2. browses posts and reels
+2. browses posts and Shorts
 3. taps Rankings tab
 4. views top lists
 5. follows user or messages them
@@ -1633,7 +1600,7 @@ If user follows nobody and has little data:
 - show onboarding-like recommended content
 - explain that following people and ranking items improves the feed
 
-## 12.2 Rank Updates empty state
+## 12.2 Home ranking activity empty state
 If user follows no one with ranking activity:
 - suggest creators to follow
 - suggest making own first ranking
@@ -1664,8 +1631,8 @@ For new user:
 - swipe right to camera
 - tap story to open story viewer
 
-## 13.2 Reels
-- vertical swipe for next reel
+## 13.2 Shorts
+- vertical swipe for next item
 - tap hold to pause
 - tap audio for sound options later
 
@@ -1690,7 +1657,7 @@ Priority order:
 4. ranking-linked content
 5. general explore-style content
 
-## 14.2 Rank Updates priorities
+## 14.2 Home ranking activity priorities
 1. people user follows directly
 2. strong taste-match users
 3. high-signal creators/celebrities
@@ -1725,7 +1692,8 @@ Not required in the first build unless capacity allows:
 ## Phase 1
 - Auth
 - Home
-- Search / Explore
+- Explore
+- **Rankings** hub
 - Profile
 - Post detail
 - Comments
@@ -1733,9 +1701,8 @@ Not required in the first build unless capacity allows:
 - Object detail
 - Add to ranking
 - Ranking list detail
-- Rank Updates
 - Inbox + basic chat
-- Reels
+- **Shorts**
 - Camera/story MVP
 
 ## Phase 2
@@ -1745,7 +1712,7 @@ Not required in the first build unless capacity allows:
 - Highlights
 - Advanced ranking filters
 - More object types
-- Better grouping in Rank Updates
+- Better grouping of ranking activity in Home
 
 ---
 
@@ -1755,7 +1722,7 @@ Zoe’s final MVP shell should feel like this:
 
 - **Instagram-like navigation and familiarity**
 - **RedNote-like discovery, utility, and searchable recommendations**
-- **Beli-like ranking attraction embedded into profile, feed, and a dedicated ranking activity tab**
+- **Beli-like ranking attraction embedded into profile, feed, a dedicated Rankings hub, and ranking activity in Home**
 - **Chat and sharing kept inside the app**
 - **Creation centered on Profile and swipe-right camera, not a bottom Add tab**
 

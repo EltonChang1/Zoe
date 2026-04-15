@@ -1,10 +1,11 @@
 # Zoe — Launch-Ready Visual Direction Kit
-**Version:** 1.0  
+**Version:** 1.1  
 **Purpose:** Brand and UI visual system direction for launch  
 **Platform:** Mobile-first  
 **Product DNA:** Instagram-like shell, RedNote-like utility, Beli-like ranking energy  
 **Brand name:** Zoe  
-**Brand inspiration:** ζωή — “life” in Greek
+**Brand inspiration:** ζωή — “life” in Greek  
+**Design reference:** Approved **Home** and **Shorts** directions in Stitch (see §24.2).
 
 ---
 
@@ -295,9 +296,14 @@ The color system must support:
 
 ## 9.1 Core neutrals
 
+### Cream (Home shell — locked)
+- `#F9F8F4`
+- Primary background for the **Home** feed and other light “editorial” surfaces
+- Slightly warmer and more paper-like than pure white; pairs with masonry cards and serif headlines
+
 ### Ivory
 - `#F7F3EE`
-- Main warm background
+- Alternate warm background / section fills
 - Use for elevated, soft lifestyle feel
 
 ### Chalk
@@ -526,19 +532,21 @@ Use for:
 - familiar enough for product clarity
 - does not overpower content
 
-## Editorial Accent Serif: **Cormorant Garamond**
+## Editorial Accent Serif: **Cormorant Garamond** (or **Playfair Display**)
 Use sparingly for:
+- **Zoe wordmark** in the top app bar (Stitch reference)
 - launch marketing headlines
 - profile hero moments
+- **feed card titles** and ranking list hero titles (magazine-like contrast against Inter body)
 - ranking list covers
 - special editorial cards
 - empty-state or campaign-style art direction if needed
 
-### Why Cormorant Garamond works
+### Why Cormorant Garamond or Playfair works
 - elegant but not too old-world
 - emotional and taste-forward
 - complements warm neutral palette
-- gives Zoe a distinctive fashion/lifestyle edge
+- gives Zoe a distinctive fashion/lifestyle edge; Playfair reads especially “editorial cover” on Home masonry cards
 
 ---
 
@@ -931,12 +939,13 @@ This should combine the final chosen system.
 
 # 24. Recommended UI styling by screen
 
-## Home
-- bright warm background
-- content-first feed
-- minimal chrome
-- subtle story ring
-- cards should breathe
+## Home (Stitch-aligned)
+- **Cream** `#F9F8F4` (or Chalk/Ivory) as the canvas
+- **Two-column masonry** grid of cards: strong photography first, rounded corners, generous vertical rhythm
+- **Top bar:** left **hamburger** (drawer / account & settings), centered **Zoe** wordmark in serif, right **notifications** with unread dot when needed
+- **Ranking badges** on media (pill overlays): current rank, movement (↑ / ↓ / STABLE), optional “last month” or editorial tags (e.g. EDITOR)—see §24.1
+- Card footer: small **avatar**, **display name** (sans), **heart + count**; optional two-line caption preview in sans
+- Content-first; chrome stays minimal so the feed reads like a **curated magazine**
 
 ## Search / Explore
 - slightly more grid-structured
@@ -944,16 +953,41 @@ This should combine the final chosen system.
 - still warm and premium
 - avoid over-decoration
 
-## Rank Updates
-- slightly more structured
-- subtle tinted surfaces or row styling
-- movement indicators
-- still visually attractive
+## Rankings (MVP hub)
+- same **serif/sans** hierarchy as Home: list titles and covers feel editorial; rows stay readable in sans
+- **Movement** and rank changes use muted functional greens/reds/wines (see §9.3)—never gamified neon
+- Pairwise **comparison** moments can use side-by-side cards with the same photography quality as Home
+- Optional segment control: **My lists** vs **Community / consensus** later—keep v1 focused on clarity and calm confidence
 
-## Reels
-- stronger contrast
-- more immersive overlays
-- slightly sharper type treatment
+## Rank activity in feed (not a separate tab in v1)
+- ranking-related cards can appear in **Home** as snippets or dedicated card types
+- movement indicators should match badge language (up / down / stable / new)
+
+## Shorts (Stitch-aligned — immersive vertical)
+- **Dark, warm** full-bleed media (not flat black—use Ink / Night Brown from §10)
+- **Glass** pills and controls: frosted **Popular consensus** (or similar) tag top-left; primary actions on the **right rail**: **RANK**, **SAVE**, **SEND**, creator avatar below
+- Bottom stack: **@handle**, **Follow**, **large serif title**, **More detail** affordance
+- Bottom tab bar: **dark, semi-transparent** strip; active tab reads clearly (e.g. Shorts icon filled)
+
+## Legacy label: “Reels”
+- Product copy should use **Shorts** for this surface; engineering may still map to “reel” internally
+
+## 24.1 Ranking badge system (Home + lists)
+Use **small, pill-shaped overlays** on photography (top-left or top-right depending on composition):
+
+- **Rank + momentum:** e.g. `#3 ▲` (muted green arrow), `#7 ▼`, `#1 STABLE` (neutral pill)
+- **Cross-time context:** e.g. `RANKED #2 LAST MONTH` for “taste memory” and curiosity
+- **Editorial:** optional `EDITOR` or similar **dark wine/brown** badge for curated picks—use rarely
+- Typography: **Inter Medium**, tight tracking; background **semi-opaque** warm white or dark brown tint so text stays legible on busy photos
+
+Goals: communicate **status** and **change** at a glance without looking like a sports scoreboard.
+
+## 24.2 Stitch source of truth
+Pixel-level layouts for the approved **Home** (masonry + badges + top bar) and **Shorts** (dark immersive + glass actions) live in **Google Stitch**:
+
+`https://stitch.withgoogle.com/projects/3590465501578983349/screens/a3a28a8102bb4a33ac91ef22b312ef20`
+
+(Use Stitch as the handoff reference; this kit defines tokens, rules, and content behavior that extend across the rest of the app.)
 
 ## Profile
 - clean and identity-rich
@@ -1056,6 +1090,7 @@ If the team wants the simplest actionable launch direction, use this:
 Soft Editorial Luxury
 
 ## Base colors
+- Cream (Home) `#F9F8F4`
 - Chalk `#FBF9F6`
 - Ivory `#F7F3EE`
 - Espresso `#2A211D`
@@ -1092,8 +1127,8 @@ In Figma, do this next:
 3. Define the color tokens
 4. Lock the typography pairing
 5. Apply the direction to:
-   - Home feed
-   - Rank Updates
+   - Home feed (masonry + ranking badges)
+   - Rankings hub + ranking rows
    - Profile
    - Object Detail
    - Story tray

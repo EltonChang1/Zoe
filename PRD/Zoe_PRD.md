@@ -1,10 +1,10 @@
 # Product Requirements Document (PRD)
 ## Zoe
 **Brand foundation:** The app name is **Zoe**, inspired by the Greek word **ζωή**, meaning **life**.  
-**Document version:** 2.0  
+**Document version:** 2.1  
 **Platform:** Mobile app first (iOS and Android)  
 **Product type:** Consumer social discovery, ranking, and taste graph app  
-**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine  
+**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine; **editorial Home + immersive Shorts** (see `PRD/Zoe_Visual_Direction_Kit.md` §24, Stitch reference §24.2).  
 **Document purpose:** Define the updated product vision, navigation model, core systems, engagement loops, requirements, constraints, and launch plan for Zoe.
 
 ---
@@ -20,7 +20,7 @@ The product is intentionally built from three strong inspirations:
   - five bottom navigation buttons
   - swipe-right camera/story entry
   - profile-centered posting
-  - reels-style video browsing
+  - **Shorts**-style vertical video browsing (product name **Shorts**; immersive dark “glass” chrome)
 
 - **RedNote-like purpose**
   - practical recommendation notes
@@ -188,7 +188,7 @@ That means:
 - familiar five-tab bottom navigation
 - swipe-right-to-camera behavior
 - stories/highlights at the top where appropriate
-- reels-style vertical video feed
+- **Shorts**-style vertical video feed (dark immersive UI)
 - profile as the place where users create posts and manage identity
 
 But the app should function with the practical purpose of RedNote:
@@ -201,7 +201,7 @@ And it should incorporate ranking like Beli:
 - ranking lists
 - pairwise or ordered ranking flows
 - taste profile development
-- ranking updates feed
+- ranking activity surfaced in **Home** (and notifications), plus the **Rankings** hub for the user’s own lists
 - public and private ranked identity
 
 ---
@@ -217,7 +217,7 @@ Help users discover what is good, express what they love, and follow what others
 ## 8.3 Engagement goal
 Maximize repeat opens through:
 - content consumption
-- reels usage
+- Shorts usage
 - search utility
 - ranking behavior
 - ranking update curiosity
@@ -317,10 +317,10 @@ These categories all perform well with:
 # 13. Core product surfaces
 
 The app is built around:
-- Home
+- Home (editorial masonry; ranking context on cards)
 - Explore / Search
-- Reels
-- Ranking Updates
+- **Rankings** (personal taste library and add/compare flows)
+- **Shorts** (immersive vertical video)
 - Profile
 
 Supporting surfaces:
@@ -340,12 +340,14 @@ Supporting surfaces:
 
 Zoe must use a **five-button bottom navigation layout**, with **no add button**.
 
-## 14.1 Bottom tabs
+## 14.1 Bottom tabs (Stitch-aligned labels)
 1. **Home**
-2. **Search / Explore**
-3. **Reels**
-4. **Rank Updates**
+2. **Explore** (search-first discovery)
+3. **Rankings**
+4. **Shorts**
 5. **Profile**
+
+**Note:** Social **ranking activity** from people you follow can surface inside **Home** (cards and snippets) so the tab bar stays simple. A separate “ranking-only social inbox” tab is optional later.
 
 ## 14.2 Important rule
 There is **no persistent Add tab** in bottom navigation.
@@ -366,22 +368,20 @@ This is central to the product identity.
 - Shows posts from followed accounts and recommended content
 - If user is already on Home and taps Home again, feed scrolls instantly to top
 
-## 15.2 Search button
-- Opens Explore/Search page
+## 15.2 Explore button
+- Opens Explore / Search page
 - Includes search bar at top
 - Shows trending posts, topic-based discovery, personalized suggestions, hashtags/topics, and recommended categories
 - Search supports places, objects, people, lists, topics, and rankings
 
-## 15.3 Reels button
-- Opens short-form vertical video feed
-- Swipe up for next
-- Supports music, ranking reactions, quick reviews, recommendation videos, and trend clips
+## 15.3 Rankings button (MVP)
+- Opens the **Rankings** hub: the user’s own ordered lists by category (e.g. all-time movies, music, fashion picks, athletes), plus entry points to **add** items (camera, compare flow, linked music)
+- Supports **pairwise** placement (“better than X?”), captions/notes on entries, and calm editorial layout (see Visual Direction Kit)
 
-## 15.4 Rank Updates button
-- Opens a feed focused on ranking activity
-- Surfaces updates from followed users, creators, and celebrities
-- Includes newly added items, rank changes, new lists, moved items, fresh favorites, and category ranking momentum
-- This tab is a major differentiator
+## 15.4 Shorts button
+- Opens the **Shorts** vertical feed (full-bleed, dark immersive UI)
+- Swipe for next item
+- Supports recommendation clips, ranking reactions, and quick “send to Rankings” behavior via the **Rank** action
 
 ## 15.5 Profile button
 - Opens user profile
@@ -389,9 +389,8 @@ This is central to the product identity.
 - Contains the main posting entry points
 
 ## 15.6 Swipe-right gesture
-- Swiping right from home or primary feed accesses camera / story workflow
-- Behaves similarly to Instagram
-- Supports taking picture/video for story or possibly post drafting
+- Swiping right from Home (and other primary feeds where appropriate) opens the **camera / capture** workflow (Instagram-like)
+- Use for quick photo of an object to rank (food, shoes, a vinyl cover, etc.), story capture, or drafting a post—then route into **choose category → compare → caption** when ranking
 
 ---
 
@@ -400,8 +399,8 @@ This is central to the product identity.
 ## 16.1 Main screens
 - Home feed
 - Explore / Search
-- Reels feed
-- Rank Updates feed
+- **Shorts** feed
+- **Rankings** hub (lists, categories, add to ranking)
 - Profile
 - Post detail
 - Ranking list detail
@@ -420,7 +419,7 @@ This is central to the product identity.
 - User
 - Post
 - Story
-- Reel
+- Short (vertical video; internal schema may still use “reel”)
 - Rankable object
 - Ranked list
 - Ranking entry
@@ -552,10 +551,10 @@ This is how Zoe inherits RedNote’s usefulness.
 
 ---
 
-# 20. Reels requirements
+# 20. Shorts requirements
 
 ## 20.1 Purpose
-Reels is the short-form video surface.
+**Shorts** is the short-form **vertical video** surface (Stitch reference: full-bleed media, dark “glass” chrome, **RANK** / Save / Send on the right rail).
 
 ## 20.2 Content types
 - quick recommendations
@@ -570,14 +569,15 @@ Reels is the short-form video surface.
 
 ## 20.3 Behavioral requirements
 - full-screen vertical video
-- swipe up for next
+- swipe for next
 - like/comment/share/save
+- **Rank** action to attach or update a ranked item where relevant
 - open creator profile
 - open attached object or ranking list
 - open sound/topic if applicable
 
 ## 20.4 Strategic purpose
-Reels serves:
+Shorts serves:
 - discovery
 - entertainment
 - creator growth
@@ -586,17 +586,15 @@ Reels serves:
 
 ---
 
-# 21. Rank Updates feed requirements
+# 21. Ranking activity + Rankings hub (MVP split)
 
-## 21.1 Purpose
-This is one of Zoe’s defining tabs.
+## 21.1 Rankings hub (bottom tab)
+The **Rankings** tab is the user’s **personal taste library**: browse and edit **their own** ordered lists (e.g. all-time movies, albums, fashion items, athletes, restaurants). Add flows emphasize **photo capture** or **music linking**, then **pairwise comparison** against existing entries, optional **caption**, and publish/update behavior.
 
-It exists specifically so users can follow **what changed in other people’s rankings**.
+## 21.2 Social ranking movement (not a separate tab in v1)
+Updates from people you follow (“moved X up,” “added Y”) should appear as **first-class cards in Home** and/or **notifications**, preserving the curiosity loop without crowding the tab bar.
 
-This is not a generic notifications tab.  
-This is a social feed of ranked-taste movement.
-
-## 21.2 Examples of ranking updates
+## 21.3 Examples of ranking activity content
 - a friend added a new restaurant to their top 10
 - a celebrity updated their favorite perfume list
 - a creator moved an album from #5 to #2
@@ -604,37 +602,37 @@ This is a social feed of ranked-taste movement.
 - a followed user started a new ranking category
 - someone published a “current top cafés” ranking
 
-## 21.3 Content types in Rank Updates
-- new ranked list created
-- object added to a ranked list
-- object moved up/down in a list
-- list refreshed or re-published
-- quick ranking reaction post
-- people ranking trending new items
-- category momentum cards
-- public figure ranking cards
-- compare cards (“most-added this week in albums”)
+## 21.4 Why this still matters psychologically
+Visible movement creates:
+- curiosity (variable reward)
+- social comparison (benign)
+- identity momentum (“my list is alive”)
+- reasons to return outside passive scrolling
 
-## 21.4 Why this tab matters
-This tab creates:
-- curiosity
-- repeat opens
-- social comparison
-- creator differentiation
-- freshness
-- identity momentum
-
-This is one of the main features that can make Zoe uniquely sticky.
-
-## 21.5 Rank Updates feed sorting signals
+## 21.5 Sorting signals (Home ranking cards & notifications)
 - follow graph
 - closeness / friend graph
 - celebrity or creator affinity
-- category interest
+- category interest (from onboarding + behavior)
 - novelty
 - item popularity within user interest graph
 - recency
 - likely curiosity / tap-through
+
+## 21.6 Account onboarding: topics and feed personalization
+On first account creation, ask which **worlds of taste** matter (e.g. **fashion**, **sports**, **music**, **film**, food, fragrance, etc.) using **large imagery-led choices** (not bare checkboxes)—consistent with the editorial Home aesthetic.
+
+Outcomes:
+- Seed **Home** and **Explore** with relevant creators, lists, and Shorts
+- Pre-create or suggest **starter Rankings** lists matching selected topics
+- Improve ranking comparisons and notifications relevance
+
+## 21.7 Add-to-ranking flows (photo, music, camera gesture)
+**Photo-first ranking (places, fashion, food, etc.):** capture or upload → pick **category / list** → **pairwise compare** against existing entries → optional **caption** or entry note.
+
+**Music:** **Spotify** and **Apple Music** linking to pick tracks/albums; rank with the same comparison mechanics; use provider metadata and artwork where possible.
+
+**Global camera entry:** **Swipe right** from Home opens capture; route into **ranking** (category → compare → caption) or story/post.
 
 ---
 
@@ -651,7 +649,7 @@ Profile is the user’s visual identity hub and ranking headquarters.
 - follower / following counts
 - highlights / stories
 - posts grid
-- reels tab
+- Shorts tab (grid of short videos)
 - ranked lists section
 - taste highlights
 - category badges or top categories
@@ -664,7 +662,7 @@ Users create posts from Profile, not from a bottom add tab.
 
 Possible creation entry points on Profile:
 - Create Post
-- Create Reel
+- Create Short
 - Create Story
 - Create Ranking List
 - Share Ranking Update
@@ -785,7 +783,7 @@ Possible supported forms:
 - fun to update
 - socially shareable
 - visible on profile
-- easily publishable to feed or Rank Updates
+- easily publishable to feed, Home ranking cards, or notifications
 - can be revised over time
 
 ## 25.5 Ranking engine principles
@@ -821,7 +819,7 @@ A ranking update is a publishable event generated when a user:
 
 ## 26.2 Shareability
 Every ranking update should be easily:
-- visible in Rank Updates tab
+- visible in Home ranking activity and notifications
 - shareable to chat
 - commentable
 - optionally postable to Home
@@ -836,12 +834,12 @@ Ranking updates should be treated as meaningful content, not background metadata
 # 27. Comments requirements
 
 ## 27.1 Purpose
-Comments allow social discussion around posts, reels, ranking updates, and shared taste moments.
+Comments allow social discussion around posts, Shorts, ranking updates, and shared taste moments.
 
 ## 27.2 Commentable surfaces
 At minimum, users should be able to comment on:
 - feed posts
-- reels
+- Shorts
 - ranking updates
 - ranked lists
 - optionally object pages in limited form later
@@ -927,7 +925,7 @@ Search and Explore should answer real taste questions, not just surface viral co
 
 ## 29.4 Result surfaces
 - posts
-- reels
+- Shorts
 - ranked lists
 - creators
 - objects
@@ -949,7 +947,7 @@ A standard content unit containing:
 - shares
 - likes or saves
 
-## 30.2 Reel
+## 30.2 Short (vertical video)
 Short-form video with similar social actions plus attached objects and ranking context.
 
 ## 30.3 Story
@@ -1023,7 +1021,7 @@ But the MVP can begin with activity + follows + category interest.
 - broader platform popularity
 - object/topic heat
 
-## 32.3 Reels ranking signals
+## 32.3 Shorts ranking signals
 - completion rate
 - rewatch
 - share rate
@@ -1031,7 +1029,7 @@ But the MVP can begin with activity + follows + category interest.
 - category interest
 - creator affinity
 
-## 32.4 Rank Updates ranking signals
+## 32.4 Ranking activity (Home / notifications) signals
 - follow graph
 - category interest
 - ranking curiosity likelihood
@@ -1047,7 +1045,7 @@ But the MVP can begin with activity + follows + category interest.
 Zoe’s retention should come from multiple reinforcing loops.
 
 ## 33.1 Browse loop
-Open app → Home/Explore/Reels → consume → save/share/follow → return later
+Open app → Home/Explore/Shorts → consume → save/share/follow → return later
 
 ## 33.2 Search loop
 Need recommendation → Search → find useful answer → save/follow → come back again next time
@@ -1056,7 +1054,7 @@ Need recommendation → Search → find useful answer → save/follow → come b
 Discover object → rank it or add to list → publish update → get reactions → revise again later
 
 ## 33.4 Ranking curiosity loop
-Open Rank Updates → see who changed what → tap through → react/comment/share → return tomorrow
+Open Home (ranking cards) or notifications → see who changed what → tap through → react/comment/share → return tomorrow
 
 ## 33.5 Story loop
 Post quick story → get reactions → keep daily habit alive
@@ -1146,7 +1144,7 @@ Weekly active users who complete at least one meaningful action in one of Zoe’
 - rank
 - update a list
 - search
-- watch reels
+- watch Shorts
 - comment
 - send chat
 - follow
@@ -1157,7 +1155,7 @@ Weekly active users who complete at least one meaningful action in one of Zoe’
 - DAU / WAU / MAU
 - average opens per user
 - average sessions per user
-- frequency of Rank Updates tab usage
+- frequency of Rankings tab usage and ranking-related Home engagement
 - profile revisit rate
 - story creation frequency
 
@@ -1190,17 +1188,17 @@ Weekly active users who complete at least one meaningful action in one of Zoe’
 # 39. MVP feature set
 
 ## 39.1 Must-have MVP
-- Instagram-like five-tab bottom nav
-- Home feed
+- Instagram-like five-tab bottom nav (**Home · Explore · Rankings · Shorts · Profile**)
+- Home feed (masonry/editorial treatment + ranking context on cards)
 - Explore/Search
-- Reels feed
-- Rank Updates feed
+- Shorts feed
+- **Rankings** hub (personal lists, add/compare, captions; music links)
 - Profile
 - story row and story viewer
 - swipe-right camera / story flow
 - profile-based post creation
 - feed posts
-- reels posting
+- Shorts posting
 - ranked lists
 - ranking update publishing
 - comments
@@ -1261,7 +1259,7 @@ Instagram-like social familiarity
 ## 41.4 Viral surfaces
 - share ranked lists
 - share ranking updates
-- reels about ranking changes
+- Shorts about ranking changes
 - story screenshots
 - celebrity ranking follow features
 - chat sharing loops
@@ -1302,7 +1300,7 @@ The visual system should avoid:
 
 # 43. Final product definition
 
-Zoe is a mobile social discovery and ranking app that looks and behaves like Instagram, serves the practical recommendation and search purpose of RedNote, and integrates Beli-style ranking as a core identity and engagement system through profiles, ranked lists, and a dedicated ranking updates feed.
+Zoe is a mobile social discovery and ranking app that looks and behaves like Instagram, serves the practical recommendation and search purpose of RedNote, and integrates Beli-style ranking as a core identity and engagement system through profiles, ranked lists, a **Rankings** hub, and **ranking activity** surfacing in Home and notifications.
 
 ---
 
@@ -1326,10 +1324,10 @@ To build Zoe correctly, all teams should align on these truths:
 1. The layout should feel like Instagram.
 2. The purpose should feel like RedNote.
 3. Ranking should feel central like Beli.
-4. The five bottom tabs are fixed: Home, Search, Reels, Rank Updates, Profile.
+4. The five bottom tabs are fixed: **Home, Explore, Rankings, Shorts, Profile**.
 5. There is no Add tab.
 6. Posting happens from Profile or swipe-right camera/story flows.
-7. Rank Updates is a flagship differentiator, not a secondary feature.
+7. **Rankings** is a flagship hub; **ranking curiosity** is reinforced through Home cards and notifications.
 8. Chat, comments, and share-to-chat are required.
 9. Search must be useful enough to build habit.
 10. Profile must be both aesthetic and ranking-centric.

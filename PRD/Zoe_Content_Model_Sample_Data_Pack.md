@@ -1,7 +1,9 @@
 # Zoe — Figma-Ready Content Model + Sample Data Pack
-**Version:** 1.0  
+**Version:** 1.1  
 **Platform:** Mobile  
 **Purpose:** Give design a realistic content model and sample data pack so every Figma frame can be populated with believable posts, rankings, users, objects, comments, chats, notifications, and saved content.
+
+**Visual alignment:** Home uses **masonry** cards with optional **ranking badges** on media; **Shorts** is the product name for vertical video (see `PRD/Zoe_Visual_Direction_Kit.md` §24.1).
 
 ---
 
@@ -111,14 +113,15 @@ Main feed post.
 - `caption`
 - `tags`
 - `ranking_context`
+- `ranking_badge` (optional; e.g. `#3 ▲`, `#1 STABLE`, `RANKED #2 LAST MONTH` for masonry overlays)
 - `likes_count`
 - `comments_count`
 - `save_count`
 - `published_at`
 - `location_label`
 
-## 3.4 Reel
-Short-form video post.
+## 3.4 Short (vertical video)
+Short-form video post (product surface name **Shorts**).
 
 ### Core fields
 - `id`
@@ -132,6 +135,7 @@ Short-form video post.
 - `save_count`
 - `ranking_context`
 - `audio_label`
+- `consensus_label` (optional; e.g. “Popular consensus” for Shorts overlay)
 
 ## 3.5 Story
 Temporary story content.
@@ -753,7 +757,7 @@ Bad:
 
 ---
 
-# 8. Sample reels
+# 8. Sample Shorts (vertical videos)
 
 ## R001
 - `id`: R001
@@ -1268,7 +1272,7 @@ Use in order:
 - RU005
 - RU003
 
-## 17.7 Reels feed
+## 17.7 Shorts feed
 Use:
 - R003
 - R002
@@ -1455,7 +1459,7 @@ Below is a compact bundle design can hand to engineering or use in plugins later
 {
   "featured_users": ["U001", "U002", "U003", "U004", "U006", "U008"],
   "home_feed": ["P001", "P002", "P005", "RU001", "P003", "P007"],
-  "reels_feed": ["R003", "R002", "R001", "R004"],
+  "shorts_feed": ["R003", "R002", "R001", "R004"],
   "rank_updates": ["RU001", "RU002", "RU006", "RU004", "RU005", "RU003"],
   "story_tray": ["S001", "S002", "S003", "S004", "S005"],
   "inbox_threads": ["T001", "T002", "T003", "T004"],
