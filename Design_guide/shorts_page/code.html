@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Shorts Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&amp;family=Inter:wght@300;400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e4e2df",
+                    "primary-fixed": "#ffd9df",
+                    "tertiary-fixed": "#ffd9dd",
+                    "primary-container": "#6f4b52",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#efeeeb",
+                    "surface": "#fbf9f6",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#1c1c0f",
+                    "inverse-surface": "#30312f",
+                    "background": "#fbf9f6",
+                    "tertiary-container": "#74494f",
+                    "tertiary": "#5a3239",
+                    "surface-variant": "#e4e2df",
+                    "primary": "#55343b",
+                    "inverse-on-surface": "#f2f0ed",
+                    "on-surface": "#1b1c1a",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#d3c2c4",
+                    "on-primary-fixed": "#2e1319",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f5f3f0",
+                    "outline": "#827475",
+                    "on-surface-variant": "#504446",
+                    "secondary-fixed-dim": "#c9c8b2",
+                    "tertiary-fixed-dim": "#f1b8bf",
+                    "on-primary-container": "#edbec6",
+                    "on-tertiary-fixed-variant": "#643b42",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1b1c1a",
+                    "surface-bright": "#fbf9f6",
+                    "secondary-fixed": "#e5e4ce",
+                    "secondary": "#5f5f4e",
+                    "secondary-container": "#e5e4ce",
+                    "inverse-primary": "#eabac2",
+                    "on-primary-fixed-variant": "#5f3d44",
+                    "surface-container-high": "#eae8e5",
+                    "primary-fixed-dim": "#eabac2",
+                    "on-tertiary-container": "#f4bbc3",
+                    "surface-tint": "#79545b",
+                    "on-secondary-container": "#656554",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#311117",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dbdad7",
+                    "on-secondary-fixed-variant": "#474838",
+                    "on-error": "#ffffff",
+                    "rank-up": "#547C65",
+                    "rank-down": "#8B5D5D",
+                    "new-entry": "#8B6C3F"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "display": ["Newsreader", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for immersive feed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black text-on-secondary font-body h-screen overflow-hidden selection:bg-primary-container selection:text-white">
+<!-- TopAppBar -->
+<nav class="absolute bg-[#FBF9F6]/70 dark:bg-[#1B1C1A]/70 backdrop-blur-xl docked full-width top-0 z-50 flex justify-between items-center px-6 h-16 w-full no-border tonal-shift">
+<button class="hover:opacity-80 transition-opacity Active: scale-95 duration-200">
+<span class="material-symbols-outlined text-[#55343B] dark:text-[#E4E2DF]">menu</span>
+</button>
+<div class="font-serif italic tracking-tight">
+<h1 class="text-3xl font-serif italic text-[#55343B] dark:text-[#E4E2DF]">Zoe</h1>
+</div>
+<button class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 hover:opacity-80 transition-opacity">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a young woman with warm natural lighting and soft expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnLNgMfYlRKkEKHqhvyZ1oTMy7HUHGrjE4_l_fEVP6GObMOEF3H_YUsYQZ0F7YKE8CsaszofUXbg5t11PC56H9C97PszazjnAcmYKzLYysB1f5sRbW3snuQx5BcxINGgsec5OCDFworPsjE6a60yzY180s65XLTiKJE53nO3uwZJs7C0f83JK9JVkEr9SftEJL5d8zDLoTxXF-ngg92zQ_nxhnp64Wlc0NM0KCzT8tcIDeg_SkWUZ87zheQUXCxoFXkR72g6dRuNs"/>
+</button>
+</nav>
+<!-- Immersive Vertical Feed -->
+<main class="h-screen w-full snap-y snap-mandatory overflow-y-scroll no-scrollbar bg-black relative z-0">
+<!-- Video Container 1 -->
+<article class="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
+<!-- Background Image simulating video -->
+<img class="absolute inset-0 w-full h-full object-cover" data-alt="cinematic vertical shot of an artisan pouring rich espresso into a ceramic cup in a moody dimly lit cafe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTLjMwKfMm9nSagKOaWQ_xS5kYHcFQnisHPh1soxLnMb6SpSMCfmxbvU9vGaJ8IIV26WJw1bV4jZwBpyOx0vrRPlgfDzCUkynaf2R9RAm6s5OUpLC1vier6RdlT0dlvf4ls-FwWZ_31PiTiARWa5oR8Eaw4iBBJhZ48biot5bHLFXmEuG82I20RQ2EF0YQT9v46sgrhiPkrMlxlr2hhkMjCXAfz_0Uuj3OPrcjm5KYNrC2mb_ZtyLIW9h926DGjwtTAQ-PAlaQo-E"/>
+<!-- Tonal gradients for text legibility -->
+<div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none"></div>
+<!-- Right Actions: Glass Pills -->
+<div class="absolute right-4 bottom-32 flex flex-col gap-5 z-20">
+<button class="w-[52px] h-[72px] rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex flex-col items-center justify-center gap-1 text-white hover:bg-white/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label text-[11px] font-semibold tracking-wide">24.5k</span>
+</button>
+<button class="w-[52px] h-[72px] rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex flex-col items-center justify-center gap-1 text-white hover:bg-white/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+<span class="material-symbols-outlined text-[28px]">chat_bubble</span>
+<span class="font-label text-[11px] font-semibold tracking-wide">412</span>
+</button>
+<button class="w-[52px] h-[72px] rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex flex-col items-center justify-center gap-1 text-white hover:bg-white/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+<span class="material-symbols-outlined text-[28px]">bookmark</span>
+<span class="font-label text-[11px] font-semibold tracking-wide">Save</span>
+</button>
+<button class="w-[52px] h-[52px] rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.12)] mt-2">
+<span class="material-symbols-outlined text-[26px]">more_horiz</span>
+</button>
+</div>
+<!-- Bottom Left Info Area -->
+<div class="absolute left-6 bottom-28 right-24 z-20 flex flex-col gap-3">
+<!-- Curator Badge -->
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full border-[1.5px] border-white/40 overflow-hidden shadow-lg">
+<img class="w-full h-full object-cover" data-alt="close up of a ceramic mug on a dark wooden table top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB195mmlI5JWF9WdYw-TvL1Xzw5jKcuCyeXh_i0BE-sxNMXxRceyWQEEPCl4KzWRedJymIco9q0MPSitrNLq0dnbMjurl1V2s0EU1P2a21OvGpbuNdwUrVbS3IT_Cy_AyPPWIZt0HuLSKm67T-QSMO4rbj3KC_4yG4qOG0tP2m3tHg1ohbnmz51ktnEOJ7EIOm3R6GegtO0RkgeF2WfzNjZW-XtqNiUWbWMr7zdW0u9qcYQfHLUpelqJUYZZoBftUPSvI1sDTkGSwQ"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline font-semibold text-lg leading-tight tracking-tight text-white drop-shadow-md">The Daily Grind</span>
+<span class="font-label text-xs text-white/80 uppercase tracking-widest">Curator</span>
+</div>
+</div>
+<!-- Description -->
+<div class="pl-1 text-white/95 drop-shadow-md">
+<p class="font-body text-sm font-medium leading-relaxed line-clamp-2">Exploring the hidden gem roasteries of Kyoto. This specific pour-over method extracts notes of dark cherry and cocoa. Absolutely divine. ☕️✨</p>
+</div>
+<!-- Metadata / Location Pill -->
+<div class="flex items-center gap-3 mt-1">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-white/90">location_on</span>
+<span class="font-label text-xs font-medium text-white/90">Kyoto, Japan</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-white/90">music_note</span>
+<span class="font-label text-xs font-medium text-white/90 truncate max-w-[120px]">Original Audio - Ambient Lo-Fi</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Video Container 2 (To demonstrate scrollability) -->
+<article class="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden bg-inverse-surface">
+<img class="absolute inset-0 w-full h-full object-cover opacity-80" data-alt="vertical architectural photography of modern brutalist interior with dramatic light rays streaming through concrete structural elements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7uMYmULV-GGMlsFaXG88jy7xVrRFjmayP4gjHCC4MUdcTxmjIN9K0IlMTEoBPHmd3m-Pk_zU05hyie41KDWkeHQel0MKPIV01OG-bqaMFhuOvvtWwFk_FJ2vIRQ1Od0_kgXx3P62hYpxy3b8S8EP9cN6fWAwsrqkjxgZsAiFizvZICX16Ucmxz-KiGu6CCld6kNTxlcX0kjjiVWl7cdOPtC6fmMYsEg0KQTtagSoS8JLzaM0TOS9wHQ70MyX_CCvpcU5eKbULnuI"/>
+<div class="absolute inset-0 flex items-center justify-center text-white/50">
+<span class="material-symbols-outlined text-6xl animate-pulse">swipe_up</span>
+</div>
+</article>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-[#FBF9F6]/80 dark:bg-[#1B1C1A]/80 backdrop-blur-2xl docked full-width bottom-0 rounded-t-none border-t border-[#E4E2DF]/10 shadow-[0_-4px_24px_rgba(27,28,26,0.04)] fixed left-0 w-full z-50 flex justify-around items-center pt-3 pb-safe px-4 pb-6">
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:-translate-y-0.5 transition-transform">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest mt-1.5">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:-translate-y-0.5 transition-transform">search</span>
+<span class="font-sans text-[10px] uppercase tracking-widest mt-1.5">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:-translate-y-0.5 transition-transform">leaderboard</span>
+<span class="font-sans text-[10px] uppercase tracking-widest mt-1.5">Rank</span>
+</a>
+<!-- ACTIVE ITEM -->
+<a class="flex flex-col items-center justify-center text-[#55343B] dark:text-[#E4E2DF] font-bold Active: scale-90 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined text-[26px] drop-shadow-sm" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span class="font-sans text-[10px] uppercase tracking-widest mt-1.5 text-[#55343B] dark:text-[#E4E2DF]">Shorts</span>
+<!-- Active Indicator Dot -->
+<div class="w-1 h-1 rounded-full bg-[#55343B] dark:bg-[#E4E2DF] mt-1 absolute bottom-1.5"></div>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px] group-hover:-translate-y-0.5 transition-transform">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest mt-1.5">Profile</span>
+</a>
+</nav>
+</body></html>

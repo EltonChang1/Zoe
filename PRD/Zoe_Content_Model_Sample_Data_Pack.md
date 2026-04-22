@@ -1,9 +1,9 @@
 # Zoe — Figma-Ready Content Model + Sample Data Pack
-**Version:** 1.1  
+**Version:** 1.2  
 **Platform:** Mobile  
 **Purpose:** Give design a realistic content model and sample data pack so every Figma frame can be populated with believable posts, rankings, users, objects, comments, chats, notifications, and saved content.
 
-**Visual alignment:** Home uses **masonry** cards with optional **ranking badges** on media; **Shorts** is the product name for vertical video (see `PRD/Zoe_Visual_Direction_Kit.md` §24.1).
+**Visual alignment:** All sample content should render against **"The Modern Curator — Soft Editorial Luxury"** — the canonical visual system in `Design_guide/` (per-page `code.html` prototypes for Home, Search, Rankings, Shorts, Profile) and codified in `PRD/Zoe_Visual_Direction_Kit.md` (§2 principles, §7 typography, §11 components, §24 screen specs). Home uses a **masonry grid** of mixed tall/short editorial cards; ranking badges are rendered as small glass pills (`bg-background/90 backdrop-blur-md`) with Cormorant Garamond numerals. **Shorts** is the product name for the full-bleed vertical video surface. Copy should pair well with **Newsreader** (serif display) and **Inter** (sans metadata) at editorial scale contrasts.
 
 ---
 
@@ -77,6 +77,18 @@ Represents a person using Zoe.
 - `is_creator`
 - `is_celebrity`
 - `is_followed_by_viewer`
+- `rankings_visibility` (`public` | `followers_only`) — who can see the user’s **rankings** on profile and for **pinning** in others’ Rankings hub
+- `category_order` (optional; ordered list of category keys for **Rankings** hub UI)
+
+## 3.1a Pinned ranking list (viewer’s hub)
+A reference another user saves to their **Rankings** tab **Pinned** section.
+
+### Core fields
+- `id`
+- `owner_id` (who pinned)
+- `source_user_id` (list owner; must allow visibility)
+- `list_id`
+- `sort_order`
 
 ## 3.2 Ranked Object
 Represents a thing users can discover, post about, and rank.
@@ -1234,8 +1246,8 @@ Use:
 - P008
 - P004
 
-## 17.3 Explore landing grid
-Tiles:
+## 17.3 Search / Following Activity landing
+Stacked activity cards (Design_guide/search_page):
 - P004
 - P006
 - P003

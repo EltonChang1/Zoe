@@ -1,22 +1,22 @@
 # Zoe — Launch-Ready Visual Direction Kit
-**Version:** 1.1  
-**Purpose:** Brand and UI visual system direction for launch  
-**Platform:** Mobile-first  
-**Product DNA:** Instagram-like shell, RedNote-like utility, Beli-like ranking energy  
-**Brand name:** Zoe  
-**Brand inspiration:** ζωή — “life” in Greek  
-**Design reference:** Approved **Home** and **Shorts** directions in Stitch (see §24.2).
+**Version:** 2.0
+**Purpose:** Brand and UI visual system direction for launch
+**Platform:** Mobile-first
+**Product DNA:** Instagram-familiar shell · RedNote-style taste utility · Beli-inspired ranking engine
+**Brand name:** Zoe
+**Brand inspiration:** ζωή — “life” in Greek
+**Design source of truth:** `Design_guide/` (Home, Search, Rankings, Shorts, Profile prototypes + `DESIGN.md`). This kit expands those prototypes into tokens, rules, and content behavior for the rest of the app.
 
 ---
 
 # 1. What this document is for
 
-This visual direction kit is meant to help the team make **fast, consistent visual decisions** for Zoe across:
+This visual direction kit helps the team make **fast, consistent visual decisions** for Zoe across:
 
 - brand identity
 - app UI
 - content styling
-- feed and ranking cards
+- feed, ranking, and activity cards
 - prototype polish
 - early launch materials
 - Figma foundations
@@ -25,11 +25,11 @@ It is designed to answer:
 
 - What should Zoe feel like visually?
 - What should the brand look like at launch?
-- What colors should define the product?
+- What colors define the product?
 - What typography system fits the brand and product behavior?
-- How should post cards, ranking cards, stories, reels, and profile surfaces be art directed?
+- How should feed cards, ranking cards, activity cards, Shorts, and profile surfaces be art-directed?
 
-This is not just a “pretty moodboard” document. It is a practical handoff for product design.
+This is not a pretty moodboard. It is a practical handoff for product design, engineering, and content.
 
 ---
 
@@ -48,18 +48,17 @@ That gives the brand an unusually strong emotional foundation:
 - identity
 - social energy
 
-The app is about more than discovering things.  
-It is about **how people live through taste**.
+Zoe is about more than discovering things. It is about **how people live through taste**.
 
-That means the visual system should not feel:
+## 2.2 What Zoe should not feel like
 - sterile
 - corporate
 - generic “tech startup”
 - over-gamified
-- too dark and cold
-- too playful and unserious
+- cold or clinical
+- playful and unserious
 
-It should feel:
+## 2.3 What Zoe should feel like
 - alive
 - elegant
 - current
@@ -74,15 +73,14 @@ It should feel:
 
 Zoe should look like:
 
-**a refined social app for people with taste**
+**a refined social app for people with taste.**
 
-Not a review platform.  
-Not a food delivery app.  
-Not a productivity tool.  
+Not a review platform.
+Not a delivery app.
+Not a productivity tool.
 Not a generic content app.
 
 The launch look should communicate:
-
 - lifestyle credibility
 - social familiarity
 - editorial taste
@@ -93,51 +91,58 @@ The launch look should communicate:
 
 ---
 
-# 4. Core visual attributes
+# 4. Creative north star — "The Modern Curator"
 
-The Zoe visual system should balance these six qualities:
+The visual identity is anchored in **"The Modern Curator."** Unlike discovery apps that feel like utility-heavy marketplaces (Yelp) or chaotic mood boards (Pinterest), Zoe treats every interface like a page from a **high-end, bespoke editorial publication.**
 
-## 4.1 Alive
-Because of ζωή, the brand should feel warm and human, not flat.
+Three governing principles:
 
-## 4.2 Tasteful
-Everything should feel selected, not noisy.
+## 4.1 Intentional Asymmetry
+Elements are not always perfectly centered. Balance comes from weight and whitespace. A large serif headline can anchor a page; a small `label-sm` meta tag floats against it.
 
-## 4.3 Social
-The UI should feel familiar enough that users understand it fast.
+## 4.2 Tonal Depth (not lines)
+Hierarchy is created through background color shifts, not 1px borders. Surfaces stack like fine paper. A card uses `surface-container-low` on a `background` section — the transition feels tactile, not digital.
 
-## 4.4 Useful
-Search, ranking, discovery, and content scanning must remain clear.
+## 4.3 High-Contrast Typography
+A dialogue between evocative serifs (Newsreader / Cormorant Garamond) and functional sans (Inter). The tension between `display-lg` beauty and `label-sm` utility is what creates the **Editorial Luxury** feel.
 
-## 4.5 Premium
-The interface should feel elevated, even when simple.
-
-## 4.6 Emotional
-Rankings, profiles, and saved content should feel personal.
+The system should feel **quiet, authoritative, and expensive.**
 
 ---
 
-# 5. Recommended visual direction
+# 5. Core visual attributes
 
-## Recommended route: **Soft Editorial Luxury**
+Zoe’s visual system balances six qualities:
 
-This is the best launch direction for Zoe.
+| Attribute | What it means |
+| :--- | :--- |
+| **Alive** | Because of ζωή — warm, human, never flat. |
+| **Tasteful** | Everything feels selected, not noisy. |
+| **Social** | Familiar enough that users understand it fast. |
+| **Useful** | Search, ranking, and discovery remain clear. |
+| **Premium** | Elevated, even when simple. |
+| **Emotional** | Rankings, profiles, and saves feel personal. |
+
+---
+
+# 6. Launch direction: Soft Editorial Luxury
+
+This is the **locked** launch direction for Zoe.
 
 It combines:
 - Instagram-style familiarity
-- fashion/lifestyle-editorial restraint
-- warm premium neutrals
+- fashion/lifestyle editorial restraint
+- warm premium neutrals (chalk, ivory, fig, espresso)
 - sharp readable product UI
 - just enough romance to support the ζωή concept
 
-This route should feel like:
+It should feel like:
 - a social product with strong taste
 - a design-conscious mobile app
-- a brand that belongs naturally in food, fragrance, music, and lifestyle categories
+- a brand that belongs naturally in food, fragrance, music, fashion, and lifestyle categories
 
 It should **not** feel like:
-- a museum brand
-- a hard luxury brand
+- a museum or hard-luxury brand
 - a hyper-feminine beauty app
 - a neon nightlife app
 - a fintech interface
@@ -145,873 +150,692 @@ It should **not** feel like:
 
 ---
 
-# 6. Moodboard directions
+# 7. Color system
 
-The team should explore three moodboard routes in Figma before locking the final direction.
+The palette is a sophisticated blend of organic “Chalk” and “Ivory” neutrals punctuated by deep “Fig” and “Espresso” accents, plus restrained functional colors for ranking movement.
 
----
+## 7.1 The "No-Line" Rule (mandatory)
 
-## Direction A — Soft Editorial Luxury
-**Recommended primary route**
+**Do not use 1px solid borders to section off content.** Boundaries are defined exclusively through **background color shifts**. A card using `surface-container-low` (#F5F3F0) on a `background` (#FBF9F6) surface creates a soft, tactile transition — **stacked paper**, not a digital grid.
 
-### Keywords
-- warm minimal
-- intimate luxury
-- quiet confidence
-- editorial softness
-- tactile elegance
-- social polish
+### The "Ghost Border" Fallback
+If accessibility demands a border, use `outline-variant` at **15% opacity**. High-contrast, 100% opaque borders are strictly prohibited.
 
-### Visual references in spirit
-- premium fragrance campaign mood
-- fashion editorial whitespace
-- softly graded food imagery
-- polished but human lifestyle photography
-- minimal UI with warm accents
+## 7.2 Surface hierarchy (stack of fine paper)
 
-### Feels like
-- cream paper
-- soft shadows
-- espresso brown
-- candlelight
-- linen
-- glass
-- polished chrome details
-- quiet but expensive spaces
+| Token | Hex | Role |
+| :--- | :--- | :--- |
+| `background` | `#FBF9F6` | Foundation — Chalk |
+| `surface` | `#FBF9F6` | Default surface |
+| `surface-container-lowest` | `#FFFFFF` | Highest-emphasis lifted content |
+| `surface-container-low` | `#F5F3F0` | Secondary sections, card fills |
+| `surface-container` | `#EFEEEB` | Tertiary fills |
+| `surface-container-high` | `#EAE8E5` | Elevated inputs, media frames |
+| `surface-container-highest` | `#E4E2DF` | Lifted / most prominent interactive elements |
+| `surface-dim` | `#DBDAD7` | Dim states |
 
-### Why it works
-This is the strongest route for Zoe because it:
-- supports food, perfume, albums, and nightlife equally well
-- feels launch-ready and premium
-- keeps the product usable
-- matches the idea of taste as identity
+## 7.3 Text tokens
 
-### Risk
-Can become too beige and lose energy if not balanced with strong contrast and lively media.
+| Token | Hex | Role |
+| :--- | :--- | :--- |
+| `on-surface` | `#1B1C1A` | Primary headers and body (Espresso) |
+| `on-surface-variant` | `#504446` | Editorial accents, secondary text (Fig) |
+| `on-background` | `#1B1C1A` | Text on background |
+| `outline` | `#827475` | Tertiary meta |
+| `outline-variant` | `#D3C2C4` | Ghost borders @ 15% opacity |
 
----
+## 7.4 Brand accent family
 
-## Direction B — Modern Social Cool
-**Optional secondary route**
+| Token | Hex | Role |
+| :--- | :--- | :--- |
+| `primary` | `#55343B` | Main CTA / brand accent (Fig) |
+| `primary-container` | `#6F4B52` | Paired gradient end / elevated accent |
+| `on-primary` | `#FFFFFF` | Text on primary |
+| `tertiary` | `#5A3239` | Deeper dramatic accent (Wine) |
+| `tertiary-container` | `#74494F` | Hero/campaign accent |
+| `secondary` | `#5F5F4E` | Supporting accent (Olive Smoke) |
+| `secondary-fixed` | `#E5E4CE` | Muted warm fill |
 
-### Keywords
-- current
-- crisp
-- culture-aware
-- understated confidence
-- social-native
-- slightly sharper and younger
+## 7.5 Ranking / functional colors
 
-### Visual references in spirit
-- sleek social app UI
-- minimal black/white/stone palette
-- cool gray + muted accent colors
-- cleaner content framing
-- stronger edge contrast
+Ranking is the soul of the app. Movement indicators must be **subtle**, never gamified.
 
-### Feels like
-- urban
-- polished steel
-- bright white
-- charcoal
-- gallery wall
-- nightlife editorial
-- high-contrast product surfaces
+| Token | Hex | Role |
+| :--- | :--- | :--- |
+| `rank-up` | `#547C65` | Item moved up |
+| `rank-down` | `#8B5D5D` | Item moved down |
+| `new-entry` | `#8B6C3F` | Newly added ranking item |
+| `error` | `#BA1A1A` | Destructive (use rarely) |
 
-### Why it works
-Feels more “current app” and easier to execute in a pure digital context.
+Use these **never** as standard success-green or error-red. They are part of the luxury palette.
 
-### Risk
-Can become too cold and lose the emotional ζωή foundation.
+## 7.6 The "Glass & Gradient" Rule
 
----
+To elevate beyond flat design:
 
-## Direction C — Romantic Mediterranean Modern
-**Exploratory brand route**
+### Glassmorphism
+For **floating navigation bars** and **overlay modals**: `surface` at **70–80% opacity** with `backdrop-blur` of **20px** (e.g. `bg-surface/70 backdrop-blur-xl`).
 
-### Keywords
-- life
-- appetite
-- sun-warmed
-- cultured
-- intimate
-- sensory
-- poetic
+### Signature gradient (primary CTA)
+**Do not use flat fill.** Use a subtle linear gradient from `primary` (#55343B) to `primary-container` (#6F4B52) at a **45° angle**. This adds soul and materiality.
 
-### Visual references in spirit
-- warm mineral neutrals
-- olive, wine, fig, stone, sea tones
-- serif-driven identity moments
-- softer photography
-- tactile materials
+### Floating image overlays
+On Shorts / immersive dark surfaces, use `white/10` with `backdrop-blur-xl` and `border border-white/20` for action pills.
 
-### Feels like
-- terracotta
-- olive leaves
-- wine-dark shadows
-- ceramic surfaces
-- evening air
-- golden late-afternoon light
+## 7.7 Dark mode direction
 
-### Why it works
-Strong connection to ζωή and very ownable as a brand.
+Dark mode should still feel warm and editorial — not flat black, never gamer-dark.
 
-### Risk
-Can become overly thematic or too rustic if pushed too literally.
+| Token | Hex | Role |
+| :--- | :--- | :--- |
+| `background` (dark) | `#1B1C1A` | Ink |
+| `surface-container-low` (dark) | `#1F1916` | Night Brown |
+| `surface-container-high` (dark) | `#2C2420` | Ash Brown |
+| `on-surface` (dark) | `#F2ECE5` | Warm ivory text |
+| `on-surface-variant` (dark) | `#C9BCB0` | Soft taupe text |
+| `primary` (dark) | `#EABAC2` | Inverse primary / accent |
+
+Dark mode should feel like a candlelit bar, luxury hotel lobby, or after-hours perfume counter.
 
 ---
 
-# 7. Final recommendation
+# 8. Color usage rules
 
-For launch, use:
+## 8.1 Background strategy
+Use mostly warm neutrals — `background`, `surface-container-low`, `surface-container-lowest`. Content stays bright and Instagram-familiar.
 
-## **Direction A as the base**
-with
-## **small accents from Direction C**
-and
-## **product clarity from Direction B**
-
-That gives Zoe the right balance:
-- warm and alive
-- editorial and premium
-- modern enough to scale as a real product
-
----
-
-# 8. Color system direction
-
-The system should be built around **warm neutrals + deep anchors + restrained highlights**.
-
-The color system must support:
-- content-heavy feeds
-- rank movement states
-- story rings
-- tags and chips
-- dark-on-light clarity
-- occasional nightlife / rich media surfaces
-
----
-
-# 9. Primary palette recommendation
-
-## 9.1 Core neutrals
-
-### Cream (Home shell — locked)
-- `#F9F8F4`
-- Primary background for the **Home** feed and other light “editorial” surfaces
-- Slightly warmer and more paper-like than pure white; pairs with masonry cards and serif headlines
-
-### Ivory
-- `#F7F3EE`
-- Alternate warm background / section fills
-- Use for elevated, soft lifestyle feel
-
-### Chalk
-- `#FBF9F6`
-- Secondary app background
-- Lighter, more airy than Ivory
-
-### Stone
-- `#DDD4CA`
-- Borders, subtle dividers, secondary surfaces
-
-### Taupe
-- `#B8AA9B`
-- Muted labels, low-emphasis UI accents
-
-### Cocoa
-- `#6A584C`
-- Secondary text, accent type, editorial warmth
-
-### Espresso
-- `#2A211D`
-- Primary dark anchor
-- Main body text and high-contrast icons
-
----
-
-## 9.2 Brand accent family
-
-### Fig
-- `#6F4B52`
-- Main emotional accent
-- Best for selected UI accents, CTA emphasis, premium tone
-
-### Olive Smoke
-- `#71715F`
-- Supporting accent
-- Great for filters, category chips, product feeling
-
-### Dusty Rose
-- `#C08C93`
-- Soft warmth for subtle highlights, story states, empty states
-
-### Wine
-- `#4B2E35`
-- Deep dramatic accent for select hero surfaces or campaign visuals
-
----
-
-## 9.3 Functional colors
-
-### Success
-- `#3F7A5B`
-- Saved, completed, successful action
-
-### Warning
-- `#B7833F`
-- Attention, “still thinking,” pending-type moments
-
-### Error
-- `#A34A4A`
-- Destructive, report, failed publish
-
-### Rank Up
-- `#547C65`
-- Item moved up
-
-### Rank Down
-- `#8B5D5D`
-- Item moved down
-
-### New Entry
-- `#8B6C3F`
-- Newly added ranking item
-
----
-
-# 10. Alternate dark mode direction
-
-Dark mode should not be flat black.  
-It should still feel warm and editorial.
-
-## Dark base colors
-
-### Ink
-- `#14110F`
-- Main background
-
-### Night Brown
-- `#1F1916`
-- Elevated surfaces
-
-### Ash Brown
-- `#2C2420`
-- Cards and secondary surfaces
-
-### Warm Ivory Text
-- `#F2ECE5`
-- Primary light text
-
-### Soft Taupe Text
-- `#C9BCB0`
-- Secondary light text
-
-### Accent Fig Dark
-- `#A47A82`
-- Dark mode accent
-
-Dark mode should feel like:
-- a candlelit bar
-- luxury hotel lobby
-- after-hours perfume counter
-- late-night music listening space
-
-Not gamer-dark.  
-Not pure black.  
-Not neon.
-
----
-
-# 11. Color usage rules
-
-## 11.1 Background strategy
-Use mostly:
-- Chalk
-- Ivory
-- white-adjacent warm surfaces
-
-This keeps content bright and Instagram-familiar.
-
-## 11.2 Accent strategy
-Use Fig sparingly.
-Too much accent color will cheapen the product.
-
-Best accent uses:
-- active tabs or icons
+## 8.2 Accent strategy
+Use `primary` (Fig) **sparingly**. Too much accent color cheapens the product. Best uses:
+- active tabs/icons
 - selected chips
-- small buttons
-- ranking highlights
+- small primary buttons
+- ranking number highlights
 - story ring tint accents
 - onboarding emphasis
 - hero campaign cards
 
-## 11.3 Ranking state usage
-Movement colors should be readable but elegant.
+## 8.3 Ranking movement
+- **Up:** muted green (`rank-up`), not bright
+- **Down:** muted wine/red (`rank-down`), not alarming
+- **New:** bronze-gold (`new-entry`), not bright orange
 
-- Up: muted green, not bright green
-- Down: muted wine/red, not alarming red
-- New: bronze-gold neutral, not bright orange
-
-## 11.4 Avoid
+## 8.4 Avoid
 - saturated blue-heavy tech colors
 - loud purple gradients
-- bright orange call-to-action overload
+- bright orange CTA overload
 - rainbow chips
 - harsh black/white-only aesthetic
+- visible 1px borders (see §7.1)
 
 ---
 
-# 12. Suggested color tokens
+# 9. Typography
 
-## Background
-- `bg/base = #FBF9F6`
-- `bg/secondary = #F7F3EE`
-- `bg/elevated = #FFFFFF`
-- `bg/subtle = #F1EBE4`
-- `bg/dark = #14110F`
+The typographic system is a dialogue between the functional and the evocative.
 
-## Text
-- `text/primary = #2A211D`
-- `text/secondary = #6A584C`
-- `text/tertiary = #8C7C70`
-- `text/inverse = #F2ECE5`
+## 9.1 Font families
 
-## Border
-- `border/default = #E7DED4`
-- `border/strong = #D5C9BD`
+| Family | Usage |
+| :--- | :--- |
+| **Newsreader** | Display, headlines, card titles (`font-headline`, `font-display`) |
+| **Cormorant Garamond** | Ranking numbers, hero pull-quotes (heritage feel) |
+| **Inter** | All functional UI, body, labels, metadata (`font-body`, `font-label`) |
 
-## Accent
-- `accent/primary = #6F4B52`
-- `accent/secondary = #71715F`
-- `accent/soft = #C08C93`
+- Newsreader replaces generic serifs for editorial/pull-quote moments.
+- Cormorant Garamond is reserved for ranking numbers to give them a collected, heritage feel.
+- Inter provides the utility that makes discovery efficient.
 
-## Functional
-- `success = #3F7A5B`
-- `warning = #B7833F`
-- `error = #A34A4A`
-- `rank/up = #547C65`
-- `rank/down = #8B5D5D`
-- `rank/new = #8B6C3F`
+Set display faces with **tight tracking (-2%)** to feel like a premium masthead.
 
----
+## 9.2 Editorial scaling
 
-# 13. Typography direction
+Do not be afraid of the contrast between a `display-lg` serif headline and a `label-sm` Inter metadata tag. This tension is what creates the **Editorial Luxury** feel.
 
-Typography is one of the most important brand-defining decisions for Zoe.
+## 9.3 Weight strategy
 
-The app should not use a purely generic system font stack without intentional pairing.
+### Inter
+- Regular for body
+- Medium for labels and metadata emphasis
+- Semibold for card titles and section headers
+- Bold very sparingly (nav active state, key counts)
 
-Zoe needs:
-- a clean, highly readable UI sans
-- a more emotional/editorial supporting face for select brand moments
+### Newsreader / Cormorant
+- 500–600 weights for titles and ranking numbers
+- Italic for brand moments (e.g. `Zoe` wordmark)
+- Avoid thin weights in small sizes
 
-The product should mostly function through a **strong sans-serif system**, with **selective serif usage** to reinforce taste and identity.
+## 9.4 Usage rules
 
----
-
-# 14. Recommended typography pairing
-
-## Primary UI Sans: **Inter**
-Use for:
-- navigation
-- body text
-- meta text
-- inputs
-- chips
-- buttons
-- comments
-- chat
-- labels
-- ranking rows
-
-### Why Inter works
-- extremely readable at mobile sizes
-- flexible weights
-- digital-native
-- familiar enough for product clarity
-- does not overpower content
-
-## Editorial Accent Serif: **Cormorant Garamond** (or **Playfair Display**)
-Use sparingly for:
-- **Zoe wordmark** in the top app bar (Stitch reference)
-- launch marketing headlines
-- profile hero moments
-- **feed card titles** and ranking list hero titles (magazine-like contrast against Inter body)
-- ranking list covers
-- special editorial cards
-- empty-state or campaign-style art direction if needed
-
-### Why Cormorant Garamond or Playfair works
-- elegant but not too old-world
-- emotional and taste-forward
-- complements warm neutral palette
-- gives Zoe a distinctive fashion/lifestyle edge; Playfair reads especially “editorial cover” on Home masonry cards
-
----
-
-# 15. Alternate typography pairings
-
-If the team wants a slightly more modern or less romantic pairing:
-
-## Option B
-- UI Sans: **Suisse Intl / Inter fallback**
-- Accent Serif: **Canela / Cormorant fallback**
-
-This is more luxury-editorial.
-
-## Option C
-- UI Sans: **General Sans / Inter fallback**
-- Accent Serif: **Instrument Serif**
-
-This is sharper and more current.
-
-## Option D
-- UI Sans only system
-- Inter for everything
-- serif only in logo/brand materials
-
-This is safest technically, but less distinctive.
-
----
-
-# 16. Typography usage rules
-
-## 16.1 Most UI should be sans
-The app is still a functional mobile product.  
-Do not overuse serif in small UI.
-
-## 16.2 Serif should feel intentional
-Use serif for:
+**Do serif for:**
 - hero headlines
-- editorial modules
-- premium ranking covers
-- some onboarding moments
-- very selective brand surfaces
+- card titles on feed
+- list titles on Rankings
+- ranking numbers (Cormorant)
+- onboarding hero moments
+- brand wordmark
 
-Not for:
+**Do not serif for:**
 - chat
 - comments
 - dense list rows
 - tab labels
-- search
-- metadata
+- search input
+- inline metadata
 
-## 16.3 Weight strategy
-For Inter:
-- Regular for body
-- Medium for labels and metadata emphasis
-- Semibold for card titles and section headers
-- Bold very sparingly
+## 9.5 Suggested type scale
 
-For Cormorant:
-- Medium or Semibold usually enough
-- avoid very thin weights in small sizes
-
----
-
-# 17. Suggested type scale
-
-## Display
-- 36 / 42
-- Cormorant or Inter depending surface
-
-## Hero / Page Title
-- 28 / 34
-- Inter Semibold or Cormorant Medium
-
-## Section Header
-- 20 / 26
-- Inter Semibold
-
-## Card Title
-- 16 / 22
-- Inter Medium or Semibold
-
-## Body
-- 15 / 22
-- Inter Regular
-
-## Body Small
-- 13 / 18
-- Inter Regular
-
-## Caption / Meta
-- 12 / 16
-- Inter Medium or Regular
-
-## Rank Number
-- 18 / 20
-- Inter Semibold
-
-## Button Label
-- 14 / 18
-- Inter Medium
+| Role | Size / Line | Family / Weight |
+| :--- | :--- | :--- |
+| Display | 36 / 42 | Newsreader 500 (tight) |
+| Hero / Page Title | 28 / 34 | Newsreader 500 or Inter 600 |
+| Section Header | 20 / 26 | Inter Semibold |
+| Card Title | 18–20 / 22 | Newsreader 500 (editorial) |
+| Body | 15 / 22 | Inter Regular |
+| Body Small | 13 / 18 | Inter Regular |
+| Caption / Meta | 12 / 16 | Inter Medium (uppercase + widest tracking for labels) |
+| Rank Number | 20–28 | Cormorant Garamond 500 |
+| Button Label | 14 / 18 | Inter Medium |
+| Label (all caps) | 10–12 | Inter Semibold, `tracking-widest`, `uppercase` |
 
 ---
 
-# 18. Logo direction
+# 10. Elevation & depth
+
+We eschew traditional drop shadows in favor of **Tonal Layering**.
+
+## 10.1 Layering principle
+Depth is achieved by stacking. Place a `surface-container-lowest` card on a `surface-container-low` section. This creates a natural lift without muddy shadows.
+
+## 10.2 Ambient shadows
+If an element must float (FAB, floating nav):
+- blur: **24px**
+- opacity: **4%**
+- color: tinted version of `on-surface` (#1B1C1A), **never pure black**
+
+Example: `shadow-[0_-4px_24px_rgba(27,28,26,0.04)]` on the bottom tab bar.
+
+## 10.3 Corner radius tokens (architectural, not bubbly)
+
+| Token | Value |
+| :--- | :--- |
+| `DEFAULT` | `0.125rem` (2px) |
+| `lg` | `0.25rem` (4px) |
+| `xl` | `0.5rem` (8px) |
+| `full` | `0.75rem` (12px) |
+
+**Do not** use radii larger than `full` (12px) on cards. We want **architectural**, not bubbly. Avatars and pills may be fully circular.
+
+---
+
+# 11. Components
+
+### 11.1 Cards & discovery (feed, masonry)
+
+Inspired by high-end lookbooks.
+
+- **Rule:** Forbid divider lines within cards. Use spacing and tonal shifts.
+- **Spacing:** 24px or 32px of vertical whitespace between header, image, and description.
+- **Metadata:** `on-surface-variant` (`#504446`, Fig-adjacent) for secondary info; focus on title in `on-surface` (Espresso).
+- **Image radius:** `rounded-xl` (8px) on media, never more.
+- **Hover:** `group-hover:scale-105` with `duration-700 ease-out` for premium, slow reveal.
+
+### 11.2 Buttons
+
+- **Primary:** Gradient fill from `primary` → `primary-container` at 45°. Radius: `DEFAULT` (2px) or `none` for sharp architectural feel. Text: `on-primary`.
+- **Secondary:** Transparent with Ghost Border (`outline-variant` @ 15%). Text: `primary` (Fig).
+- **Tertiary:** Pure text in `secondary` / Cocoa with underline only on hover.
+
+### 11.3 Ranking indicators (the signature component)
+
+Ranking must be subtle and elegant.
+
+- **Rank badge (media overlay):** small pill, top-right or top-left, `bg-background/90` with `backdrop-blur-md`, `rounded-DEFAULT`. Contains:
+  - A 1.5×1.5px dot in `rank-up` / `rank-down` / `new-entry` color
+  - Number in **Cormorant Garamond** for heritage feel, or Inter for labels
+- **Movement:** 8px arrow icon (Material Symbol `trending_up` or `arrow_upward`) in `rank-up` / `rank-down`.
+- **New Entry:** `new-entry` color as a small dot or `label-sm` high-contrast label (e.g. `NEW` in uppercase + widest tracking).
+- **Cross-time context:** Optional `RANKED #2 LAST MONTH` micro-label for taste memory.
+- **Editorial pick:** Optional `EDITOR` badge in dark wine/brown — use rarely.
+
+Typography inside badges: **Inter Medium**, tight tracking; background semi-opaque warm white or dark brown tint so text stays legible on busy photos.
+
+### 11.4 Input fields
+
+- **Style:** Underline-only, or very subtle `surface-container-high` fill.
+- **Focus:** Transition underline to `primary` (Fig). **Avoid** standard blue focus rings.
+- **Search input (header):** Large Newsreader italic placeholder (`placeholder:font-headline placeholder:italic`) for editorial effect — see `Design_guide/search_page/code.html`.
+
+### 11.5 Navigation
+
+#### Top app bar (global)
+- `bg-surface/70 backdrop-blur-xl`
+- Height: 16 (64px)
+- Leading: menu (mobile) or desktop nav links
+- Center: **Zoe** wordmark in Newsreader italic, tracking-tight, `primary` color
+- Trailing: avatar (8×8 rounded-full) with `ring-1 ring-outline-variant/30`
+
+#### Bottom tab bar (mobile)
+- `bg-surface/80 backdrop-blur-2xl`
+- Shadow: `shadow-[0_-4px_24px_rgba(27,28,26,0.04)]`
+- 5 tabs: Discover, Search, Rank, Shorts, Profile
+- **Active:** `primary` color, icon filled (`font-variation-settings: 'FILL' 1`), optional 1×1 dot below label
+- **Inactive:** `secondary` color, icon outlined
+
+### 11.6 Story ring / avatars
+- Soft warm gradient ring, less saturated than Instagram
+- Closer to fig/dusty rose/bronze than rainbow neon
+- Avatars: `rounded-full` with `ring-1 ring-outline-variant/30`
+
+### 11.7 Glass pills (Shorts, dark surfaces)
+- `bg-white/10 backdrop-blur-xl border border-white/20`
+- Shadow: `shadow-[0_8px_32px_rgba(0,0,0,0.12)]`
+- Used for RANK, SAVE, SEND, and creator avatar on vertical video
+
+---
+
+# 12. Do’s and Don’ts
+
+## Do
+- Use generous whitespace. If you think there's enough, add 8px more.
+- Use **Cormorant Garamond** for ranking numbers to give them heritage feel.
+- Align text-heavy components to a strict left-margin to maintain an editorial grid.
+- Prioritize content beauty.
+- Let typography do a lot of the premium work.
+- Use warm neutrals.
+- Make ranking feel emotionally significant.
+- Keep the shell familiar and frictionless.
+- Make object cards and ranking cards visually distinct.
+
+## Don’t
+- Use standard "Success Green" or "Error Red." Use `rank-up` and `rank-down` muted tones.
+- Over-use icons. A well-set word in `label-md` Inter is often more premium.
+- Use cards with heavy shadows or rounded corners larger than `full` (12px).
+- Make it look like Yelp.
+- Make it look like a fintech dashboard.
+- Overuse serif in dense UI.
+- Rely on gradients everywhere.
+- Use loud bright icon colors.
+- Turn cards into information dumps.
+
+---
+
+# 13. Design tokens (quick reference)
+
+Matches the Tailwind config embedded in every `Design_guide/*/code.html` prototype.
+
+```js
+colors: {
+  "background": "#FBF9F6",
+  "surface": "#FBF9F6",
+  "surface-container-lowest": "#FFFFFF",
+  "surface-container-low": "#F5F3F0",
+  "surface-container": "#EFEEEB",
+  "surface-container-high": "#EAE8E5",
+  "surface-container-highest": "#E4E2DF",
+  "primary": "#55343B",
+  "primary-container": "#6F4B52",
+  "on-primary": "#FFFFFF",
+  "on-surface": "#1B1C1A",
+  "on-surface-variant": "#504446",
+  "outline": "#827475",
+  "outline-variant": "#D3C2C4",
+  "secondary": "#5F5F4E",
+  "tertiary": "#5A3239",
+  "rank-up": "#547C65",
+  "rank-down": "#8B5D5D",
+  "new-entry": "#8B6C3F"
+}
+
+borderRadius: {
+  "DEFAULT": "0.125rem",
+  "lg": "0.25rem",
+  "xl": "0.5rem",
+  "full": "0.75rem"
+}
+
+fontFamily: {
+  "headline": ["Newsreader", "serif"],
+  "display": ["Newsreader", "serif"],
+  "body":    ["Inter", "sans-serif"],
+  "label":   ["Inter", "sans-serif"],
+  "serif":   ["Cormorant Garamond", "serif"]
+}
+```
+
+---
+
+# 14. Logo direction
 
 Because Zoe is rooted in **ζωή**, the logo should feel elegant, alive, and ownable.
 
-## 18.1 Wordmark direction
-Use **Zoe** as the primary consumer-facing wordmark.  
-Use **ζωή** as:
+## 14.1 Wordmark
+Use **Zoe** as the consumer-facing wordmark.
+Set in **Newsreader italic**, tracking-tight, color `primary` (#55343B).
+
+The wordmark appears centered in the top app bar on Home, Rankings, Shorts, and in the Search header.
+
+Use **ζωή** only as:
 - an accent symbol
-- launch campaign device
-- splash/onboarding detail
-- subtle signature element in visual branding
+- a launch campaign device
+- a splash / onboarding detail
+- subtle signature element in branded materials
 
-Do not make the main app wordmark fully Greek-script. That creates usability friction.
+Do not use Greek script in the main app wordmark — it creates usability friction.
 
-## 18.2 Logo style
-Best route:
-- lowercase or title-case wordmark
-- soft but sharp letter spacing
-- high-end lifestyle feel
-- not over-decorated
-- not ultra-geometric
-- not overly playful
-
-## 18.3 Symbol possibilities
-Potential symbol directions:
-- circular life-ring inspired mark
-- abstract z/ζ ligature
-- soft monogram built from Z and subtle omega-like curve
-- story ring / halo reference
-- minimal droplet / flame / pulse motif
-
-## 18.4 Avoid
+## 14.2 Avoid
 - cliché Greek column motifs
 - literal olive branches
 - overly mythological symbolism
-- too much Mediterranean cliché
+- Mediterranean cliché
 - hyper-fashion unreadable thin lettering
 
 ---
 
-# 19. Photography and image mood
+# 15. Photography and image mood
 
-Content is central in Zoe.  
-The product should rely on **good media art direction** more than heavy UI decoration.
+Content is central. The product relies on **good media art direction** more than heavy UI decoration.
 
-## 19.1 Overall image mood
+## 15.1 Overall mood
 - soft natural light
 - tactile detail
 - elegant composition
-- emotionally suggestive, not overly staged
+- emotionally suggestive, not over-staged
 - visually rich but believable
 - slightly cinematic
 - not over-filtered
 
-## 19.2 Food and café imagery
-- natural shadows
-- warm highlights
-- clean table composition
-- visible atmosphere
-- space should matter as much as the dish
-- avoid touristy overhead overload for every image
+## 15.2 By category
 
-## 19.3 Perfume imagery
-- glass
-- fabric
-- stone
+### Food / café
+- natural shadows, warm highlights
+- clean table composition
+- space matters as much as the dish
+- avoid touristy overhead overload
+
+### Perfume
+- glass, fabric, stone
 - reflective surfaces
 - close crop
-- editorial still life energy
-- avoid overly glossy e-commerce look
+- editorial still-life energy
+- avoid glossy e-commerce look
 
-## 19.4 Album/music imagery
-- album covers
-- vinyl, speakers, headphones, listening environments
+### Album / music
+- album covers, vinyl, speakers
+- listening environments
 - late-night desk or room atmosphere
 - emotional lighting over generic music iconography
 
-## 19.5 Story imagery
-Stories should feel more immediate and less polished than feed posts.
+### Travel / places
+- architecture with human scale
+- quiet, not tourist-peak
+- directional light, long shadows
+
+### Fashion
+- editorial styling on textured walls
+- directional shadows
+- category pill overlays (`Style`, `Object Design`, etc.) in uppercase label
+
+### Stories
+- more immediate and less polished than feed posts
 
 ---
 
-# 20. UI photography rules by surface
+# 16. Card art direction
 
-## Home Feed
-Mix:
-- polished but believable content
-- some creator-style editorial shots
-- some friend-style casual but good images
-
-## Reels
-More immersive and slightly more dynamic:
-- movement
-- hand gestures
-- environmental motion
-- walk-ins
-- pour shots
-- fragrance spray motion
-- record-on-turntable moments
-
-## Profile
-Images should collectively express taste and identity.
-
-## Rank Updates
-Use smaller, more data-attached visual previews.
-Ranking cards should not overcompete with post cards visually.
-
----
-
-# 21. Card art direction
-
-This is one of the most practical sections for design.
-
----
-
-## 21.1 Feed post card direction
+## 16.1 Feed post card (Home masonry)
 
 ### Goal
-A feed card should feel:
-- visually desirable
-- socially familiar
-- readable fast
-- specific in purpose
-- premium but not stiff
+Feel visually desirable, socially familiar, readable fast, specific, premium but not stiff.
 
 ### Anatomy
-- strong media first
-- compact profile row
-- elegant action row
-- concise headline
-- short caption preview
-- ranking context line if relevant
-- comment preview
+1. **Media** (rounded-xl, optional aspect ratio: tall, square, 4/3)
+2. **Optional rank badge** (top-right or top-left, glass pill)
+3. **Optional editorial category tag** (bottom-left, e.g. `STYLE` in tracking-widest)
+4. **Serif title** (Newsreader 18–20px, leading-tight)
+5. **Optional short caption** (Inter 14px, `on-surface-variant`, `line-clamp-2`)
+6. **Footer row:** avatar (5×5 rounded-full) · `@handle` in `label-xs` · heart + count on right
 
-### Art direction notes
-- generous image area
-- rounded corners only if system overall uses them consistently
-- use space well
-- avoid overcrowding with too many tags and labels at once
-- ranking context should feel integrated, not bolted on
+### Ratio
+- **70% media**
+- **30% metadata + action**
 
-### Best content ratio
-- 70% media
-- 30% metadata and action
+### Special: Editorial quote card
+No media. `surface-container-low` fill, `border border-outline-variant/15` (one allowed use of ghost border). Contains:
+- `format_quote` icon, `primary` @ 50% opacity
+- Newsreader 24–28px serif pull quote
+- Attribution in uppercase tracking-widest label
 
 ---
 
-## 21.2 Ranking update card direction
+## 16.2 Ranking list preview card (Rankings hub)
 
 ### Goal
-This is the signature non-Instagram card type.
+Feel **collectible and identity-rich** — like a personal cultural artifact, not a utility list.
 
-It should feel:
-- active
-- intelligent
-- specific
-- socially interesting
-- not like a boring activity log
+### Treatments
+- Soft collage or hero image cover
+- Rank label or `No. 1` / `New` / `Hot` pill (top-right)
+- Editorial title in Newsreader 18px
+- Optional short descriptor in Inter 11px, line-clamp-2
+- Footer: owner avatar (5×5) + `by @handle` in 10px · heart + count on right
+- `bg-surface-container-lowest` lifted over `background`
 
-### Visual hierarchy
-1. user action line
-2. ranked object
-3. movement change
-4. list context
-5. action buttons
-
-### Art direction notes
-- use movement indicators elegantly
-- “#3 → #2” should be visually crisp
-- use subtle surface tinting or border treatment to distinguish from normal posts
-- do not make it too dashboard-like
+See `Design_guide/ranking_page/code.html` for the canonical pattern (Community Hub / Trending Lists).
 
 ---
 
-## 21.3 Ranking list preview card direction
+## 16.3 Ranking update card / social activity card (Search – Following Activity)
 
 ### Goal
-Should feel collectible and identity-rich.
+Make ranking movement feel **intelligent and socially interesting** — not a dashboard activity log.
 
-### Best treatments
-- soft collage cover
-- oversized rank numbers in preview
-- editorial title treatment
-- short descriptive line
-- save/follow list affordance
+### Anatomy
+- **Actor line (Inter)**: `<avatar 8×8>` `<strong>Maya</strong> added <italic Newsreader>Sumi Café</italic> to her Top 5`
+- **Rich artifact card below**:
+  - Background: `surface-container-low` or `surface-container-highest` (lifted)
+  - Ambient shadow: `shadow-[0_4px_24px_rgba(27,28,26,0.02)]`
+  - Hero image (aspect-video), rounded-DEFAULT
+  - Object title (Newsreader 24px)
+  - Location / artist subtitle (Inter uppercase, tracking-widest, `secondary`)
+  - Body snippet (Inter, `on-surface-variant`, leading-relaxed)
+  - Small movement arrow (`arrow_upward` in `rank-up`) in top-right corner
+  - For places with multiple images: horizontal snap-scroll carousel of 48×64 thumbs
 
-### Feel
-Like a personal cultural artifact, not just a utility list.
+### Variants
+- **Added to ranking:** standard card, no movement arrow
+- **Moved up/down:** corner arrow in `rank-up` or `rank-down`
+- **Saved:** standard card, no arrow, slight tonal shift
+- **Published a list:** list preview card with entry count
 
 ---
 
-## 21.4 Object detail hero card direction
+## 16.4 Object detail hero card
 
 ### Goal
 When a user opens a restaurant, perfume, or album, it should feel substantial.
 
-### Hero treatment
-- large image
-- object name and sublabel
-- ranking/social proof below
-- add to ranking CTA prominent but tasteful
-- tags in low-noise chip style
-
-### Different object moods
-Restaurants: environment + dish  
-Perfumes: bottle + material atmosphere  
-Albums: cover + listening context
+### Treatment
+- Large image (edge-to-edge or `rounded-xl`)
+- Object name in Newsreader 28–32px
+- Sublabel (Inter uppercase tracking-widest, `secondary`)
+- Ranking / social proof row (who ranked it, trending badge)
+- **Add to Ranking** CTA — primary gradient button, sharp corners
+- Tags in low-noise chip style (`surface-container-low` fill, Inter 12px)
 
 ---
 
-## 21.5 Story ring and story tile direction
+## 16.5 Shorts surface (immersive vertical)
 
 ### Goal
-Keep familiar enough to read instantly, but slightly more refined than default social app stories.
+Dark, warm immersion — **never flat black**. Use editorial darks (`inverse-surface` #30312F or Ink #14110F).
 
-### Direction
-- soft warm gradient ring
-- less saturated than Instagram
-- closer to fig / dusty rose / bronze than rainbow neon
+### Anatomy
+- Full-bleed media with two tonal gradients:
+  - `bg-gradient-to-b from-black/30 via-transparent to-black/80` for text legibility
+- **Right rail** (glass pills, 52×72 rounded-full):
+  - Heart + count (filled on like)
+  - Chat bubble + count
+  - Bookmark / Save
+  - More (52×52)
+- **Bottom-left info:**
+  - Curator badge: 10×10 avatar with `border-[1.5px] border-white/40` + name in Newsreader 18px + "CURATOR" label
+  - Description (Inter 14px, 2 lines)
+  - Location pill + audio pill (both `bg-black/40 backdrop-blur-md border border-white/10`)
+- **RANK** action is a first-class button on the right rail when the short is tied to a rankable object.
 
 ---
 
-# 22. Motion direction
+# 17. Motion direction
 
 Motion should be subtle and premium.
 
-## 22.1 Motion principles
-- quick
-- smooth
-- soft
-- elegant
-- never bouncy for the sake of it
-- content should feel like it glides, not pops
+## 17.1 Principles
+- quick, smooth, soft
+- elegant, never bouncy for the sake of it
+- content glides, it does not pop
 
-## 22.2 Good motion moments
+## 17.2 Good motion moments
 - tab switches
-- story ring state
-- rank movement update animation
+- story ring state change
+- rank movement update animation (small arrow pulse)
 - save action feedback
 - share sheet rise
 - card expansion into detail view
+- image hover: `scale-105` over `duration-700 ease-out`
 
-## 22.3 Avoid
+## 17.3 Avoid
 - flashy overshoot
 - loud playful bounce
 - excessive spring on every interaction
-- hyper-animated transitions that slow the app down
+- hyper-animated transitions that slow the app
 
 ---
 
-# 23. Moodboard build checklist for Figma
+# 18. Per-screen UI styling guide
 
-Create three moodboard frames:
+All screen specs below correspond 1:1 to the prototypes in `Design_guide/`. Tailwind classes reference the Design_guide Tailwind config in §13.
 
-## Frame 1 — Soft Editorial Luxury
-Include:
-- warm neutrals
-- refined serif/sans pairing
-- café photography
-- perfume still lifes
-- low-light dinner scenes
-- fashion-editorial whitespace
-- muted fig/wine accents
+## 18.1 Home / Discover (`Design_guide/home_page/`)
 
-## Frame 2 — Modern Social Cool
-Include:
-- sharp mobile UI examples
-- high-contrast layouts
-- cooler charcoal tones
-- gallery-like balance
-- more contemporary social app references
+### Layout
+- `background` (#FBF9F6) canvas
+- **Glass top bar** (`bg-surface/70 backdrop-blur-xl`): menu · centered **Zoe** serif wordmark · avatar
+- **Category filter row** (pt-20 pb-4, horizontal snap-scroll): "For You" in `primary` with white text + shadow `[0_4px_12px_rgba(85,52,59,0.15)]`; others `surface-container-low` rounded-xl
+- **Editorial masonry feed** (`columns-2 md:columns-3 lg:columns-4`, gap-4):
+  - Mixed aspect ratios (tall, square, 4/3)
+  - Rank badges on select cards
+  - Occasional editorial quote card with `format_quote` icon
+  - Footer: avatar + @handle + heart count
 
-## Frame 3 — Mediterranean Life
-Include:
-- stone, terracotta, olive, wine tones
-- late sun imagery
-- tactile surfaces
-- ceramic, linen, glass
-- emotional warmth
-- ζωή-inspired atmosphere
-
-Then make one synthesis frame:
-## Frame 4 — Zoe Launch Direction
-This should combine the final chosen system.
+### Content-first
+Chrome stays minimal so the feed reads like a **curated magazine**.
 
 ---
 
-# 24. Recommended UI styling by screen
+## 18.2 Search / Following Activity (`Design_guide/search_page/`)
 
-## Home (Stitch-aligned)
-- **Cream** `#F9F8F4` (or Chalk/Ivory) as the canvas
-- **Two-column masonry** grid of cards: strong photography first, rounded corners, generous vertical rhythm
-- **Top bar:** left **hamburger** (drawer / account & settings), centered **Zoe** wordmark in serif, right **notifications** with unread dot when needed
-- **Ranking badges** on media (pill overlays): current rank, movement (↑ / ↓ / STABLE), optional “last month” or editorial tags (e.g. EDITOR)—see §24.1
-- Card footer: small **avatar**, **display name** (sans), **heart + count**; optional two-line caption preview in sans
-- Content-first; chrome stays minimal so the feed reads like a **curated magazine**
+### Layout
+- `background` canvas
+- **Top bar** (glass): leading `search` icon + **large Newsreader italic input** ("Search your circle…") + avatar
+- **Hero section header**: "Following Activity" in Newsreader italic 28–30px, `primary`
+- **Stacked activity cards** with generous vertical rhythm (`space-y-10`):
+  - Each card: actor line (avatar + short sentence with italic Newsreader object name in `primary`) → rich artifact card below
+  - Two visual variants:
+    - `surface-container-low` with ambient shadow (for saves and additions)
+    - `surface-container-highest` with rank-up arrow (for rank moves)
+- Horizontal image carousel for multi-image places
 
-## Search / Explore
-- slightly more grid-structured
-- allow collage energy
-- still warm and premium
-- avoid over-decoration
-
-## Rankings (MVP hub)
-- same **serif/sans** hierarchy as Home: list titles and covers feel editorial; rows stay readable in sans
-- **Movement** and rank changes use muted functional greens/reds/wines (see §9.3)—never gamified neon
-- Pairwise **comparison** moments can use side-by-side cards with the same photography quality as Home
-- Optional segment control: **My lists** vs **Community / consensus** later—keep v1 focused on clarity and calm confidence
-
-## Rank activity in feed (not a separate tab in v1)
-- ranking-related cards can appear in **Home** as snippets or dedicated card types
-- movement indicators should match badge language (up / down / stable / new)
-
-## Shorts (Stitch-aligned — immersive vertical)
-- **Dark, warm** full-bleed media (not flat black—use Ink / Night Brown from §10)
-- **Glass** pills and controls: frosted **Popular consensus** (or similar) tag top-left; primary actions on the **right rail**: **RANK**, **SAVE**, **SEND**, creator avatar below
-- Bottom stack: **@handle**, **Follow**, **large serif title**, **More detail** affordance
-- Bottom tab bar: **dark, semi-transparent** strip; active tab reads clearly (e.g. Shorts icon filled)
-
-## Legacy label: “Reels”
-- Product copy should use **Shorts** for this surface; engineering may still map to “reel” internally
-
-## 24.1 Ranking badge system (Home + lists)
-Use **small, pill-shaped overlays** on photography (top-left or top-right depending on composition):
-
-- **Rank + momentum:** e.g. `#3 ▲` (muted green arrow), `#7 ▼`, `#1 STABLE` (neutral pill)
-- **Cross-time context:** e.g. `RANKED #2 LAST MONTH` for “taste memory” and curiosity
-- **Editorial:** optional `EDITOR` or similar **dark wine/brown** badge for curated picks—use rarely
-- Typography: **Inter Medium**, tight tracking; background **semi-opaque** warm white or dark brown tint so text stays legible on busy photos
-
-Goals: communicate **status** and **change** at a glance without looking like a sports scoreboard.
-
-## 24.2 Stitch source of truth
-Pixel-level layouts for the approved **Home** (masonry + badges + top bar) and **Shorts** (dark immersive + glass actions) live in **Google Stitch**:
-
-`https://stitch.withgoogle.com/projects/3590465501578983349/screens/a3a28a8102bb4a33ac91ef22b312ef20`
-
-(Use Stitch as the handoff reference; this kit defines tokens, rules, and content behavior that extend across the rest of the app.)
-
-## Profile
-- clean and identity-rich
-- ranking previews should feel like prized artifacts
-- highlights should feel elegant, not childish
-
-## Chat
-- cleaner and quieter
-- allow shared cards to carry the product personality
-- message bubbles should stay restrained
+### Key behavior
+Search in Zoe is **not a generic Explore grid** — it is a **taste-intimate following-activity feed** plus a search affordance at the top. See §16.3 for activity card anatomy.
 
 ---
 
-# 25. Launch marketing visual direction
+## 18.3 Rankings / Community Hub (`Design_guide/ranking_page/`)
 
-For launch, campaign visuals should focus on:
+### Layout
+- `background` canvas
+- **Glass top bar** with desktop nav links + centered **Zoe** + avatar
+- **Hero header** (center-aligned, pt-4): "Community Hub" in Newsreader 40–48px + small `on-surface-variant` body description
+- **Filter tabs** (centered, `border-b border-outline-variant/30`): Trending Lists · New Tastemakers · Category Gems. Active: `primary` + bold underline `border-primary`
+- **Discovery masonry** (`columns-2 md:columns-3 lg:columns-4`): ranking list preview cards (see §16.2)
+- **Loading state** at bottom: thin spinner + "LOADING MORE" in label
 
+### Personal hub view
+When viewing **my rankings** (vs community), collapse the header and show:
+- **Pinned** strip (celebrity / friend lists) at top — cards may use slight glass treatment
+- **Your categories** stacked vertically, **reorderable** via drag in `[Edit]` mode
+- **Tap to expand** category → shows ranked entries with Cormorant Garamond numbers
+
+---
+
+## 18.4 Shorts / Immersive vertical (`Design_guide/shorts_page/`)
+
+### Layout
+- `bg-black` body with `overflow-hidden`
+- **Glass top bar** (`bg-[#FBF9F6]/70 backdrop-blur-xl`): menu · **Zoe** serif · avatar
+- **Full-screen vertical media** (`snap-y snap-mandatory`)
+- **Right rail glass pills** (see §16.5)
+- **Bottom-left info**: curator + description + location/audio pills
+- **Glass bottom tab bar** with fill-variant icon for active Shorts
+
+### Tone
+Dark, warm, atmospheric — never flat black. Use `inverse-surface` (#30312F) as fallback when media missing.
+
+---
+
+## 18.5 Profile (`Design_guide/profile_page/`)
+
+### Layout
+- `background` canvas
+- **Glass top bar**: menu · **Zoe** serif · more_horiz
+- **Profile header** (px-6, mt-4):
+  - Avatar 24×24 (md:32×32) rounded-full with `border border-outline-variant/30`
+  - Stats row (Posts / Followers / Following): counts in Newsreader 20–24px, labels in Inter 12px `on-surface-variant`
+  - Display name in `font-display` 24–30px
+  - Bio in Inter 14–16px, leading-relaxed
+- **Tabs** (`border-t border-outline-variant/30`, one allowed structural separator): Posts · Shorts · Rankings. Active: `border-b-2 border-on-surface` + uppercase tracking-widest label
+- **Posts grid** (`grid-cols-3 gap-0.5`): aspect-square tiles, some image tiles, some **text-only tiles** (`surface-container-highest` with category label + editorial title) — this is a signature Zoe move
+- **Rankings tab** (when active): shows top lists as rich cards (see §16.2)
+
+### Instagram-familiar, editorial-refined
+Profile uses the Instagram mental model (3-column grid, stats row, tabs), but text tiles and serif titles elevate it beyond a photo-sharing app.
+
+---
+
+# 19. Rankings / momentum badge system (cross-screen)
+
+Use **small pill-shaped overlays** on photography — top-left or top-right depending on composition.
+
+## 19.1 Pill patterns
+
+| Pattern | Example | Tokens |
+| :--- | :--- | :--- |
+| Rank + momentum | `#3 ▲` | bg `background/90` + `backdrop-blur-md` + dot in `rank-up` |
+| Stable | `#1 STABLE` | same, neutral dot |
+| New | `NEW` | `label-[10px]` in `new-entry` color, uppercase tracking-widest |
+| Cross-time | `RANKED #2 LAST MONTH` | Inter 10px, `on-surface-variant`, uppercase |
+| Editorial | `EDITOR` | Dark wine/brown background — rare |
+
+## 19.2 Typography in badges
+- Inter Medium, tight tracking
+- Rank numbers may use **Cormorant Garamond** for the big-moment feel
+- Backgrounds semi-opaque warm white or dark brown
+
+## 19.3 Goal
+Communicate **status** and **change** at a glance without looking like a sports scoreboard.
+
+---
+
+# 20. Launch marketing visual direction
+
+Campaign visuals should focus on:
 - people discovering life through taste
-- ranking as emotional truth, not just mechanics
+- ranking as emotional truth, not mechanics
 - visual pairings of objects and identity
-- social moments: “this feels like you”
+- social moments: "this feels like you"
 - objects that carry mood: coffee, perfume, music, dinner
 
-## Campaign line directions
+## 20.1 Campaign line directions
 - Life, ranked.
 - Taste is how you live.
 - Find what fits your life.
@@ -1020,131 +844,121 @@ For launch, campaign visuals should focus on:
 
 ---
 
-# 26. Art direction for sample UI content
+# 21. Art direction for sample content
 
-Use the following pairings in mockups:
+Use the following pairings in mockups, mapped to canonical sample users (see `Zoe_Content_Model_Sample_Data_Pack.md`).
 
-## Maya / cafés
-- warm wood
-- soft daylight
-- ivory ceramics
-- muted green matcha
-- linen tones
-
-## Elton / perfumes
-- marble
-- white and charcoal
-- glass reflections
-- minimalist styling
-- skin-close softness
-
-## Cody / albums
-- dark room glow
-- headphone cable
-- vinyl texture
-- deep shadows
-- warm amber accents
-
-## Nina / desserts + perfume
-- pale green
-- dessert gloss
-- polished chrome spoon details
-- creamy stone backgrounds
-- blush-tone styling
-
-## Lila / celebrity lifestyle
-- hotel room lighting
-- polished but candid travel energy
-- expensive softness
-- campaign-like frame crop
+| Persona | Mood |
+| :--- | :--- |
+| **Maya** / cafés | warm wood · soft daylight · ivory ceramics · muted matcha green · linen tones |
+| **Elton** / perfumes | marble · white + charcoal · glass reflections · minimalist styling · skin-close softness |
+| **Cody** / albums | dark room glow · headphone cable · vinyl texture · deep shadows · warm amber |
+| **Nina** / desserts + perfume | pale green · dessert gloss · polished chrome spoon · creamy stone · blush styling |
+| **Lila** / celebrity lifestyle | hotel room lighting · polished candid travel · expensive softness · campaign-frame crop |
 
 ---
 
-# 27. Design do / don’t list
+# 22. Figma build checklist
 
-## Do
-- prioritize content beauty
-- keep UI elegant and restrained
-- let typography do a lot of the premium work
-- use warm neutrals
-- make ranking feel emotionally significant
-- keep the shell familiar and frictionless
-- make object cards and ranking cards visually distinct
+## 22.1 Foundations (mirror Tailwind config §13)
+1. Color styles for all tokens
+2. Type styles for display, headline, body, label, ranking number
+3. Corner-radius tokens
+4. Shadow tokens (ambient only)
+5. Grid/spacing tokens (base 4px)
 
-## Don’t
-- make it look like Yelp
-- make it look like a fintech dashboard
-- overuse serif in dense UI
-- rely on gradients everywhere
-- use loud bright icon colors
-- make rank movement visuals feel childish
-- turn every card into an information dump
+## 22.2 Components
+1. Top app bar (glass, 3 variants: logo-center / back-nav / search)
+2. Bottom tab bar (glass, 5 tabs, active/inactive)
+3. Feed masonry card (4 variants: image-only / image + caption / editorial quote / video)
+4. Rank badge pills (rank+arrow / new / stable / editor)
+5. Ranking list preview card (3 variants: image / no-image text card / small)
+6. Following activity card (3 variants: saved / added / moved)
+7. Profile text tile (editorial grid entry)
+8. Shorts glass action pill (large / small)
+9. Avatar w/ story ring
+10. Primary button (gradient) / Secondary (ghost) / Tertiary (text)
+
+## 22.3 Screens (use `Design_guide/*/code.html` as pixel truth)
+1. Home / Discover
+2. Search / Following Activity
+3. Rankings / Community Hub + personal hub mode
+4. Shorts / immersive vertical
+5. Profile / self + other user
+6. Post Detail
+7. Object Detail
+8. Ranking List Detail
+9. Add to Ranking flow
+10. Chat / Inbox / Thread
+11. Notifications
+12. Auth / Onboarding / Interest Selection
 
 ---
 
-# 28. Launch-ready starting point summary
+# 23. Launch-ready starting point summary
 
-If the team wants the simplest actionable launch direction, use this:
+If the team wants the simplest actionable launch direction, use this.
 
 ## Brand direction
-Soft Editorial Luxury
+**The Modern Curator — Soft Editorial Luxury.**
 
 ## Base colors
-- Cream (Home) `#F9F8F4`
-- Chalk `#FBF9F6`
-- Ivory `#F7F3EE`
-- Espresso `#2A211D`
-- Cocoa `#6A584C`
+- `background` `#FBF9F6`
+- `surface-container-low` `#F5F3F0`
+- `surface-container-highest` `#E4E2DF`
+- `on-surface` `#1B1C1A`
+- `on-surface-variant` `#504446`
 
-## Accent colors
-- Fig `#6F4B52`
-- Olive Smoke `#71715F`
-- Dusty Rose `#C08C93`
+## Accent
+- `primary` `#55343B` (Fig)
+- `primary-container` `#6F4B52` (gradient end)
+- `secondary` `#5F5F4E` (Olive Smoke)
 
-## Functional colors
-- Rank Up `#547C65`
-- Rank Down `#8B5D5D`
-- New `#8B6C3F`
+## Ranking
+- `rank-up` `#547C65`
+- `rank-down` `#8B5D5D`
+- `new-entry` `#8B6C3F`
 
-## Type pairing
-- Inter for UI
-- Cormorant Garamond for editorial accent moments
+## Type
+- **Newsreader** — display, card titles
+- **Cormorant Garamond** — ranking numbers, pull quotes, brand wordmark italic
+- **Inter** — everything else
 
-## Visual content style
+## Visual content
 - warm, soft, tactile, premium
-- high-quality but believable imagery
 - strong media-led cards
-- ranking cards with elegant movement indicators
+- ranking badges elegant, not gamified
+- Editorial text tiles accepted on profile grid
 
 ---
 
-# 29. Final recommendation to the team
+# 24. Final recommendation to the team
 
 In Figma, do this next:
 
-1. Build 3 moodboard pages from the directions above
-2. Create one synthesis launch board
-3. Define the color tokens
-4. Lock the typography pairing
-5. Apply the direction to:
-   - Home feed (masonry + ranking badges)
-   - Rankings hub + ranking rows
-   - Profile
+1. Import the Tailwind tokens from §13 as Figma styles
+2. Build component library per §22.2
+3. Rebuild the five Design_guide reference screens as Figma frames (§22.3)
+4. Apply the direction to the remaining screens:
    - Object Detail
-   - Story tray
-6. Build 3 polished example cards:
-   - feed post card
-   - ranking update card
-   - ranking list preview card
+   - Ranking List Detail
+   - Add-to-Ranking flow
+   - Chat inbox + thread
+   - Notifications
+   - Auth / Onboarding
+5. Polish three signature cards until they feel right:
+   - Feed masonry card (Home)
+   - Following activity card (Search)
+   - Ranking list preview card (Rankings)
 
 If those three cards look right, the whole system will start to feel right.
 
 ---
 
-# 30. Final brand line
+# 25. Final brand line
 
 **Zoe should look like life with taste.**
 
-That is the north star:
-not loud, not empty, not generic —
-but alive, social, elegant, and worth returning to.
+Not loud, not empty, not generic — but alive, social, elegant, and worth returning to.
+
+That is the north star.

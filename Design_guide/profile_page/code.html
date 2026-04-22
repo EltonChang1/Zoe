@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#e4e2df",
+                        "primary-fixed": "#ffd9df",
+                        "tertiary-fixed": "#ffd9dd",
+                        "primary-container": "#6f4b52",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#efeeeb",
+                        "surface": "#fbf9f6",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#1c1c0f",
+                        "inverse-surface": "#30312f",
+                        "background": "#fbf9f6",
+                        "tertiary-container": "#74494f",
+                        "tertiary": "#5a3239",
+                        "surface-variant": "#e4e2df",
+                        "primary": "#55343b",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-surface": "#1b1c1a",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#d3c2c4",
+                        "on-primary-fixed": "#2e1319",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f5f3f0",
+                        "outline": "#827475",
+                        "on-surface-variant": "#504446",
+                        "secondary-fixed-dim": "#c9c8b2",
+                        "tertiary-fixed-dim": "#f1b8bf",
+                        "on-primary-container": "#edbec6",
+                        "on-tertiary-fixed-variant": "#643b42",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1b1c1a",
+                        "surface-bright": "#fbf9f6",
+                        "secondary-fixed": "#e5e4ce",
+                        "secondary": "#5f5f4e",
+                        "secondary-container": "#e5e4ce",
+                        "inverse-primary": "#eabac2",
+                        "on-primary-fixed-variant": "#5f3d44",
+                        "surface-container-high": "#eae8e5",
+                        "primary-fixed-dim": "#eabac2",
+                        "on-tertiary-container": "#f4bbc3",
+                        "surface-tint": "#79545b",
+                        "on-secondary-container": "#656554",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#311117",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "on-secondary-fixed-variant": "#474838",
+                        "on-error": "#ffffff",
+                        "rank-up": "#547C65",
+                        "rank-down": "#8B5D5D",
+                        "new-entry": "#8B6C3F"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Newsreader", "serif"],
+                        "display": ["Newsreader", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "serif": ["Cormorant Garamond", "serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f6; /* bg-background */
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Custom hide scrollbar for horizontal lists */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-background font-body min-h-screen pb-24 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#FBF9F6]/70 dark:bg-[#1B1C1A]/70 backdrop-blur-xl">
+<button class="text-[#55343B] dark:text-[#E4E2DF] hover:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<div class="text-3xl font-serif italic text-[#55343B] dark:text-[#E4E2DF] tracking-tight">
+            Zoe
+        </div>
+<button class="text-[#55343B] dark:text-[#E4E2DF] hover:opacity-80 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-0 md:px-12 max-w-5xl mx-auto">
+<!-- Profile Header (Instagram-familiar) -->
+<section class="px-6 mb-8 mt-4">
+<div class="flex items-center justify-between mb-6">
+<div class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/30 shrink-0">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="close up portrait of a young elegant woman in soft natural lighting editorial style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU8vu0XuzFTajQSQ8xvneA5AwslFJZvzrggk5AFTc9E4uNbYPwkCFKcA97-GtFKfx4-pmahadwE-tyI0cpGhtjnMT13u4yzLymfrNhePfJbf0z0ftb58MhPxHCy0nu1LCiWpLR4TQ3vSwuZiuQK1Jl1_WpxpvscVA_IlnlPpgp-d_687eZ1XQjxtfP93i9Ufq2psY39NNlevf7zndQoJT-wECMDy6OFkOCs40hGECEgluUw-Nq_LLbEm0p8s-JNV9oKmED3cdJRLc"/>
+</div>
+<div class="flex flex-1 justify-around ml-6 md:ml-12">
+<div class="flex flex-col items-center">
+<span class="font-headline text-xl md:text-2xl text-on-surface">142</span>
+<span class="text-on-surface-variant text-xs md:text-sm font-medium">Posts</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-headline text-xl md:text-2xl text-on-surface">12.4K</span>
+<span class="text-on-surface-variant text-xs md:text-sm font-medium">Followers</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-headline text-xl md:text-2xl text-on-surface">845</span>
+<span class="text-on-surface-variant text-xs md:text-sm font-medium">Following</span>
+</div>
+</div>
+</div>
+<div>
+<h1 class="font-display text-2xl md:text-3xl tracking-tight text-on-surface mb-1">Clara V.</h1>
+<p class="font-body text-on-surface-variant text-sm md:text-base leading-relaxed">
+            Curator of aesthetic minimalism. Brutalism, gastronomy, and tactile design. 
+            An algorithmic reflection of an ongoing discovery journey.
+        </p>
+</div>
+</section>
+<!-- Tabbed Interface -->
+<section class="mb-2 w-full border-t border-outline-variant/30 flex justify-around">
+<button class="flex-1 py-3 text-center border-b-2 border-on-surface font-body text-sm font-semibold tracking-widest uppercase flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">grid_on</span>
+    Posts
+</button><button class="flex-1 py-3 text-center border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body text-sm font-medium tracking-widest uppercase flex justify-center items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+    Shorts
+</button>
+<button class="flex-1 py-3 text-center border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-body text-sm font-medium tracking-widest uppercase flex justify-center items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">star</span>
+    Rankings
+</button>
+</section>
+<!-- Tab Content: Posts (Grid View) -->
+<section class="mb-16">
+<div class="grid grid-cols-3 gap-0.5 md:gap-1">
+<!-- Post 1 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-high">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist architectural interior with raw concrete walls soft light and mid-century modern furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoUyTHU4ZL1Cp2jLE3cZlF2Fr-JKMTWH5BVC3y7K3p0ksN1s7m83InhU3SlqVFd5MMbqbuoiMYbf63-Txf1BauswLphxlQfM3f5CRpQqZdrWZkX9CSGpk0b4l7wr0T_shx0YOkyzy5ZJYWv7pFkT2mYFxSUVyqAdKcVvIGLxI3VxJ6Cauj8ZJrDdUZLwZoNuH7gBFPYfVpJljPCG1hJH7MGKIx6QdAoYg6xuSLXaNqCQyJGzBxvnpb_IRIsL_BjnUULh0dxCHmaRw"/>
+</div>
+<!-- Post 2 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-high">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="close up of rustic sourdough bread crust with artisan scoring patterns and flour dusting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC849otHQzGUq9vEp_5hyPt7EALWtQAjSXgsZjQQ1KwXYlDicDOx2O1spVqRMx_qlZAnMPoKKx_XmA_AERGovhSOGA67eahUcXmNiC4r6D3sTnZBuBi8PjEuDYA5nwN6rk0vHsrVPhzoMMAlPVtlXFdH7V-zEhQMjtn4LHjGmQlzDaO_8Vbq4q8mZIwYTjqGGASUX4TyLc93pgHyE1K_CdyOTh_X4RBSbmfGl_I-JBO_gkD183v4Fzvv5HKoiRgrXAqqi5u9V523kM"/>
+</div>
+<!-- Post 3 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-highest">
+<div class="absolute inset-0 p-4 flex flex-col justify-end">
+<span class="font-body text-[8px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-medium block mb-1">Object Design</span>
+<h3 class="font-display text-base md:text-lg text-on-surface tracking-tight leading-tight">Tactile Materiality</h3>
+</div>
+</div>
+<!-- Post 4 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-highest">
+<div class="absolute inset-0 p-4 flex flex-col justify-end">
+<span class="font-body text-[8px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-medium block mb-1">Kyoto Aesthetics</span>
+<h3 class="font-display text-base md:text-lg text-on-surface tracking-tight leading-tight">Wabi-Sabi Ceramics</h3>
+</div>
+</div>
+<!-- Post 5 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-high">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist architectural interior with raw concrete walls soft light and mid-century modern furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoUyTHU4ZL1Cp2jLE3cZlF2Fr-JKMTWH5BVC3y7K3p0ksN1s7m83InhU3SlqVFd5MMbqbuoiMYbf63-Txf1BauswLphxlQfM3f5CRpQqZdrWZkX9CSGpk0b4l7wr0T_shx0YOkyzy5ZJYWv7pFkT2mYFxSUVyqAdKcVvIGLxI3VxJ6Cauj8ZJrDdUZLwZoNuH7gBFPYfVpJljPCG1hJH7MGKIx6QdAoYg6xuSLXaNqCQyJGzBxvnpb_IRIsL_BjnUULh0dxCHmaRw"/>
+<div class="absolute inset-0 bg-black/20 mix-blend-multiply"></div>
+</div>
+<!-- Post 6 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-high">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="close up of rustic sourdough bread crust with artisan scoring patterns and flour dusting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC849otHQzGUq9vEp_5hyPt7EALWtQAjSXgsZjQQ1KwXYlDicDOx2O1spVqRMx_qlZAnMPoKKx_XmA_AERGovhSOGA67eahUcXmNiC4r6D3sTnZBuBi8PjEuDYA5nwN6rk0vHsrVPhzoMMAlPVtlXFdH7V-zEhQMjtn4LHjGmQlzDaO_8Vbq4q8mZIwYTjqGGASUX4TyLc93pgHyE1K_CdyOTh_X4RBSbmfGl_I-JBO_gkD183v4Fzvv5HKoiRgrXAqqi5u9V523kM"/>
+<div class="absolute inset-0 bg-black/10 mix-blend-multiply"></div>
+</div>
+<!-- Post 7 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-highest">
+<div class="absolute inset-0 p-4 flex flex-col justify-end">
+<span class="font-body text-[8px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-medium block mb-1">Architecture</span>
+<h3 class="font-display text-base md:text-lg text-on-surface tracking-tight leading-tight">Desert Modernism</h3>
+</div>
+</div>
+<!-- Post 8 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-highest">
+<div class="absolute inset-0 p-4 flex flex-col justify-end">
+<span class="font-body text-[8px] md:text-[10px] uppercase tracking-widest text-on-surface-variant font-medium block mb-1">Watches</span>
+<h3 class="font-display text-base md:text-lg text-on-surface tracking-tight leading-tight">Minimalist Horology</h3>
+</div>
+</div>
+<!-- Post 9 -->
+<div class="aspect-square relative overflow-hidden group cursor-pointer bg-surface-container-high">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist architectural interior with raw concrete walls soft light and mid-century modern furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoUyTHU4ZL1Cp2jLE3cZlF2Fr-JKMTWH5BVC3y7K3p0ksN1s7m83InhU3SlqVFd5MMbqbuoiMYbf63-Txf1BauswLphxlQfM3f5CRpQqZdrWZkX9CSGpk0b4l7wr0T_shx0YOkyzy5ZJYWv7pFkT2mYFxSUVyqAdKcVvIGLxI3VxJ6Cauj8ZJrDdUZLwZoNuH7gBFPYfVpJljPCG1hJH7MGKIx6QdAoYg6xuSLXaNqCQyJGzBxvnpb_IRIsL_BjnUULh0dxCHmaRw"/>
+<div class="absolute inset-0 bg-primary/20 mix-blend-multiply"></div>
+</div>
+</div>
+</section>
+<!-- Tab Content: Rankings (Hidden by default in a real app, but left out of this static mockup for brevity, or we could just show it. Let's just show Posts to fit the Instagram paradigm, or keep it commented out. The request says "one tab for Posts... another tab for Rankings". I'll put Rankings below and add a hidden class, but since there's no JS, I'll just show the Posts grid as the active tab.) -->
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-3 pb-6 px-4 bg-[#FBF9F6]/80 dark:bg-[#1B1C1A]/80 backdrop-blur-2xl border-t border-[#E4E2DF]/10 shadow-[0_-4px_24px_rgba(27,28,26,0.04)]">
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors w-16">
+<span class="material-symbols-outlined mb-1 text-[22px]" style="font-variation-settings: 'FILL' 0, 'wght' 300;">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Discover</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors w-16">
+<span class="material-symbols-outlined mb-1 text-[22px]" style="font-variation-settings: 'FILL' 0, 'wght' 300;">search</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors w-16">
+<span class="material-symbols-outlined mb-1 text-[22px]" style="font-variation-settings: 'FILL' 0, 'wght' 300;">leaderboard</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Rank</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors w-16">
+<span class="material-symbols-outlined mb-1 text-[22px]" style="font-variation-settings: 'FILL' 0, 'wght' 300;">play_circle</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Shorts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#55343B] dark:text-[#E4E2DF] font-bold scale-90 duration-300 ease-out w-16">
+<span class="material-symbols-outlined mb-1 text-[22px]" style="font-variation-settings: 'FILL' 1, 'wght' 400;">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Profile</span>
+</button>
+</nav>
+</body></html>

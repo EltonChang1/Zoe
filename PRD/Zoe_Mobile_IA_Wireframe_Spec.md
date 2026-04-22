@@ -1,9 +1,9 @@
 # Zoe — Screen-by-Screen Mobile IA + Wireframe Spec
-**Version:** 1.1  
-**Platform:** Mobile-first (iOS and Android)  
-**Product direction:** Instagram-like shell and interaction model, RedNote-like discovery utility, Beli-like ranking integrated into profiles, feeds, and updates  
-**Visual reference:** Stitch **Home** (cream masonry + ranking badges + hamburger / Zoe / bell) and **Shorts** (dark immersive + glass actions). See `PRD/Zoe_Visual_Direction_Kit.md` §24–24.2.  
-**Document purpose:** Define the full screen-level information architecture, wireframe structure, navigation model, states, and end-to-end user flows for the Zoe mobile MVP
+**Version:** 2.0
+**Platform:** Mobile-first (iOS and Android)
+**Product direction:** Instagram-familiar shell · RedNote-style discovery utility · Beli-inspired ranking integrated into profiles, feeds, and updates
+**Visual reference:** `Design_guide/` prototypes (Home / Search / Rankings / Shorts / Profile) + `Design_guide/*/DESIGN.md` ("The Modern Curator"). Design tokens and component rules live in `PRD/Zoe_Visual_Direction_Kit.md` §7, §11, §13, §18.
+**Document purpose:** Define the full screen-level information architecture, wireframe structure, navigation model, states, and end-to-end user flows for the Zoe mobile MVP.
 
 ---
 
@@ -29,24 +29,24 @@ The app should feel like:
 # 2. Core shell and navigation model
 
 ## 2.1 Bottom tab bar
-Zoe uses a fixed **5-button bottom navigation bar**.
+Zoe uses a fixed **5-button bottom navigation bar** rendered as a **glass surface** (`bg-surface/80 backdrop-blur-2xl`, soft ambient shadow) per Visual Direction Kit §11.5.
 
 There is **no Add tab**.
 
-### Tab order (Stitch-aligned)
-1. **Home**
-2. **Explore**
-3. **Rankings**
+### Tab order (Design_guide-aligned)
+1. **Home** (Discover)
+2. **Search** (see §SCREEN 13 — combines search + following activity)
+3. **Rankings** (Rank)
 4. **Shorts**
 5. **Profile**
 
 ### Interaction rules
 - Tapping the current tab again should return to the top/root of that tab.
 - Home re-tap should instantly scroll the feed back to the top.
-- Explore re-tap should return to the Explore landing state.
-- **Rankings** re-tap should return to the user’s rankings hub root (top of list index).
+- Search re-tap should clear any active search state and return to the Following Activity landing.
+- **Rankings** re-tap should return to the user's rankings hub root (Community Hub landing or personal hub root).
 - **Shorts** re-tap should reset to the top/current first item.
-- Profile re-tap should return to the user’s profile root.
+- Profile re-tap should return to the user's profile root.
 
 ## 2.2 Create content entry points
 There is **no bottom-nav Add button**.
@@ -89,9 +89,9 @@ Accessible from icons, modals, or deep links:
 
 - Auth / Onboarding
 - Main App Shell
-  - Home
-  - Explore
-  - Rankings
+  - Home (Discover)
+  - Search (Following Activity + search)
+  - Rankings (Community Hub + personal hub)
   - Shorts
   - Profile
 - Overlay / Secondary Surfaces
@@ -129,27 +129,36 @@ This gives the **Rankings** hub and Home feed enough variety to feel alive while
 
 # 4. Global design language
 
+**Source of truth:** `Design_guide/` prototypes + `PRD/Zoe_Visual_Direction_Kit.md`. The system is called **"The Modern Curator" — Soft Editorial Luxury**.
+
 ## 4.1 Visual direction
-Instagram-like:
-- clean white or dark-neutral surfaces
-- edge-to-edge media
-- circular avatars
-- strong image/video emphasis
-- lightweight chrome
-- bottom-tab-first navigation
-- emphasis on profiles, stories, Shorts, and creator identity
 
-RedNote-like:
+### Modern Curator (primary)
+- warm chalk/ivory canvas (`#FBF9F6`)
+- tonal depth instead of lines (no 1px borders — see Visual Direction Kit §7.1)
+- glassmorphic top bar and bottom tab bar
+- Newsreader serif for titles, Inter for UI, Cormorant Garamond for ranking numbers
+- generous whitespace, editorial left-align
+- slow, elegant motion (700ms ease-out image hovers)
+
+### Instagram-familiar shell
+- edge-to-edge or `rounded-xl` media
+- circular avatars with warm ring
+- 5-tab bottom nav, no Add button
+- posting from Profile or swipe-right camera
+- stories where appropriate
+
+### RedNote-style utility
 - recommendation-rich content
-- searchable useful notes
-- tags and context
-- “why this matters” metadata
+- searchable taste notes
+- object tags and context
+- "why this matters" metadata
 
-Beli-like:
-- ranking counts
-- ordered lists
-- “moved up / moved down”
-- comparison and taste identity
+### Beli-inspired ranking
+- ranking badges on feed cards (`#3 ▲`, `NEW`, `STABLE`)
+- Cormorant Garamond rank numbers
+- movement in muted `rank-up` (#547C65) / `rank-down` (#8B5D5D) / `new-entry` (#8B6C3F)
+- comparison-first ranking UX
 
 ## 4.2 Persistent interaction patterns
 Across most cards and posts:
@@ -161,14 +170,14 @@ Across most cards and posts:
 - Open creator profile
 
 ## 4.3 Global badges and labels
-Used lightly:
-- Taste Match %
-- New in ranking
-- Moved up
-- Recently added
-- Trending in your circle
-- Ranked #x in creator’s list
-- Story ring for new story
+Used lightly, always as glass pills on media (`bg-background/90 backdrop-blur-md rounded-DEFAULT`). See Visual Direction Kit §19:
+- `#x ▲` / `#x ▼` / `#x STABLE` — rank + momentum
+- `NEW` — new entry (in `new-entry` color, uppercase tracking-widest)
+- `RANKED #2 LAST MONTH` — taste memory
+- `EDITOR` — editorial pick (dark wine, rare)
+- `Hot` / `Trending` with `local_fire_department` icon
+- Story ring (soft warm gradient, not rainbow neon)
+- Taste Match % — optional, label-sm
 
 ---
 
@@ -203,11 +212,11 @@ This section lists every primary MVP screen.
 - Permissions setup
 
 ## 6.2 Main app tabs
-- Home feed
-- Explore landing
-- **Rankings** hub (personal lists index)
-- **Shorts** feed
-- Profile (self)
+- Home feed (editorial masonry — `Design_guide/home_page/`)
+- Search / Following Activity (`Design_guide/search_page/`)
+- **Rankings** hub — Community Hub + personal hub (`Design_guide/ranking_page/`)
+- **Shorts** feed (`Design_guide/shorts_page/`)
+- Profile — self (`Design_guide/profile_page/`)
 
 ## 6.3 Content detail screens
 - Post detail
@@ -329,7 +338,7 @@ Introduce Zoe and get the user into sign-up or log-in.
 ## SCREEN 03 — Interest Selection
 
 ### Purpose
-Seed **Home**, **Explore**, **Shorts**, and suggested **Rankings** lists.
+Seed **Home**, **Search (Following Activity)**, **Shorts**, and suggested **Rankings** lists.
 
 ### Required components
 - title
@@ -436,30 +445,41 @@ Request location only when needed. Do not front-load too aggressively.
 
 ---
 
-## SCREEN 07 — Home Feed
+## SCREEN 07 — Home Feed (Discover)
 
 ### Purpose
-Primary discovery feed with Instagram-like structure and RedNote-like utility.
+Primary discovery feed with Instagram-familiar structure and editorial/RedNote-style utility.
+
+### Reference prototype
+`Design_guide/home_page/code.html` — two-column editorial masonry with mixed aspect ratios, rank pills on media, occasional editorial quote card, and a desktop variant that expands to 3–4 columns.
 
 ### Entry points
 - tab tap
 - app launch after auth
 - deep link to feed
 
-### Top bar components (Stitch)
-- **Hamburger** (left): account, settings, saved, help
-- **Zoe** wordmark (center), **serif**
-- **Notifications** (right) with **unread dot** when applicable
-- Optional **story tray** below the top bar when Stories ship; v1 may omit if not built yet
+### Top bar (glass, `bg-surface/70 backdrop-blur-xl`, h-16)
+- **Menu** button (left, mobile) / desktop nav links (hidden on mobile): Discover · Search · Rank
+- **Zoe** wordmark (center), **Newsreader italic**, 3xl, tracking-tight, `primary`
+- **Avatar** (right): 8×8 rounded-full with `ring-1 ring-outline-variant/30`
+- Optional **story tray** directly below top bar when Stories ship; v1 may omit
 
-### Main content components
-1. **Optional story tray**
-2. **Masonry feed** (two-column): editorial cards, strong photography, **ranking badges** on media when relevant
-3. **Recommended posts**
-4. **Posts from followed users**
-5. **Utility cards embedded in feed**
-6. **Ranking activity cards** (what friends/creators moved or added—**social ranking loop**)
-7. **Sponsored content later, not MVP**
+### Category filter row (horizontal snap-scroll)
+- Active chip: `bg-primary text-on-primary rounded-xl px-5 py-2` with shadow `[0_4px_12px_rgba(85,52,59,0.15)]` — e.g. "For You"
+- Inactive chips: `bg-surface-container-low text-on-surface rounded-xl px-5 py-2`
+- Example chips: For You · Architecture · Ceramics · Minimalism · Botanical · Interiors · Cafés · Perfume · Albums
+
+### Main content: Editorial Masonry
+`columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4`
+
+Card variants (see Visual Direction Kit §16.1):
+1. **Image-only card** with rank badge top-right (e.g. `• 12` with `rank-up` dot)
+2. **Image + caption card** (Newsreader title, body snippet, avatar footer with heart count)
+3. **Image + editorial category tag** (bottom-left label e.g. `STYLE` uppercase tracking-widest)
+4. **Image + NEW entry** (top-left `NEW` label in `new-entry` color)
+5. **Editorial quote card** (no media; `surface-container-low` fill with `border border-outline-variant/15`; `format_quote` icon + Newsreader 24px pull quote + uppercase attribution)
+6. **Ranking activity card** (see SCREEN 13 — social taste movement)
+7. **Sponsored** (post-MVP, clearly labeled)
 
 ### Feed post types
 - recommendation photo post
@@ -471,14 +491,13 @@ Primary discovery feed with Instagram-like structure and RedNote-like utility.
 - “added to ranking” activity card
 
 ### Required post card anatomy
-- **Media** with optional **ranking badge** overlay (rank #, ↑/↓/STABLE, editorial tag)
-- **Serif title** + short **sans** description (magazine-style)
-- Footer: **avatar**, **name**, **♥ count**
-- ranking context line if applicable
-- caption / useful note snippet
-- object tags
-- comments preview
-- save action
+- **Media** wrapped in `rounded-xl overflow-hidden bg-surface-container-low`
+- Optional **ranking badge** overlay (see Visual Direction Kit §19 — glass pill, top-right or top-left)
+- Optional **editorial category tag** bottom-left (`bg-surface-container-highest/90 backdrop-blur-sm rounded-DEFAULT`, `label-[10px] uppercase tracking-widest` in `primary`)
+- **Newsreader title** (`font-headline text-xl text-on-surface leading-tight tracking-tight`)
+- Optional short caption (Inter 14px, `on-surface-variant`, `line-clamp-2`, leading-relaxed)
+- Footer row: **avatar 5×5** · `@handle` in `label-xs` `on-surface-variant` · heart icon + count in `outline`
+- On hover: `group-hover:scale-105 transition-transform duration-700 ease-out`
 
 ### Primary actions
 - open profile
@@ -506,20 +525,26 @@ If user is already on Home and taps Home again:
 
 ### Wireframe
 ```text
-+----------------------------------+
-| ☰        Z o e            🔔 ·    |
-| [optional story tray]          |
-|----------------------------------|
-| [card img #2▲] [card img #1 ST]|
-| serif title    serif title     |
-| snippet...     snippet...       |
-| av name ♥2.1k  av name ♥890    |
-|----------------------------------|
-| [ranking activity card]          |
-| “Maya moved Sumi Café → #2”    |
-+----------------------------------+
-| home | explore | rank | shorts | profile |
-+----------------------------------+
++-----------------------------------------+
+| ☰               Zoe              [av]   |  glass top bar
+|-----------------------------------------|
+| [For You][Architecture][Ceramics][…]   |  snap-scroll chips
+|-----------------------------------------|
+| +-----------+  +-----------+            |
+| | img  •12▲ |  |   img     |            |  masonry, mixed ratios
+| +-----------+  +-----------+            |
+| Serif title    Serif title              |
+| snippet        snippet                  |
+| av @handle ♥4.2k  av @handle ♥856      |
+|                                         |
+| +-----------+  +----------------------+ |
+| | img NEW   |  | "quote in Newsreader"| | editorial card
+| +-----------+  |   — Le Corbusier     | |
+| Serif title    +----------------------+ |
+| av @handle     …                        |
++-----------------------------------------+
+| discover | search | rank | shorts | profile |  glass bottom nav
++-----------------------------------------+
 ```
 
 ### Story tray requirements
@@ -713,58 +738,83 @@ Support in-app conversation about posts, places, rankings, and plans.
 
 ---
 
-## SCREEN 13 — Explore Landing
+## SCREEN 13 — Search / Following Activity
 
 ### Purpose
-Instagram-like explore shell with RedNote-like utility and search depth.
+Zoe's **Search** tab is not a generic grid-style explore page. It is a **taste-intimate following-activity feed** with an editorial search affordance on top. Users come here to see what people they trust just ranked, saved, or added — and to search with depth (people, objects, lists, topics).
+
+### Reference prototype
+`Design_guide/search_page/code.html`
 
 ### Entry points
-- bottom tab **Explore**
-- search interactions from elsewhere
+- bottom tab **Search**
+- search interactions from elsewhere (deep link, share)
 
-### Top components
-- persistent search bar
-- optional category chips
+### Top bar (glass, `bg-surface/70 backdrop-blur-xl`)
+- Leading `search` icon (Material Symbol, text-2xl, `primary`)
+- **Large Newsreader italic input** — `placeholder="Search your circle…"`, `text-xl font-headline tracking-tight`, no border, no focus ring (editorial feel)
+- Trailing avatar 8×8
 
-### Main content layout
-- discover grid / editorial layout
-- trending posts
-- recommended places/products
-- topic clusters
-- suggested ranking lists
-- creator suggestions
-- recent searches
+### Main content: stacked following-activity cards
+- Section header: **"Following Activity"** in Newsreader italic 28–30px, `primary` color
+- Vertical stack with generous spacing (`space-y-10`)
+- Each activity is two parts:
+  1. **Actor line row** (avatar 8×8 + short sentence): `"Maya added Sumi Café to her Top 5"` with actor name in Inter strong and object name in **Newsreader italic** `primary`
+  2. **Rich artifact card** (rounded-DEFAULT, ambient shadow `shadow-[0_4px_24px_rgba(27,28,26,0.02)]`)
+
+### Activity card variants (see Visual Direction Kit §16.3)
+- **Added to ranking / Saved:** `bg-surface-container-low` · aspect-video hero image · Newsreader title · uppercase tracking-widest subtitle in `secondary` · body snippet
+- **Moved up/down (rank change):** `bg-surface-container-highest` (lifted) · inline layout with 24×24 object image on the left, details on right · corner arrow in `rank-up` or `rank-down`
+- **Saved a multi-image place:** card with horizontal snap-scroll of 48×64 image thumbs
 
 ### Search bar behavior
-Supports:
-- users
-- places
-- perfumes
-- albums
-- tags
-- categories
-- neighborhoods
-- ranking lists
+When user taps/types, the Following Activity feed collapses and results surface per SCREEN 14. Search supports:
+- people (creators, friends, celebrities)
+- places (restaurants, cafés, bars)
+- products (perfumes, beauty, fashion)
+- albums / artists
+- ranked lists
+- tags, topics, neighborhoods
 
 ### States
-- default explore
-- typing search
-- results
-- no results
+- default: Following Activity feed (most recent taste moves from people you follow)
+- typing: results + recent searches
+- results: per SCREEN 14
+- empty (no follows): prompt to follow creators + trending lists suggestion
 - loading
+- offline
 
 ### Wireframe
 ```text
-+----------------------------------+
-| [Search Zoe]                     |
-| coffee  perfume  albums  bars    |
-|----------------------------------|
-| [grid tile][grid tile][grid tile]|
-| [wide tile      ][grid tile]     |
-| [grid tile][grid tile][grid tile]|
-+----------------------------------+
-| home | explore | rank | shorts | profile |
-+----------------------------------+
++-----------------------------------------+
+| 🔍  [Search your circle…]         [av] |  glass top bar
+|-----------------------------------------|
+| Following Activity                      |  Newsreader italic
+|                                         |
+| [av] Maya added *Sumi Café* to Top 5   |
+| +-------------------------------------+ |
+| | [aspect-video image]                | |
+| | Sumi Café                           | |  Newsreader 24px
+| | KYOTO, JAPAN                        | |  label uppercase
+| | "The matcha pours here are…"        | |  body
+| +-------------------------------------+ |
+|                                         |
+| [av] Elton just ranked *Blonde* #1     |
+| +-------------------------------------+ |
+| | [cover]  Blonde          ↑          | |  rank-up arrow
+| |          FRANK OCEAN                | |
+| |          "Finally clicked for me…"  | |
+| +-------------------------------------+ |
+|                                         |
+| [av] Nina saved *Kyo Omakase*          |
+| +-------------------------------------+ |
+| | Kyo Omakase                         | |
+| | WEST VILLAGE, NY                    | |
+| | [thumb][thumb][thumb]               | |  horiz scroll
+| +-------------------------------------+ |
++-----------------------------------------+
+| discover | search | rank | shorts | profile |
++-----------------------------------------+
 ```
 
 ---
@@ -852,46 +902,66 @@ Unified detail page for any ranked object:
 ## SCREEN 16 — Shorts Feed
 
 ### Purpose
-Short-form **immersive** vertical video (Stitch: dark UI, glass controls).
+Short-form **immersive** vertical video surface. Dark and warm (never flat black), with glass-pill controls and an elegant curator footer.
+
+### Reference prototype
+`Design_guide/shorts_page/code.html`
 
 ### Entry points
 - bottom tab **Shorts**
 - tap video post from feed
+- tap **RANK** object path from a shared short
 
-### Required components
-- full-screen vertical **image/video** (warm dark blacks, not pure #000)
-- **Top-left** contextual pill (e.g. consensus / trend—optional)
-- **Right rail:** **RANK**, **SAVE**, **SEND**, creator avatar
-- **Bottom:** @handle, **Follow**, **large serif title**, **More detail**
-- swipe for next
+### Body
+- `bg-black` body with `overflow-hidden`
+- Full-screen vertical media stack (`snap-y snap-mandatory`)
+- Each item: full-bleed `img`/`video` + two tonal gradients for text legibility (`from-black/30 via-transparent to-black/80`)
 
-### Right-side action stack (priority order)
-- **RANK** (entry to ranking flow when relevant)
-- **SAVE**
-- **SEND** (share)
-- creator avatar
+### Top bar (glass, translucent)
+- Menu left · centered **Zoe** Newsreader italic · avatar right
+
+### Right rail (glass action pills, 52×72 rounded-full)
+- **Heart + count** — filled on like (`font-variation-settings: 'FILL' 1`)
+- **Chat bubble + count** — comments
+- **Bookmark + "Save"** — save to collections
+- **More (52×52)** — overflow
+
+Each pill: `bg-white/10 backdrop-blur-xl border border-white/20` with `shadow-[0_8px_32px_rgba(0,0,0,0.12)]`.
+
+**Optional RANK action**: when the short is tied to a rankable object, promote a `RANK` pill (gradient fill `primary → primary-container`) above the rail — first-class entry to the add-to-ranking flow.
+
+### Bottom-left info block (left-6 bottom-28)
+- **Curator badge**: 10×10 avatar with `border-[1.5px] border-white/40`, creator name in **Newsreader 18px white drop-shadow**, label "CURATOR" in uppercase tracking-widest
+- **Description**: Inter 14px medium, white/95, `line-clamp-2`
+- **Metadata pills** (location + audio): `bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1.5` with Material Symbols `location_on` and `music_note`
 
 ### States
-- playing
-- paused
-- muted/unmuted
-- loading next item
+- playing / paused (tap-hold to pause)
+- muted / unmuted
+- loading next item (`swipe_up` icon pulsing on placeholder)
 - no more items
 - poor connection
+- rank-flow open (modal over short)
 
 ### Wireframe
 ```text
 +----------------------------------+
-| [ Popular consensus ]            |
-|                           RANK   |
-|  [fullscreen media]       SAVE   |
-|                           SEND   |
-|                            [av]  |
-| @user  [Follow]                  |
-| Serif Title Here                 |
-| MORE DETAIL ▾                    |
+| ☰         Zoe           [av]     |  glass top bar
+|----------------------------------|
+|                                  |
+|   [full-bleed vertical media]    |
+|                                  |
+|                           ♥ 24.5k|  glass pill
+|                           💬 412 |
+|                           🔖 Save|
+|                            ⋯     |
+|                                  |
+| ○ The Daily Grind                |  curator, white serif
+|   CURATOR                        |
+|  "Exploring the hidden gem…"     |  body
+|  📍 Kyoto · 🎵 Lo-Fi             |  glass pills
 +----------------------------------+
-| home | explore | rank | shorts | profile |
+| discover | search | rank | shorts | profile |
 +----------------------------------+
 ```
 
@@ -900,49 +970,123 @@ Short-form **immersive** vertical video (Stitch: dark UI, glass controls).
 ## SCREEN 17 — Rankings Hub (MVP)
 
 ### Purpose
-Primary place to **browse and edit the user’s own rankings** across categories (movies, music, fashion, sports, restaurants, perfumes, etc.) and to **add** new items via compare flows, **music links**, or **camera**.
+Two modes in one tab:
+- **Community Hub** (default landing) — browse trending lists and tastemakers across the platform in an editorial masonry, like a magazine's "Community" section.
+- **Personal Hub** — browse the user's **own** ranked items grouped by **interest categories**, plus **Pinned** lists from friends/celebrities.
+
+A top tab toggle or horizontal affordance switches between the two. Both modes share the "Modern Curator" language (background `#FBF9F6`, serif titles, rank pills, glass chrome).
+
+### Reference prototype
+`Design_guide/ranking_page/code.html` — this prototype shows the **Community Hub** mode. Personal hub is a derivative view.
 
 ### Entry points
 - bottom tab **Rankings**
-- deep link to a specific list
-- “RANK” from Shorts
+- deep link to a specific category, list, or community section
+- **RANK** from Shorts
 - **Swipe-right** camera → rank flow
+- From Home ranking activity card
 
-### Core layout
-- **Calm, editorial** index: category sections or **filter chips** (My lists / Music / Film / Fashion / Sports / Food…)
-- Each list shows **cover**, **title** (serif), **last updated**, **movement** hints
-- **Primary add:** prominent “**Add to ranking**” (opens capture, library pick, or **Spotify / Apple Music** picker for music)
+### Shell (always present)
+- Bottom tab bar remains visible (glass, 5 tabs); **Rankings** is active.
+- Top bar (glass, `bg-surface/70 backdrop-blur-xl`, h-16): desktop nav links (left) · centered **Zoe** Newsreader italic · avatar (right). Mobile shows menu + Zoe + avatar.
+
+### Hero header (Community Hub)
+- Centered, `pt-4`
+- "Community Hub" in Newsreader 40–48px `on-surface`, tight tracking
+- Subline body in `on-surface-variant`: "Explore living rankings curated by the Zoe community. Find your next obsession."
+
+### Filter tabs (under hero)
+Centered, `border-b border-outline-variant/30`:
+- **Trending Lists** (active) · **New Tastemakers** · **Category Gems**
+- Active: `primary` bold + `border-b-2 border-primary pb-2`
+- Inactive: `secondary`, uppercase tracking-widest
+
+### Discovery masonry (Community Hub)
+`columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4`
+
+Each card = **ranking list preview** (see Visual Direction Kit §16.2):
+- `bg-surface-container-lowest` with subtle shadow `shadow-sm hover:shadow-md`
+- Hero image (mixed aspect ratios: 3/4, square, 4/3, 3/5, 16/9)
+- Overlay pill top-right: `No. 1` + `trending_up`, `New` + `grade`, or `Hot` + `local_fire_department`
+- Newsreader 18–20px list title (e.g. "The Brutalist Revival in Interior Spaces")
+- Optional 11px body snippet (2 lines)
+- Footer: owner avatar (5×5) + `by @handle` in 10px · heart + count on right
+
+### Personal Hub mode (toggle from top)
+When user switches to personal view:
+
+#### Header
+Replace hero with simpler row: "Your Rankings" in Newsreader + `[Edit]` (reorder) + `[+]` (add).
+
+#### Pinned strip
+Horizontal scroll at top: other users' public lists the user has pinned. Cards show avatar, `@handle`, list title, and preview strip — Home-style editorial cards.
+
+#### Your categories (stacked, reorderable)
+- Vertical stack of **category blocks**: Film, Music, Fashion, Sports, Restaurants, Perfume, Cafés, Albums
+- **Collapsed row:** category name in Newsreader 20px · count or "updated 2d ago" in `on-surface-variant` · chevron (▾/▴)
+- **Expanded:** ordered entries rendered as editorial rows — **Cormorant Garamond rank number** (22–28px), 12×12 object thumb (rounded-DEFAULT), object name in Newsreader 16px, subtitle in `on-surface-variant` uppercase label, optional movement arrow (`rank-up` / `rank-down`)
+- Tap row → **Ranking Detail (SCREEN 18)**
+
+#### Reorder mode
+Tap `[Edit]` or long-press a category to enter reorder mode. Drag-and-drop categories into any order. Persist via `user.category_order`.
 
 ### Add flow (high level)
-1. Choose **category / list** (only lists the user maintains—or create new)
-2. **Photo** upload or **music** link → item preview
-3. **Pairwise compare** against existing entries until position stabilizes
-4. Optional **caption** / note; publish to profile or Home as ranking update
+1. `[+]` → pick category (or create new) → add item
+2. Photo upload, camera capture, or music link (Spotify / Apple Music)
+3. Pairwise compare within that category
+4. Optional caption; respect visibility rules
 
-### Wireframe
+### Wireframe — Community Hub (default)
 ```text
-+----------------------------------+
-| Rankings              [+] add    |
-|  My lists   Music   Film   ...   |
-|----------------------------------|
-| [cover] All-Time Movies          |
-|         updated 2d ago      →    |
-|----------------------------------|
-| [cover] Sneakers                 |
-|         updated 1w ago      →    |
-|----------------------------------|
-| [cover] Late Night Albums        |
-|         updated 3h ago      →    |
-+----------------------------------+
-| home | explore | rank | shorts | profile |
-+----------------------------------+
++-----------------------------------------+
+| (links)         Zoe            (rank*)  [av] |  glass top bar
+|-----------------------------------------|
+|         Community Hub                   |  Newsreader 44
+|  Explore living rankings curated by…    |  body
+|                                         |
+|  TRENDING LISTS · New Tastemakers · …   |  tabs
+|-----------------------------------------|
+| +-----------+  +-----------+            |
+| | img No.1▲ |  |    img    |            |  masonry
+| +-----------+  +-----------+            |
+| Brutalist…     Tactile Ceramics…        |  serif title
+| av @arch_curator  av @maya  ♥1.8k       |
+|                                         |
+| +-----------+  +-----------+            |
+| |   img     |  | img Hot   |            |
+| +-----------+  +-----------+            |
+| Third-Wave…    Gallery Whites…          |
++-----------------------------------------+
+|    [loading more spinner]               |
++-----------------------------------------+
+| discover | search | rank | shorts | profile |
++-----------------------------------------+
 ```
 
-### Design note
-This tab should feel like a **personal museum** of taste—**not** a spreadsheet. Comparison screens should use **side-by-side** imagery wherever possible.
+### Wireframe — Personal Hub
+```text
++-----------------------------------------+
+| Your Rankings       [edit] [+]          |
+|-----------------------------------------|
+| PINNED                                  |
+| [card @lila · Tour Favorites]  →        |
+| [card @maya · Top Cafés]       →        |
+|-----------------------------------------|
+| YOUR CATEGORIES   (reorderable)         |
+| ▴ Film — 12 items                       |
+|    I  [thumb] Past Lives                |  Cormorant "I"
+|    II [thumb] Perfect Days       ▲      |
+|    III[thumb] Aftersun                  |
+| ▾ Music — 8 items                       |
+| ▾ Fashion — 3 items                     |
++-----------------------------------------+
+```
+
+### Privacy (viewer)
+- **Pinned** and browsing others' lists **only** when the owner's **rankings visibility** allows (see SCREEN 31 / PRD §36). **Private** accounts: non-followers see **locked** rankings until **Follow** is accepted.
 
 ### Social ranking activity
-Feeds of **other people’s** ranking moves are **not** the primary job of this tab in MVP; that content belongs in **Home** (and notifications). A future **“Friends’ moves”** sub-segment or tab is optional.
+Others' **move** feeds stay primary in **Home** and the **Search / Following Activity** surface; this tab is **yours + pins + community**.
 
 ---
 
@@ -1053,41 +1197,54 @@ Let user add an object into a ranking using Beli-like attraction mechanics.
 ## SCREEN 20 — Profile (Self)
 
 ### Purpose
-Instagram-like personal hub with rankings integrated deeply.
+Instagram-familiar personal hub with rankings integrated deeply, rendered in the Modern Curator language.
+
+### Reference prototype
+`Design_guide/profile_page/code.html`
 
 ### Entry points
 - bottom tab Profile
 - avatar taps where self
 
-### Top components
-- avatar
-- username
-- bio
-- link / city / short identity line
-- stats row
-- edit profile
-- add/create button
-- settings button
+### Top bar (glass)
+- Menu (left) · **Zoe** Newsreader italic (center) · `more_horiz` (right)
 
-### Story/highlights row
-Supports highlights like:
-- Cafés
-- Travel
-- Perfumes
-- Albums
-- Date Spots
+### Header section (`px-6 mt-4`)
+- **Avatar**: 24×24 (md:32×32) rounded-full, `bg-surface-container-high border border-outline-variant/30` (Ghost Border — one allowed use)
+- **Stats row** (flex, right of avatar): Posts · Followers · Following counts in Newsreader 20–24px, labels in Inter 12–14px `on-surface-variant`. Followers/Following counts are **tappable** → Followers / Following lists (Instagram-familiar rows)
+- **Display name**: `font-display` (Newsreader) 24–30px, tight tracking
+- **Bio**: Inter 14–16px, `on-surface-variant`, `leading-relaxed`
 
-### Main profile content tabs
-1. Posts grid
-2. Shorts grid
-3. Tagged / mentions later
-4. Rankings
-5. Saved optional shortcut, not primary tab in MVP
+### Story / highlights row
+Soft warm gradient ring (less saturated than Instagram). Example highlights:
+- Cafés · Travel · Perfumes · Albums · Date Spots
 
-For MVP, if limited to three visible content tabs:
-- Posts
-- Shorts
-- Rankings
+### Tabs (full-width, `border-t border-outline-variant/30`)
+One structural separator allowed. Each tab: `flex-1 py-3 text-center` with uppercase tracking-widest Inter 14px label + icon.
+
+1. **Posts** (`grid_on`) — default active, `border-b-2 border-on-surface`
+2. **Shorts** (`play_circle`)
+3. **Rankings** (`star`)
+
+For MVP, three visible content tabs.
+
+### Posts grid (active tab)
+`grid-cols-3 gap-0.5 md:gap-1`
+
+**Mixed tile variants** (this is a signature Zoe move — editorial profile grid):
+- **Image tile** (aspect-square): photo with hover `scale-105 duration-700`
+- **Text-only editorial tile** (`bg-surface-container-highest`): no image, just category label at bottom (e.g. `OBJECT DESIGN` in uppercase tracking-widest) + Newsreader title (e.g. "Tactile Materiality") — gives the profile a magazine-contents-page feel
+- **Image + tint overlay**: photo with `mix-blend-multiply` color tint for editorial consistency
+
+### Shorts grid (when active)
+Aspect-portrait (`aspect-[3/5]`) thumbnails, 3 columns, small play-count overlay on each.
+
+### Rankings tab (when active)
+Shows user's top lists as rich ranking-list preview cards (see Visual Direction Kit §16.2), not a grid. Includes:
+- top ranking lists preview (hero cards)
+- recently updated list
+- ranking summary stats
+- "Add ranking" CTA (primary gradient)
 
 ### Ranking section requirements
 - top ranking lists preview
@@ -1112,20 +1269,27 @@ For MVP, if limited to three visible content tabs:
 
 ### Wireframe
 ```text
-+----------------------------------+
-| profile pic        [edit] [☰]    |
-| username                          |
-| bio                               |
-| 45 posts  1,204 followers  38 fol|
-| [highlights][highlights][+]       |
-|----------------------------------|
-| [Posts] [Shorts] [Rankings]      |
-|----------------------------------|
-| [grid][grid][grid]               |
-| [grid][grid][grid]               |
-+----------------------------------+
-| home | explore | rank | shorts | profile |
-+----------------------------------+
++-----------------------------------------+
+| ☰              Zoe              ⋯       |  glass top bar
+|-----------------------------------------|
+| ⬤           142      12.4K      845    |
+|           Posts  Followers  Following   |
+|                                         |
+| Clara V.                                |  Newsreader 28
+| Curator of aesthetic minimalism…        |  bio
+|                                         |
+| [Cafés][Travel][Perfume][Albums][+]     |  highlights row
+|-----------------------------------------|
+| ▣ POSTS  ▷ SHORTS  ★ RANKINGS           |  tabs
+|-----------------------------------------|
+| [img][img][text tile: "Tactile          |
+|                       Materiality" +    |
+|                       OBJECT DESIGN]    |
+| [img][img][text tile]                   |
+| [img][img][img]                         |
++-----------------------------------------+
+| discover | search | rank | shorts | profile |
++-----------------------------------------+
 ```
 
 ---
@@ -1133,24 +1297,74 @@ For MVP, if limited to three visible content tabs:
 ## SCREEN 21 — Profile (Other User)
 
 ### Purpose
-Inspect another user’s identity, content, and ranking taste.
+Inspect another curator's identity, content, and ranking taste when discovered via **Search / Following Activity**, a **Ranking Detail**, a post attribution, or direct link. Shares the **same Modern Curator profile shell** as `SCREEN 20` so a viewer immediately recognizes the format; differences are only in the **action row** and **visibility gating**.
 
-### Differences from self profile
-- follow / message button
-- taste match % badge
-- mutual follows
-- follow status
-- shared rankings highlights
+### Structural deltas vs. self profile (`Design_guide/profile_page/code.html` baseline)
+- Glass top bar: `arrow_back` (left) replaces the hamburger; center shows **@handle**; right shows `more_horiz` (report / block / share profile / mute).
+- **Header section** retains the same avatar + stats + Newsreader name + bio layout.
+- **Stats row** remains tappable: Posts scrolls to the grid; **Followers** and **Following** counts open their respective list screens.
+- **Action row** (below bio, above highlights) — two glass buttons sitting on the `surface-container-low` band:
+  - Primary: **Follow** (gradient fill `from-primary to-primary-container`, `on-primary` text) → becomes **Following** (`bg-transparent border-outline-variant/60`) → **Requested** (disabled-style, `text-on-surface-variant`, italic) for private accounts.
+  - Secondary: **Message** (`bg-transparent`, ghost border `border-outline-variant/60`, Inter label).
+  - Optional tertiary icon button: **notify bell** (`notifications_none`) once following, `rounded-full` glass chip.
+- **Taste match module** (optional, shown inline under the action row when viewer is signed in):
+  - Small label-caps `TASTE MATCH` + Newsreader italic percent (e.g. _"84%"_) + a faint Fig progress bar on `surface-container`.
+  - Tap → breakdown sheet showing overlapping categories and mutuals.
+- **Highlights row** reuses the same horizontal scroller; when the other user has no highlights, the row collapses (no empty state chip on other profiles).
+- **Tabs**: Posts · Shorts · Rankings — identical style to self profile.
 
-### Required components
-- avatar
-- username
-- bio
-- follow button
-- message button
-- taste match module
-- ranking previews
-- posts/shorts/rankings tabs
+### Visibility & locked states (rankings visibility)
+Follow the Visual Direction Kit §18 "Empty & Locked" pattern — never use hard error tones.
+
+- **Public profile, Public rankings:** full parity with self profile grid & rankings list. Public lists can be **Pinned** into the viewer's Rankings Hub (see SCREEN 17) via an action sheet from `more_horiz` or from the ranking detail.
+- **Public profile, Private rankings:** Posts and Shorts grids render normally. The Rankings tab shows a **locked card**:
+  - `surface-container-low` card, `rounded-xl`, Material `lock_outline` icon in `on-surface-variant`.
+  - Newsreader headline _"Rankings are private"_ + Inter body _"Only approved followers see @handle's lists."_
+  - Inline **Follow** gradient button if not yet following, or **Requested** state if pending.
+- **Private profile (not yet approved):** Header, bio, and stats visible; grids and tabs replaced by a single full-bleed locked state card with the same visual language plus a muted preview strip (blurred thumbnails at 30% opacity, Fig vignette).
+- **Blocked / suspended user:** minimal state — avatar silhouette, _"This profile is unavailable"_ (Newsreader italic), no counts, no tabs. No functional actions except back.
+
+### Grid & ranking rendering rules
+- The posts grid reuses the **mixed tile system** (image tiles + text-only editorial tiles) from SCREEN 20 so other profiles inherit the same editorial rhythm.
+- Ranking category cards on another user's profile show the **same rank-up / rank-down / new-entry** pills, but add a small **viewer comparison** chip (`rank-up` dot + _"+12 overlap"_) when a taste match is available.
+- Numbers in ranking previews always use **Cormorant Garamond** per VDK §7.
+
+### Micro-interactions
+- Follow tap: 120ms scale-down on press, then crossfade label; a faint `rank-up` sage pulse (one cycle, 300ms) confirms the state change — no toast.
+- Long-press avatar: opens a glass preview card (280×280, `backdrop-blur-xl`, `bg-surface/80`) with the latest 3 cover tiles — matches the Modern Curator "peek" pattern used elsewhere.
+- Pull-to-refresh uses the same bouncy curve and Fig hairline indicator as Home.
+
+### Wireframe
+```text
++-----------------------------------------+
+| ←           @clara.v              ⋯    |  glass top bar
+|-----------------------------------------|
+| ⬤            142     12.4K      845    |
+|            Posts  Followers  Following  |
+|                                         |
+| Clara Vance                             |  Newsreader 28
+| Curator of quiet aesthetics and slow…   |  Inter body
+|                                         |
+| [ Follow (gradient) ] [ Message ] [🔔]  |  action row
+|                                         |
+| TASTE MATCH  84% ▁▃▅▇▉▉ (Fig hairline)  |  optional
+|                                         |
+| [Cafés][Travel][Perfume][Albums]        |  highlights (if any)
+|-----------------------------------------|
+| ▣ POSTS  ▷ SHORTS  ★ RANKINGS           |
+|-----------------------------------------|
+| [img][img][text tile]                   |
+| [img][img][img]                         |
+|  ——or if Rankings tab + private——       |
+| ┌────────── locked card ──────────┐     |
+| | 🔒 Rankings are private          |     |
+| | Only approved followers see…     |     |
+| | [ Follow (gradient) ]            |     |
+| └──────────────────────────────────┘     |
++-----------------------------------------+
+| discover | search | rank | shorts | profile |
++-----------------------------------------+
+```
 
 ---
 
@@ -1389,11 +1603,13 @@ Account and behavior controls.
 ## SCREEN 31 — Ranking Visibility / Preferences
 
 ### Purpose
-Allow control over how public ranking identity is.
+Allow control over **who can see the user’s rankings** (aligned with Instagram-style **public account** vs **private account** expectations).
 
-### Options
-- public rankings
-- followers only
+### Account-level rankings visibility (product default to confirm)
+- **Public rankings:** anyone can open the user’s **Rankings** surfaces from profile or search; **pinning** by others is allowed for lists the owner exposes as public.
+- **Private rankings (followers only):** only **approved followers** can view ranking lists on profile and in **Rankings hub pins**; everyone else sees **Follow to view** (or equivalent). Search still surfaces the **profile shell** (Instagram-like) with **follower/following counts** visible as on IG, but **ranking content** stays gated.
+
+### Per-list options (optional later)
 - private lists
 - hide ranking changes from Home / notifications
 - show recent ranking moves on profile
@@ -1415,9 +1631,9 @@ Allow control over how public ranking identity is.
   - Story Viewer
 - Swipe Right → Camera / Story
 
-## 8.2 Explore tab IA
-- Explore Landing
-  - Search Results
+## 8.2 Search tab IA
+- Search Landing (**Following Activity** feed + search input)
+  - Search Results (typed query, tabbed by type)
   - Post Detail
   - Profile
   - Object Detail
@@ -1426,7 +1642,9 @@ Allow control over how public ranking identity is.
   - Share
 
 ## 8.3 Rankings tab IA
-- Rankings Hub
+- Rankings Hub — dual mode
+  - **Community Hub** (default): trending lists masonry, filter tabs (Trending / New Tastemakers / Category Gems)
+  - **Personal Hub**: categories **expand/collapse**, **reorder** mode, **Pinned** strip for others' public lists
   - Ranking Detail List
   - Add to Ranking / Compare flow
   - Music link pickers (Spotify / Apple Music)
@@ -1551,13 +1769,13 @@ Comments live on:
 7. optionally publishes ranking update
 8. appears in Home (as activity), notifications, and profile rankings
 
-## FLOW E — Discover via Explore
-1. user taps Explore tab
-2. sees explore grid
-3. enters query
-4. result tabs appear
-5. opens object or post
-6. saves, shares, or adds to ranking
+## FLOW E — Discover via Search / Following Activity
+1. user taps **Search** tab
+2. lands on Following Activity feed (stacked activity cards from followed curators)
+3. taps the large Newsreader italic search input
+4. enters query → result tabs appear (Top / People / Places / Objects / Rankings / Tags)
+5. opens object, post, or ranking detail
+6. saves, shares, pins ranking, or adds to their own ranking
 
 ## FLOW F — Follow ranking activity (Home)
 1. user stays on **Home** (or opens **Notifications**)
@@ -1692,7 +1910,7 @@ Not required in the first build unless capacity allows:
 ## Phase 1
 - Auth
 - Home
-- Explore
+- Search / Following Activity
 - **Rankings** hub
 - Profile
 - Post detail

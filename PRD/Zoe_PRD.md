@@ -1,10 +1,10 @@
 # Product Requirements Document (PRD)
 ## Zoe
 **Brand foundation:** The app name is **Zoe**, inspired by the Greek word **ζωή**, meaning **life**.  
-**Document version:** 2.1  
+**Document version:** 2.2  
 **Platform:** Mobile app first (iOS and Android)  
 **Product type:** Consumer social discovery, ranking, and taste graph app  
-**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine; **editorial Home + immersive Shorts** (see `PRD/Zoe_Visual_Direction_Kit.md` §24, Stitch reference §24.2).  
+**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine, refined through **"The Modern Curator — Soft Editorial Luxury"** aesthetic — editorial Home, immersive Shorts, curated Rankings hub. Canonical visual reference: `Design_guide/` prototypes (`home_page`, `search_page`, `ranking_page`, `shorts_page`, `profile_page`) + `PRD/Zoe_Visual_Direction_Kit.md` §2, §7, §11, §24.  
 **Document purpose:** Define the updated product vision, navigation model, core systems, engagement loops, requirements, constraints, and launch plan for Zoe.
 
 ---
@@ -180,29 +180,38 @@ The product should support:
 
 # 7. Design and layout philosophy
 
-Zoe should look **closer to Instagram than to a utility app**.
+Zoe adopts **"The Modern Curator — Soft Editorial Luxury"** as its design system (see `Design_guide/*/DESIGN.md` and `PRD/Zoe_Visual_Direction_Kit.md`). The app uses the **Instagram shell** as its mental model but renders every surface with the restraint, typographic care, and tactile warmth of a bespoke editorial publication.
 
-That means:
+## 7.1 Interaction shell (Instagram-like)
 - strong visual hierarchy
 - elegant full-screen mobile composition
-- familiar five-tab bottom navigation
+- familiar five-tab bottom navigation (glassmorphic bar)
 - swipe-right-to-camera behavior
-- stories/highlights at the top where appropriate
+- stories / highlights at the top where appropriate
 - **Shorts**-style vertical video feed (dark immersive UI)
 - profile as the place where users create posts and manage identity
 
-But the app should function with the practical purpose of RedNote:
+## 7.2 Utility intent (RedNote-like)
 - useful discovery
 - searchable recommendations
 - practical categories
 - trend + advice + social proof
 
-And it should incorporate ranking like Beli:
-- ranking lists
+## 7.3 Ranking identity (Beli-like, refined)
+- ranking lists as living identity artifacts
 - pairwise or ordered ranking flows
 - taste profile development
-- ranking activity surfaced in **Home** (and notifications), plus the **Rankings** hub for the user’s own lists
+- ranking activity surfaced in **Home** and **Search / Following Activity**, plus the **Rankings** hub
 - public and private ranked identity
+- Cormorant Garamond numerals + small glass pills for rank-up / rank-down / new-entry states
+
+## 7.4 Visual signature (Modern Curator)
+- **Tonal depth, not lines** — hierarchy through layered warm neutrals (`background` → `surface-container-highest`); horizontal rules are effectively forbidden
+- **High-contrast typography** — Newsreader serif display against Inter sans metadata; Cormorant Garamond reserved for rank numerals and hero pull-quotes
+- **Intentional asymmetry** — layouts balanced by weight and whitespace, never perfect centering
+- **Glass & gradient** — floating nav bars and modals use `backdrop-blur` glass; primary CTAs use subtle linear gradients (`from-primary to-primary-container`) instead of flat fills
+- **Architectural radii** — corners capped at `0.75rem` (12px) for an editorial, non-juvenile feel
+- **Ambient depth** — 24px blur / 4% opacity shadows only; no crisp drop shadows
 
 ---
 
@@ -318,8 +327,8 @@ These categories all perform well with:
 
 The app is built around:
 - Home (editorial masonry; ranking context on cards)
-- Explore / Search
-- **Rankings** (personal taste library and add/compare flows)
+- Search / Following Activity (taste-intimate activity feed + search affordance)
+- **Rankings** (Community Hub + personal taste library and add/compare flows)
 - **Shorts** (immersive vertical video)
 - Profile
 
@@ -340,9 +349,9 @@ Supporting surfaces:
 
 Zoe must use a **five-button bottom navigation layout**, with **no add button**.
 
-## 14.1 Bottom tabs (Stitch-aligned labels)
-1. **Home**
-2. **Explore** (search-first discovery)
+## 14.1 Bottom tabs (Design_guide-aligned labels)
+1. **Home** (Discover)
+2. **Search** (combines search + Following Activity feed — see `Design_guide/search_page`)
 3. **Rankings**
 4. **Shorts**
 5. **Profile**
@@ -368,10 +377,11 @@ This is central to the product identity.
 - Shows posts from followed accounts and recommended content
 - If user is already on Home and taps Home again, feed scrolls instantly to top
 
-## 15.2 Explore button
-- Opens Explore / Search page
-- Includes search bar at top
-- Shows trending posts, topic-based discovery, personalized suggestions, hashtags/topics, and recommended categories
+## 15.2 Search button
+- Opens the **Search / Following Activity** page (`Design_guide/search_page`), which combines:
+  - a **large Newsreader italic search input** at the top (_"Search for inspiration…"_) with an integrated camera/visual-search affordance
+  - a **Following Activity** feed of stacked activity cards (new rankings, ranking changes, saved items, posts from followed curators)
+- Typing reveals Search Results tabbed by Top / People / Places / Objects / Rankings / Tags
 - Search supports places, objects, people, lists, topics, and rankings
 
 ## 15.3 Rankings button (MVP)
@@ -398,7 +408,7 @@ This is central to the product identity.
 
 ## 16.1 Main screens
 - Home feed
-- Explore / Search
+- Search / Following Activity (landing) + Search Results
 - **Shorts** feed
 - **Rankings** hub (lists, categories, add to ranking)
 - Profile
@@ -500,15 +510,16 @@ This should feel like Instagram in layout, but like RedNote in practical value.
 
 ---
 
-# 19. Explore / Search requirements
+# 19. Search / Following Activity requirements
 
 ## 19.1 Purpose
-Explore is where Zoe becomes highly useful, not only entertaining.
+The **Search** tab (see `Design_guide/search_page`) is where Zoe becomes both **highly useful** and **taste-intimate**. It is **not a generic explore grid** — the default landing is a **Following Activity feed** of the curators you follow, combined with a search affordance at the top.
 
 ## 19.2 Key functions
-- search bar at top
-- trending content
-- topics and categories
+- a **large Newsreader italic search input** at top (_"Search for inspiration…"_) with an integrated camera/visual-search icon
+- **Following Activity feed** — stacked, tonally varied cards surfacing: new rankings, ranking movement, saves, reviews, and posts from followed curators
+- search reveals results tabbed by Top / People / Places / Objects / Rankings / Tags
+- trending content, topics, and categories surface under an empty / "no activity yet" state
 - personalized suggestions
 - editorial and algorithmic discovery
 - surfacing of popular and emerging ranking conversations
@@ -554,7 +565,7 @@ This is how Zoe inherits RedNote’s usefulness.
 # 20. Shorts requirements
 
 ## 20.1 Purpose
-**Shorts** is the short-form **vertical video** surface (Stitch reference: full-bleed media, dark “glass” chrome, **RANK** / Save / Send on the right rail).
+**Shorts** is the short-form **vertical video** surface (see `Design_guide/shorts_page` for the canonical prototype): full-bleed dark media, glassmorphic action pills on the right rail (**Rank** / Like / Comment / Share / Save), and a bottom-left curator attribution block using Newsreader display + Inter metadata. The white gradient "RANK" CTA uses the primary gradient token (`from-primary to-primary-container`) inverted for dark contexts.
 
 ## 20.2 Content types
 - quick recommendations
@@ -589,7 +600,7 @@ Shorts serves:
 # 21. Ranking activity + Rankings hub (MVP split)
 
 ## 21.1 Rankings hub (bottom tab)
-The **Rankings** tab is the user’s **personal taste library**: browse and edit **their own** ordered lists (e.g. all-time movies, albums, fashion items, athletes, restaurants). Add flows emphasize **photo capture** or **music linking**, then **pairwise comparison** against existing entries, optional **caption**, and publish/update behavior.
+The **Rankings** tab is the user’s **taste command center**, visually **consistent with Home and Shorts** (cream editorial base, same typography and ranking badges; optional glass accents for pinned celebrity rows). It **always keeps the bottom tab bar**. The screen groups the user’s items by **interest categories** (film, music, fashion, sports, etc.): **tap a category to expand** and see ordered entries; **collapse** to scan. Users **reorder categories** (drag-and-drop) into any order they want. A **Pinned** section lets users attach **friends’ or celebrities’ lists** that are **public** (or otherwise visible); **private** accounts gate rankings so only **followers** can view or pin—see §36.1.
 
 ## 21.2 Social ranking movement (not a separate tab in v1)
 Updates from people you follow (“moved X up,” “added Y”) should appear as **first-class cards in Home** and/or **notifications**, preserving the curiosity loop without crowding the tab bar.
@@ -623,7 +634,7 @@ Visible movement creates:
 On first account creation, ask which **worlds of taste** matter (e.g. **fashion**, **sports**, **music**, **film**, food, fragrance, etc.) using **large imagery-led choices** (not bare checkboxes)—consistent with the editorial Home aesthetic.
 
 Outcomes:
-- Seed **Home** and **Explore** with relevant creators, lists, and Shorts
+- Seed **Home** and **Search / Following Activity** with relevant creators, lists, and Shorts
 - Pre-create or suggest **starter Rankings** lists matching selected topics
 - Improve ranking comparisons and notifications relevance
 
@@ -646,7 +657,7 @@ Profile is the user’s visual identity hub and ranking headquarters.
 - username
 - display name
 - bio
-- follower / following counts
+- **follower / following counts** (tappable → **Followers** / **Following** lists, **Instagram-like** rows and search—discoverable from **Search**)
 - highlights / stories
 - posts grid
 - Shorts tab (grid of short videos)
@@ -921,7 +932,7 @@ Zoe is not only a passive social feed. Search should make the app useful like Re
 - trending conversations
 
 ## 29.3 Utility-driven discovery
-Search and Explore should answer real taste questions, not just surface viral content.
+Search should answer real taste questions, not just surface viral content. The **Following Activity** default keeps discovery feeling socially grounded rather than algorithmically cold.
 
 ## 29.4 Result surfaces
 - posts
@@ -1013,7 +1024,7 @@ But the MVP can begin with activity + follows + category interest.
 - watch probability
 - discussion potential
 
-## 32.2 Explore ranking signals
+## 32.2 Search / Following Activity ranking signals
 - trend strength
 - personalization
 - novelty
@@ -1045,7 +1056,7 @@ But the MVP can begin with activity + follows + category interest.
 Zoe’s retention should come from multiple reinforcing loops.
 
 ## 33.1 Browse loop
-Open app → Home/Explore/Shorts → consume → save/share/follow → return later
+Open app → Home / Search / Shorts → consume → save/share/follow → return later
 
 ## 33.2 Search loop
 Need recommendation → Search → find useful answer → save/follow → come back again next time
@@ -1107,10 +1118,13 @@ Zoe must support accessible mobile use:
 # 36. Privacy and safety requirements
 
 ## 36.1 Privacy
-- users control public/private visibility for profile components where appropriate
+- **Rankings visibility (account-level):** user chooses **public** or **private (followers only)** for their **rankings** as a whole (aligned with Instagram’s public vs private account mental model).
+  - **Public:** anyone can view the user’s rankings (subject to any per-list controls added later); others may **pin** that user’s public lists in their own **Rankings** hub.
+  - **Private (followers only):** only **approved followers** can view rankings on profile and in **Rankings hub pins**; non-followers see a **follow-gated** state. **Search** still surfaces the profile in an **Instagram-like** way (avatar, bio, **follower and following counts**), but ranking content remains locked until follow is accepted.
+- users control public/private visibility for other profile components where appropriate
 - users control who can message them
 - users control story audience if supported
-- ranking lists may support public/private or selective visibility in later versions
+- optional later: per-list public/private or selective visibility
 
 ## 36.2 Safety
 - report content
@@ -1188,9 +1202,9 @@ Weekly active users who complete at least one meaningful action in one of Zoe’
 # 39. MVP feature set
 
 ## 39.1 Must-have MVP
-- Instagram-like five-tab bottom nav (**Home · Explore · Rankings · Shorts · Profile**)
-- Home feed (masonry/editorial treatment + ranking context on cards)
-- Explore/Search
+- Instagram-like five-tab glass bottom nav (**Home · Search · Rankings · Shorts · Profile**)
+- Home feed (editorial masonry + ranking context on cards)
+- Search / Following Activity + Search Results
 - Shorts feed
 - **Rankings** hub (personal lists, add/compare, captions; music links)
 - Profile
@@ -1324,7 +1338,7 @@ To build Zoe correctly, all teams should align on these truths:
 1. The layout should feel like Instagram.
 2. The purpose should feel like RedNote.
 3. Ranking should feel central like Beli.
-4. The five bottom tabs are fixed: **Home, Explore, Rankings, Shorts, Profile**.
+4. The five bottom tabs are fixed: **Home, Search, Rankings, Shorts, Profile**.
 5. There is no Add tab.
 6. Posting happens from Profile or swipe-right camera/story flows.
 7. **Rankings** is a flagship hub; **ranking curiosity** is reinforced through Home cards and notifications.

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Discovery</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&amp;family=Inter:wght@100..900&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#e4e2df",
+                        "primary-fixed": "#ffd9df",
+                        "tertiary-fixed": "#ffd9dd",
+                        "primary-container": "#6f4b52",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#efeeeb",
+                        "surface": "#fbf9f6",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#1c1c0f",
+                        "inverse-surface": "#30312f",
+                        "background": "#fbf9f6",
+                        "tertiary-container": "#74494f",
+                        "tertiary": "#5a3239",
+                        "surface-variant": "#e4e2df",
+                        "primary": "#55343b",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-surface": "#1b1c1a",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#d3c2c4",
+                        "on-primary-fixed": "#2e1319",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f5f3f0",
+                        "outline": "#827475",
+                        "on-surface-variant": "#504446",
+                        "secondary-fixed-dim": "#c9c8b2",
+                        "tertiary-fixed-dim": "#f1b8bf",
+                        "on-primary-container": "#edbec6",
+                        "on-tertiary-fixed-variant": "#643b42",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1b1c1a",
+                        "surface-bright": "#fbf9f6",
+                        "secondary-fixed": "#e5e4ce",
+                        "secondary": "#5f5f4e",
+                        "secondary-container": "#e5e4ce",
+                        "inverse-primary": "#eabac2",
+                        "on-primary-fixed-variant": "#5f3d44",
+                        "surface-container-high": "#eae8e5",
+                        "primary-fixed-dim": "#eabac2",
+                        "on-tertiary-container": "#f4bbc3",
+                        "surface-tint": "#79545b",
+                        "on-secondary-container": "#656554",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#311117",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#dbdad7",
+                        "on-secondary-fixed-variant": "#474838",
+                        "on-error": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Newsreader", "serif"],
+                        "display": ["Newsreader", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Masonry Grid Fixes */
+        .masonry-grid {
+            column-count: 2;
+            column-gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .masonry-grid { column-count: 3; }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid { column-count: 4; }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center px-6 h-16 w-full bg-surface/70 backdrop-blur-xl transition-all duration-300">
+<!-- Leading Icon -->
+<button aria-label="Menu" class="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200 focus:outline-none md:hidden">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<!-- Desktop Nav Links (Hidden on mobile) -->
+<nav class="hidden md:flex gap-8 items-center">
+<a class="font-label text-sm uppercase tracking-widest text-primary font-bold" href="#">Discover</a>
+<a class="font-label text-sm uppercase tracking-widest text-secondary hover:text-primary transition-colors" href="#">Search</a>
+<a class="font-label text-sm uppercase tracking-widest text-secondary hover:text-primary transition-colors" href="#">Rank</a>
+</nav>
+<!-- Headline / Brand Logo -->
+<h1 class="text-3xl font-headline italic text-primary tracking-tight md:absolute md:left-1/2 md:-translate-x-1/2">Zoe</h1>
+<!-- Trailing Avatar -->
+<button aria-label="Profile" class="h-8 w-8 rounded-full overflow-hidden hover:opacity-80 transition-opacity active:scale-95 duration-200 focus:outline-none ring-1 ring-outline-variant/30">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="close up portrait of a young woman with natural makeup looking thoughtfully off camera in soft warm daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT74grWeJtWF3vp53hxMyDbONn7JSNEtItOtu12hzGUcTkMYQeZUhEj9WTPd5MzIww8EB28pcSZdSu0CSmDBtUYzVa4vLHmle7pcZsTrV7OAy5YTkq8YMJydtjfu9g2uaQYKidQ3yKIO17Vw6YmvLQH9qlhQS0ueMhpJ3ZlS0Wrc_ntVcVYAuV2evLPBTH0h_8HxhOGVfLsfKD5PqLz1rYiuvz_pJeSvuj-JsjMAaUWdEjNAFRhocLWxhyxeIpahXERcWSvCArU_E"/>
+</button>
+</header>
+<!-- Categories / Filter Row (Editorial Touch) -->
+<div class="pt-20 pb-4 px-4 overflow-x-auto no-scrollbar flex gap-3 snap-x max-w-7xl mx-auto">
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-primary text-on-primary font-label text-sm tracking-wide transition-transform active:scale-95 shadow-[0_4px_12px_rgba(85,52,59,0.15)]">For You</button>
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-surface-container-low text-on-surface font-label text-sm tracking-wide hover:bg-surface-container-highest transition-colors active:scale-95">Architecture</button>
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-surface-container-low text-on-surface font-label text-sm tracking-wide hover:bg-surface-container-highest transition-colors active:scale-95">Ceramics</button>
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-surface-container-low text-on-surface font-label text-sm tracking-wide hover:bg-surface-container-highest transition-colors active:scale-95">Minimalism</button>
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-surface-container-low text-on-surface font-label text-sm tracking-wide hover:bg-surface-container-highest transition-colors active:scale-95">Botanical</button>
+<button class="snap-start shrink-0 px-5 py-2 rounded-xl bg-surface-container-low text-on-surface font-label text-sm tracking-wide hover:bg-surface-container-highest transition-colors active:scale-95">Interiors</button>
+</div>
+<!-- Main Content Canvas: Editorial Masonry -->
+<main class="px-4 pb-28 max-w-7xl mx-auto">
+<div class="masonry-grid">
+<!-- Item 1: Tall Architecture -->
+<article class="masonry-item group cursor-pointer">
+<div class="relative rounded-xl overflow-hidden mb-3 bg-surface-container-low">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="minimalist modern concrete house exterior with large glass windows and soft shadow play from nearby trees during golden hour" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATZpvfUN0CR9MOFzRL1jTOuBgf3SN-i1BclSMELS1G36ot3Lfs2hzo04_Ml7md-OxsFGcl1Xe92QyaVtGzI0L_xaksl4v_dvxz8upyUqTweY8dIe7Z6MwBwM-k6ZKVF9zlgBryGVjYTJvzAWssETFjDG-UYdslnyjN47qpPxJKnnYTFXW_0GueTTRzkT7Y1CrqGY7mypIXh6UQS34UQje4V9JDBMpepB-OhQHS-2pgbCGabXJSPyNzhyPCWRXHGsOjGQm31NUeoeI"/>
+<!-- Rank Indicator (Asymmetric) -->
+<div class="absolute top-3 right-3 bg-background/90 backdrop-blur-md px-2 py-1 rounded-DEFAULT flex items-center gap-1 shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#547C65]"></span>
+<span class="font-headline text-xs text-on-surface font-semibold tracking-tight">12</span>
+</div>
+</div>
+<h2 class="font-headline text-xl text-on-surface leading-tight tracking-tight mb-1 group-hover:text-primary transition-colors">The Concrete Monolith</h2>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<img class="w-5 h-5 rounded-full" data-alt="portrait of a man with a slight beard in black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMFfYGnDWkowT6MI6HxQzP14-F7a7KAu5uJpceLy2xQVWfDuXc1GJd0bkCrNGscA0DjTOYy0VwHylIGbdXugJ9Y0geWtW3JmdpAYppTkmZCBNdnDvdZqFt4ApJ6145DqYI4Rteb48qdMi6i2addqm44vgA-rlMtDci437m7fJmpJgAFXXJp_1OYZ7JCB0DiBbPHrgl1EtCac4Q0LgEB2Pc4lpeCyGYh9bIayyQfmLlpnZ1JSHSk9HMSbLIMJCsw4OyCRuwouBsszk"/>
+<span class="font-label text-xs text-on-surface-variant">@arch_digest</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span class="font-label text-xs">4.2k</span>
+</div>
+</div>
+</article>
+<!-- Item 2: Square Ceramics -->
+<article class="masonry-item group cursor-pointer">
+<div class="relative rounded-xl overflow-hidden mb-3 bg-surface-container-low">
+<img class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="artisan handmade ceramic mugs with textured speckled glaze resting on a raw linen cloth with soft natural side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEgL8VVTyaHarM-pJN64kfJ-jR4qWvsyJnv9XqFws2g7up96j-rwHFQOxxY7DoJLdshcXWdHz7ihviDq1xnZEg8Ie2nMNVBcLc6M1rlQh1sUXTrs4A4d84XKD7biUdQ7COqujesv1rPOUw48DWm2vzKjpUKe7AeBDfc47hZwpURr9UJOtIVfjk_MCTmcXpD75EhWnUFm5U-eimhP0fMYT5Ux0fyjSuA4IyQ4z_IQX6VRMO-EAE2F5uK3jtqVbZGtvoN3J5hJHiNdU"/>
+</div>
+<h2 class="font-headline text-lg text-on-surface leading-tight tracking-tight mb-1 group-hover:text-primary transition-colors">Morning Rituals</h2>
+<p class="font-body text-sm text-on-surface-variant line-clamp-2 mb-2 leading-relaxed">Finding beauty in the imperfect glazes of hand-thrown pottery.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<img class="w-5 h-5 rounded-full" data-alt="portrait of a woman smiling warmly in outdoor natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK2bQ2CgDrxTNnBMBmbzyRYx2MDm07HzdOTCUIuJb_nc_DKXTQ7ZK_X1Q_V0MGADd3FGaxg2CG1J5kluhsqCYwGXXVNY2fpwKLGD7cS0I6ldMJvcCQ81cIavVeYdRa8g1Oky1q5cuHpH1jg0xhtLOIen9-yb_RS1S6npvaNdx87ooi3mdKJ2LqrG7CT7aZR8bxQ-H0xWrvSgSPyc084CEsV-w5CruU-3IxVJI9H-nMQiCvljkko1dqE0EjKDfSLRECkiduluKtMaY"/>
+<span class="font-label text-xs text-on-surface-variant">@claywork</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span class="font-label text-xs">856</span>
+</div>
+</div>
+</article>
+<!-- Item 3: Tall Fashion/Editorial -->
+<article class="masonry-item group cursor-pointer">
+<div class="relative rounded-xl overflow-hidden mb-3 bg-surface-container-low">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="editorial fashion shot of a woman in an oversized beige trench coat standing against a textured plaster wall with strong directional shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBPKzfTwxibW_xv9nbqinDU93ETXglHAxF4Ht8CpNWxJ20oLtnCpdmonwUFIrc3wELVRXG22aAIv2HgyQItm0ucNcP98YFYe6Tteg8fLGO0y0U3CJTyLQsCE9wdyGjHDOcSFbJv4dXCXsFrRAgAkzBSPCi3yHo51pCmjFu1cH0xkBCjlcJOsXJ94IvZElZv8Jq6HB-PhNbj8CIkQ9SBc6hlUfhoVAO9nwdIJMwrkL8ow25iIGLz-uCVGl_ejY0UeybSH5ETDZ5SK4"/>
+<div class="absolute bottom-3 left-3 bg-surface-container-highest/90 backdrop-blur-sm px-2.5 py-1 rounded-DEFAULT text-primary font-label text-[10px] uppercase tracking-widest">Style</div>
+</div>
+<h2 class="font-headline text-xl text-on-surface leading-tight tracking-tight mb-1 group-hover:text-primary transition-colors">Autumn Layering</h2>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<img class="w-5 h-5 rounded-full" data-alt="close up of a woman looking directly at camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFks6NIMVp8aJHy4MAAehPXDZpFrCjy0fZRo4hw4kpEJzyx5OepBLJPEZMX6DHWvnIKtqnT91mrZH9Jjjt6uGJFvxB4nitLWtszZpVqtA9twcMludwErIp40V10U-k5jb9eqSx4LddU3q_Nvl9tCz-po5JvAZX5YmISdY824Bdc1b8w1k-HHQwLwAKsFEWZi0Y0gWnShnthLIHCT9APwzbVHjz7XiLzyPdnsAU4o_lr-RloxDJW3wT4tXBVeedi4GJ3GNIGP7odF8"/>
+<span class="font-label text-xs text-on-surface-variant">@minimal_wardrobe</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span class="font-label text-xs">2.1k</span>
+</div>
+</div>
+</article>
+<!-- Item 4: Short Text Highlight (Editorial scaling) -->
+<article class="masonry-item group cursor-pointer bg-surface-container-low rounded-xl p-6 flex flex-col justify-center min-h-[200px] border border-outline-variant/15">
+<span class="material-symbols-outlined text-primary mb-4 opacity-50 text-3xl">format_quote</span>
+<h2 class="font-headline text-2xl text-on-surface leading-snug tracking-tight mb-4">"Space and light and order. Those are the things that men need just as much as they need bread or a place to sleep."</h2>
+<div class="flex items-center gap-2 mt-auto">
+<span class="font-label text-xs text-on-surface-variant uppercase tracking-widest">Le Corbusier</span>
+</div>
+</article>
+<!-- Item 5: Medium Interior -->
+<article class="masonry-item group cursor-pointer">
+<div class="relative rounded-xl overflow-hidden mb-3 bg-surface-container-low">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="wabi sabi interior design showing a low wooden bed raw plaster walls and a single paper lantern casting a warm glow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3X0TwC-DumTlO0UR4O_FUiWl-b-FbTvSaq6jd7Q91xK9_3497fFhth0k_MPpOR5BDXPzcEDc-6x3vuN-L8BgmUahPxvPsZDvSeFVeI9FY0xXXJkOPEF4FXiYfQGMUmMy_JSXNJKJh5ITnp_iSn8eZ99H7uuRE_qaG-fcaN5PqmwlbYjBwR167mpSmj23q-FiWRc03ofNpZqbMeRRSKyMsulxjnEnYR4FNDVDoV5QTXlFVljqoMUYuYuA9gl4PTl_msbtNrhvsby0"/>
+<!-- New Entry Indicator -->
+<div class="absolute top-3 left-3 bg-background/90 backdrop-blur-md px-2 py-1 rounded-DEFAULT flex items-center gap-1 shadow-sm">
+<span class="font-label text-[10px] text-[#8B6C3F] font-bold uppercase tracking-widest">New</span>
+</div>
+</div>
+<h2 class="font-headline text-lg text-on-surface leading-tight tracking-tight mb-1 group-hover:text-primary transition-colors">Wabi-Sabi Sleep Spaces</h2>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-primary">DS</div>
+<span class="font-label text-xs text-on-surface-variant">@design_studio</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span class="font-label text-xs">942</span>
+</div>
+</div>
+</article>
+<!-- Item 6: Coffee/Detail -->
+<article class="masonry-item group cursor-pointer">
+<div class="relative rounded-xl overflow-hidden mb-3 bg-surface-container-low">
+<img class="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="close up overhead shot of black coffee in a delicate glass cup resting on a stack of vintage books on a dark wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXh2T9g8iueOLm_balWHo6GB2BbTrik-iiMZI_IjHtYLxNEkrWmjie0ZDsJqm9Z8WopSrvLuZ6FvkNaLsxjkfhlcEWsH_b2HoSLRDJFAXNbLuSbN5X5XBFh1PZ65QmRX9HZrZtbE5U4aa1rNtptU_QJpinshD5QA0z8s6IbBfM0xxMPEgJx_UqywY6Oe1PqbIWEb4mMxNN86Nc7ZuCjV4MON9W9SISKbjAlecIk3dTjKK84nX1xBCVI4ahwTdtYZF5AgwCJbYtj7Q"/>
+</div>
+<h2 class="font-headline text-lg text-on-surface leading-tight tracking-tight mb-1 group-hover:text-primary transition-colors">Slow Afternoons</h2>
+<div class="flex items-center justify-between mt-2">
+<div class="flex items-center gap-2">
+<img class="w-5 h-5 rounded-full" data-alt="portrait of a young man smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACScms41B_i8rPeXV4BXUZvq_Bmb-fyXEdpOfL-QaY_-XSaKKUxF13BN1N9_-txf9uQecZklfmlQw6xSxVRRLYBYKGnDpNpcawMUxhLJ2cyh94qzpRa05zwQEhvT1KkRaEmNECU-pzC4jZ1oF5ts7Ll-XRd17sepigKc7VtfhyXbUCFmh3Z7OsO6tW3BPIELYxqABRi4hD1-kpgRIF5W3Q-M1GkvEQvstkAjc5iZbfoUkj27tHvHSiKpDgrlbkZoql7wfuPFdhBVY"/>
+<span class="font-label text-xs text-on-surface-variant">@caffeine_edit</span>
+</div>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label text-xs">1.5k</span>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-3 pb-6 px-4 bg-surface/80 backdrop-blur-2xl rounded-t-none shadow-[0_-4px_24px_rgba(27,28,26,0.04)] md:hidden transition-transform duration-300">
+<!-- Discover (Active) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold hover:opacity-80 transition-opacity active:scale-90 duration-300 ease-out w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-center">Discover</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary transition-colors active:scale-90 duration-300 ease-out w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">search</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-center">Search</span>
+</a>
+<!-- Rank -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary transition-colors active:scale-90 duration-300 ease-out w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">leaderboard</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-center">Rank</span>
+</a>
+<!-- Shorts -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary transition-colors active:scale-90 duration-300 ease-out w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">play_circle</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-center">Shorts</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary transition-colors active:scale-90 duration-300 ease-out w-16" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">person</span>
+<span class="font-label text-[10px] uppercase tracking-widest text-center">Profile</span>
+</a>
+</nav>
+</body></html>

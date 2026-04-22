@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Search</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&amp;family=Inter:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#dbdad7",
+                    "secondary-container": "#e5e4ce",
+                    "primary-container": "#6f4b52",
+                    "tertiary-fixed-dim": "#f1b8bf",
+                    "surface-variant": "#e4e2df",
+                    "background": "#fbf9f6",
+                    "tertiary-fixed": "#ffd9dd",
+                    "surface-container-high": "#eae8e5",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#efeeeb",
+                    "secondary-fixed-dim": "#c9c8b2",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#edbec6",
+                    "surface": "#fbf9f6",
+                    "on-primary-fixed-variant": "#5f3d44",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#eabac2",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#f4bbc3",
+                    "on-secondary-fixed": "#1c1c0f",
+                    "inverse-on-surface": "#f2f0ed",
+                    "surface-tint": "#79545b",
+                    "surface-container-highest": "#e4e2df",
+                    "on-secondary-fixed-variant": "#474838",
+                    "tertiary-container": "#74494f",
+                    "secondary-fixed": "#e5e4ce",
+                    "on-background": "#1b1c1a",
+                    "inverse-surface": "#30312f",
+                    "surface-container-low": "#f5f3f0",
+                    "on-primary-fixed": "#2e1319",
+                    "tertiary": "#5a3239",
+                    "outline-variant": "#d3c2c4",
+                    "on-tertiary-fixed-variant": "#643b42",
+                    "primary": "#55343b",
+                    "on-secondary-container": "#656554",
+                    "surface-bright": "#fbf9f6",
+                    "inverse-primary": "#eabac2",
+                    "primary-fixed": "#ffd9df",
+                    "on-tertiary-fixed": "#311117",
+                    "on-surface-variant": "#504446",
+                    "secondary": "#5f5f4e",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "outline": "#827475",
+                    "error": "#ba1a1a",
+                    "on-surface": "#1b1c1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": [
+                            "Newsreader"
+                    ],
+                    "display": [
+                            "Newsreader"
+                    ],
+                    "body": [
+                            "Inter"
+                    ],
+                    "label": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {}
+    },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-headline, .font-display { font-family: 'Newsreader', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 300; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-[#fbf9f6]/70 dark:bg-stone-900/70 backdrop-blur-xl">
+<div class="flex items-center gap-4 w-full">
+<span class="material-symbols-outlined text-[#55343b] dark:text-[#e4e2df] text-2xl">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-xl font-headline tracking-tight text-[#55343b] dark:text-[#e4e2df] placeholder:text-outline-variant placeholder:font-headline placeholder:italic" placeholder="Search your circle..." type="text"/>
+<div class="h-8 w-8 rounded-full bg-surface-container-high overflow-hidden shrink-0 shadow-sm">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close up portrait of a young woman with natural makeup in soft sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFfeXXJRogRehouRf8QLVIQS5pq3NTQK_voZeiQiXROHHt0N68kIGtm8uYoPcnb718P7l7hBR-MQYMn2M2nHLFRdeB2FPpxOFVZDUlFMEhuOmttmhjakcoCNL0kPpyAtvInw5mz2S6flVUE694lI2KsLVYYdf1fwCWBZfZjijr1BhuxGgMi0GQYMdY4T14U9TkRWaWgAumKl5LLZowrEET4ErG_MzIWUDJy97kY9OzuNFKyf-zoa4zrlt4zXQlA56exYsstURgrjM"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 px-6 md:px-12 max-w-4xl mx-auto space-y-12">
+<section>
+<h2 class="font-headline text-3xl tracking-tight text-primary mb-8 italic">Following Activity</h2>
+<div class="space-y-10">
+<!-- Activity Item 1 -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<img alt="Maya" class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="portrait of a woman smiling with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMkPG2otzQvumSq_Bird6WFdDWgTNHv_zSxzSzB_bw43dyk2QqcIJyFg1Do_GPp-e33RGWyOP6FjL_aR6J24p9Clf3qPwbFT9_xzyvaP9sjZqeo6k4p1Nl80N0pv8vRnHsoIIdn0urL8oMXuiKAmfaGBqRO33QlwN6HtY6T-yr_VeUQoQaKGICg3bBea1v7UXj82MxPArcM7G2EULjqlnXEl6kdgOpY711KjEBIRU4GbC_ymXJqTZi4yZPw6fb5o3_XgPggzLvJMw"/>
+<p class="font-label text-sm text-on-surface-variant"><strong class="font-medium text-on-surface">Maya</strong> added <span class="font-headline italic text-lg text-primary">Sumi Café</span> to her Top 5</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-[0_4px_24px_rgba(27,28,26,0.02)]">
+<div class="aspect-video w-full mb-6 overflow-hidden rounded-DEFAULT">
+<img alt="Sumi Cafe" class="w-full h-full object-cover" data-alt="minimalist cafe interior with warm wood furniture and soft natural sunlight filtering through large windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtXZw2WefE1trK6aEXF9l_C_GwxqjDLYBwX7AA5fJU2AYHP3k7GsO0BwHnU5S26PO9dT-tcQVeFhhjlFsASPP6SnjtNaXB01NCUO1_7GwhJclAE7h2lG_SMseoa8weOna8ykc6oP-FgSmTctCADb49qmV1DDirPLx_SLFkBd_9RL4pX2GsR7pLGipv6n3heBCit5dEuALuEBs6neO-hU0T1dyr2pqaAiVPkbC_1f3yri3JJGIXYnrmq9p6mch41Xx6D6XX4_is9GY"/>
+</div>
+<h3 class="font-headline text-2xl text-on-surface tracking-tight mb-2">Sumi Café</h3>
+<p class="font-label text-sm text-secondary uppercase tracking-widest mb-4">Kyoto, Japan</p>
+<p class="font-body text-base text-on-surface-variant leading-relaxed">The matcha pours here are borderline spiritual. A quiet corner away from the crowds, perfect for morning reflection.</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<img alt="Elton" class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="portrait of a man with glasses looking thoughtful in soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHpEcdDSUXLpyzVekv4trsmWZJSl2KxWaXU2UtTo6IpVyJ-Wkvqq_rPKNOzamgS2YejHfjpSLPA89LPbVnC4VjvoX6dEOL13krOa29UYrt9yXzZvTiauHcotvFbZH333xNvfbr-7glDjhjby8Au1_f8l57S2Ooodod4JepKjVU9910VW69ydnpxhukXLhwLRE0YSyREUQdQuaXsKHplMhDFz1I5XqTdxYxob1j3ubkDBHjXInmV8hD3ZdjpUe0mG6_5pYCoVbN-yI"/>
+<p class="font-label text-sm text-on-surface-variant"><strong class="font-medium text-on-surface">Elton</strong> just ranked <span class="font-headline italic text-lg text-primary">Blonde</span> #1</p>
+</div>
+<div class="bg-surface-container-highest p-6 rounded-DEFAULT shadow-[0_4px_24px_rgba(27,28,26,0.04)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-[#547C65] text-lg">arrow_upward</span>
+</div>
+<div class="flex items-start gap-6">
+<div class="w-24 h-24 shrink-0 rounded-DEFAULT overflow-hidden shadow-sm">
+<img alt="Blonde Album" class="w-full h-full object-cover" data-alt="abstract artistic composition with soft green and pink gradients resembling an album cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO-0VfbnuSj2Eud62geOBXjUMLPb77bqj-vRTyNT12xBtJkqibKiWmweLSnwldSK30hbUgnKHnn7egEqOgX8hX9uI9wSyvIvgrX1265h1nfl5VHsJ89tvoUNgLU5bF3KgXWDcjcShiVm9WXt6OP7_hhFev9Rv4nDcjd_cjQSPVfphcHAw9CZSpBSYLmup8QYY9WXbzLFRWTiaUUhBFfZPnAQi-doE8umKZwIbzjunVsBsuOcmTuTpf5mNrg2Ar-CpYnczD2sH2-YY"/>
+</div>
+<div>
+<h3 class="font-headline text-2xl text-on-surface tracking-tight mb-1">Blonde</h3>
+<p class="font-label text-sm text-secondary uppercase tracking-widest mb-3">Frank Ocean</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">Finally clicked for me. The transition from Nights into Solo is untouchable. A masterpiece of isolation.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<img alt="Nina" class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="portrait of a smiling woman with curly hair against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHIZskVqABVi424NEpRHzwbE6WCYeOlcfZit2bMpe4-dN-jlpnP6Sid1cyGv4tHByuoxR9hTCVpctH6mfam1XS2aKziCZCFBSZylpZ0qVzZzr-vSBJC3V6WO7WUl2rkKWccT8qRFgQ1Qz8jrp5MLcsUAE_5M7axJ6qUMG4O3lFhZ9qjPPvSqxPnLvlggEOX6YsanGhD8xdxfrAoYqw-xZhF3prAXYUQ_SLKYXeksurF_vKfZVzdtQbC8s8seCoDDgfYV0ZL-QleuI"/>
+<p class="font-label text-sm text-on-surface-variant"><strong class="font-medium text-on-surface">Nina</strong> saved <span class="font-headline italic text-lg text-primary">Kyo Omakase</span></p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-DEFAULT shadow-[0_4px_24px_rgba(27,28,26,0.02)]">
+<h3 class="font-headline text-2xl text-on-surface tracking-tight mb-2">Kyo Omakase</h3>
+<p class="font-label text-sm text-secondary uppercase tracking-widest mb-4">West Village, NY</p>
+<div class="flex gap-4 overflow-x-auto pb-4 snap-x">
+<div class="w-48 h-64 shrink-0 rounded-DEFAULT overflow-hidden snap-start">
+<img alt="Sushi" class="w-full h-full object-cover" data-alt="close up of premium nigiri sushi on a dark textured ceramic plate with dramatic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl5cdcNPF-9lIHLytMSDIB1lLvdrRlaixkl9836Lz2hSTRlBzcw5p3tFBbmJHlIQz23ZfaCwfnqwCYdJZulQpCCuR19Z5By2Eg-XxuQrmD-k5yWhnQ6-yWYbXCtqIXxXimze_HwM_fi-AAN5CXq5_rk9zT-LZIflEJDQZVtbIDrZEqQ02iB_BI6LmI-yQxn10jmbDbN_df0abTPRWQipTrO4YG_x7DsSblGbDIwPt9o1ZJZbW01I6LHSiWsWdRiMEtuC1knAzr9EU"/>
+</div>
+<div class="w-48 h-64 shrink-0 rounded-DEFAULT overflow-hidden snap-start">
+<img alt="Sushi Preparation" class="w-full h-full object-cover" data-alt="chef hands delicately preparing sushi at a minimal wooden counter with warm focused light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_aRbtdYaF9lZQFlNcj-Vdc3myxCQfkWhxVYxCVeCyhW5u034AbgvX0qLNe_UJxEGAeaSZBFt3c-c3raxYwdkekqovxKJZmuyypRASQOeVysslzIQcORA3-ulx_Fqw2hFP5xCsmBlB0kOnEJR1VnC9lJvpThILk3269YPP53RSem27g8VBwjm8D59MLUkG-gC2k2OuwP0nO-sE0h--MIv_1Yix8ZN0B-8yIn57_BHJZpnh4PMFxKa2LRBci5IdON3vWa-1r7ln9A8"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-8 pb-8 pt-4 bg-[#fbf9f6]/80 dark:bg-stone-900/80 backdrop-blur-2xl border-none shadow-[0_-4px_24px_rgba(27,28,26,0.04)] md:hidden">
+<!-- Discover -->
+<a class="flex flex-col items-center justify-center text-[#71715f] opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">home</span>
+</a>
+<!-- Search (Active) -->
+<a class="flex flex-col items-center justify-center text-[#55343b] dark:text-[#e4e2df] scale-110 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-2xl mb-1 fill">search</span>
+</a>
+<!-- Rank -->
+<a class="flex flex-col items-center justify-center text-[#71715f] opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">auto_awesome</span>
+</a>
+<!-- Shorts -->
+<a class="flex flex-col items-center justify-center text-[#71715f] opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">play_circle</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#71715f] opacity-60 hover:opacity-100 transition-opacity active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-2xl mb-1">person</span>
+</a>
+</nav>
+</body></html>

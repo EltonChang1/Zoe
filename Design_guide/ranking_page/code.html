@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Community Rankings Hub</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#e4e2df",
+                    "primary-fixed": "#ffd9df",
+                    "tertiary-fixed": "#ffd9dd",
+                    "primary-container": "#6f4b52",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#efeeeb",
+                    "surface": "#fbf9f6",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#1c1c0f",
+                    "inverse-surface": "#30312f",
+                    "background": "#fbf9f6",
+                    "tertiary-container": "#74494f",
+                    "tertiary": "#5a3239",
+                    "surface-variant": "#e4e2df",
+                    "primary": "#55343b",
+                    "inverse-on-surface": "#f2f0ed",
+                    "on-surface": "#1b1c1a",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#d3c2c4",
+                    "on-primary-fixed": "#2e1319",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f5f3f0",
+                    "outline": "#827475",
+                    "on-surface-variant": "#504446",
+                    "secondary-fixed-dim": "#c9c8b2",
+                    "tertiary-fixed-dim": "#f1b8bf",
+                    "on-primary-container": "#edbec6",
+                    "on-tertiary-fixed-variant": "#643b42",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1b1c1a",
+                    "surface-bright": "#fbf9f6",
+                    "secondary-fixed": "#e5e4ce",
+                    "secondary": "#5f5f4e",
+                    "secondary-container": "#e5e4ce",
+                    "inverse-primary": "#eabac2",
+                    "on-primary-fixed-variant": "#5f3d44",
+                    "surface-container-high": "#eae8e5",
+                    "primary-fixed-dim": "#eabac2",
+                    "on-tertiary-container": "#f4bbc3",
+                    "surface-tint": "#79545b",
+                    "on-secondary-container": "#656554",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#311117",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dbdad7",
+                    "on-secondary-fixed-variant": "#474838",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "display": ["Newsreader", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 z-50 fixed flex justify-between items-center px-6 h-16 w-full bg-[#FBF9F6]/90 dark:bg-[#1B1C1A]/90 backdrop-blur-xl border-b border-outline-variant/20 flat">
+<!-- Leading: Menu (Mobile) / Desktop Nav -->
+<div class="flex-1 flex items-center">
+<button class="md:hidden material-symbols-outlined text-[#55343B] dark:text-[#E4E2DF] hover:opacity-80 transition-opacity active:scale-95 duration-200">menu</button>
+<nav class="hidden md:flex gap-8 items-center pl-4">
+<a class="font-sans text-xs uppercase tracking-widest text-[#71715F] hover:text-[#55343B] transition-colors" href="#">Discover</a>
+<a class="font-sans text-xs uppercase tracking-widest text-[#71715F] hover:text-[#55343B] transition-colors" href="#">Search</a>
+</nav>
+</div>
+<!-- Center: Brand Logo -->
+<div class="flex-1 flex justify-center">
+<h1 class="text-3xl font-serif italic tracking-tight text-[#55343B] dark:text-[#E4E2DF] font-bold">Zoe</h1>
+</div>
+<!-- Trailing: Desktop Nav / Avatar -->
+<div class="flex-1 flex justify-end items-center gap-6">
+<nav class="hidden md:flex gap-8 items-center mr-2">
+<a class="font-sans text-xs uppercase tracking-widest text-[#55343B] font-bold border-b-2 border-[#55343B] pb-1" href="#">Rank</a>
+<a class="font-sans text-xs uppercase tracking-widest text-[#71715F] hover:text-[#55343B] transition-colors" href="#">Shorts</a>
+<a class="font-sans text-xs uppercase tracking-widest text-[#71715F] hover:text-[#55343B] transition-colors" href="#">Profile</a>
+</nav>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden hover:opacity-80 transition-opacity cursor-pointer">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a young woman with natural makeup in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlnZW_hrSdoSPGnqaIsNiN4EmMwKUfH6ep1Z7x_bykgnar_LjHU4ILN_wBZ9MvYKDljHXvXIqRNjjmhie292lXttyP6LXuDPPM17teTXK6g8Y-_Zx-5orRB9CXilGc9z0O35IjHuncUVjHmXEQ6Dyl5LFjaQh3j95FCPwrPizAqO-ni1kEfUySfssFS8ntLTRPqFANwwyIiltL5zi6yjo3Hv_inegLW1qGv5ybdqBuwv8zeAzuKEO2t6sI5bNlTBvA66aEIF6WrWA"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 pb-32 md:pb-24 px-4 md:px-12 max-w-[1400px] mx-auto min-h-screen">
+<!-- Hero Header -->
+<section class="mb-6 pt-4 text-center">
+<h1 class="font-headline text-4xl md:text-5xl text-on-surface tracking-tight leading-[1.1] mb-3">Community Hub</h1>
+<p class="font-body text-on-surface-variant text-sm md:text-base leading-relaxed max-w-md mx-auto">Explore living rankings curated by the Zoe community. Find your next obsession.</p>
+</section>
+<!-- Filter Tabs -->
+<div class="flex gap-6 overflow-x-auto pb-3 mb-8 scrollbar-hide border-b border-outline-variant/30 justify-center">
+<button class="font-label text-xs uppercase tracking-widest text-primary font-bold border-b-2 border-primary pb-2 whitespace-nowrap">Trending Lists</button>
+<button class="font-label text-xs uppercase tracking-widest text-secondary hover:text-primary transition-colors pb-2 whitespace-nowrap">New Tastemakers</button>
+<button class="font-label text-xs uppercase tracking-widest text-secondary hover:text-primary transition-colors pb-2 whitespace-nowrap">Category Gems</button>
+</div>
+<!-- Discovery Feed (Masonry Style) -->
+<section class="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+<!-- Card 1 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Minimalist modern living room with concrete walls" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrpq9brCZJsnjjU4ULRPjqNTxduK4fhWIrPB6jkhqVKD1n3X-__9GJqs_lL3FeqDKoX90gcTp1NC7dFX_2igo5ubDLqzhmS_Oj-K2o5reCz5_ThWmmcsUGqNMvAKrNA6XJPab-bF1dpEWtOnFky4xTEViTv_riVLwmDsAA0dHppCOCG7c4JKNg_kBSuDkJEByH7kvVYURJ7N8-ILu1Gt3C9YVAdSCMqNrT9gOeEMQXuD6e4nMN-qUaUgWvJlSSJqSDSu_OaJOH-C0"/>
+<div class="absolute top-2 right-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-label font-bold text-on-surface flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-primary">trending_up</span> No. 1
+    </div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">The Brutalist Revival in Interior Spaces</h4>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-secondary-fixed overflow-hidden flex items-center justify-center text-[10px] font-bold text-on-secondary-fixed">A</div>
+<span class="font-body text-[10px] text-on-surface-variant">by @arch_curator</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">4.2k</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-[3/4]" data-alt="Close up of artisan handmade ceramic bowls" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfKOg7EzoUOdNPqi7LnSkMknTj6dsGNhYR1sKXYra7JVrEGFutel7dGv2jYRxbwmjY67q0H-QkyZhONerNWM84SGNfjgqIJ_NtAqIYCGUqGZBJDmcTdF6mVgxpz-JMRF4DReHX9nwzo-tpS7YP86qucbnjKDQBoy5OaHRBZ3DMI2MzS1dPfEQBuLF8omXZ3HpNd8GaOEEsZPQnJ3s9K6HwOVNdQ8vrp8UA7A5d5AA0WCSbDKMmXUUZ10kmzvETylHHULMmA2BkeHw"/>
+<div class="absolute top-2 right-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-label font-bold text-on-surface flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-secondary">grade</span> New
+    </div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">Tactile Ceramics: Wabi-Sabi Aesthetics</h4>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-tertiary-fixed overflow-hidden flex items-center justify-center text-[10px] font-bold text-on-tertiary-fixed">M</div>
+<span class="font-body text-[10px] text-on-surface-variant">by @maya.objects</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">1.8k</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-square" data-alt="Dark espresso shot pulling from a high-end chrome machine" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWq_TOTHbiLG143iI3K8PKGNK2_TJSxckeYmiPOB6Gd9I9NL1cOrzafAqBKRVpz3vrdLn6imSnAEyqS3iToNsVkqV_KswHUtVV7zhoLlsR17geFtoQnA5JAg844WprU59cYVOvJniwFhpyxO3z5sv37HnKL9EY3xS-1gOAx9PWOpi7ajda07fnNsH5BihPtordmXDDIZQtc2ZUlTBGC9j2aqmH7qAQC619TgT3t1G6fOsw3GjJvXnCDQanZIVifmT4-F_EqWyB84M"/>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">Third-Wave Extraction: Top Single Origins</h4>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<img class="w-5 h-5 rounded-full object-cover" data-alt="User avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlnZW_hrSdoSPGnqaIsNiN4EmMwKUfH6ep1Z7x_bykgnar_LjHU4ILN_wBZ9MvYKDljHXvXIqRNjjmhie292lXttyP6LXuDPPM17teTXK6g8Y-_Zx-5orRB9CXilGc9z0O35IjHuncUVjHmXEQ6Dyl5LFjaQh3j95FCPwrPizAqO-ni1kEfUySfssFS8ntLTRPqFANwwyIiltL5zi6yjo3Hv_inegLW1qGv5ybdqBuwv8zeAzuKEO2t6sI5bNlTBvA66aEIF6WrWA"/>
+<span class="font-body text-[10px] text-on-surface-variant">by @zoe_picks</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">3.5k</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-[4/3]" data-alt="Aerial view of a minimal zen garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA01YU1dL_VlPD3ikGRxRJO4Np5WKR6GGKFtJJPty5MhR2mN839TKRRyIU1m26ToWJxudQXr3yq5x2uhybFyrQFZMGF0VCPKrYZi2eEJX4qrE6c3r_4JwjcVvNrJH3Bf4P6IU6w_LpoCVODC0wntUtzdYZ9QXmk6ffOi_x-2HCLqxs7VUiXiq62RMrlrtlE5B0iReMVTpgMg_byT54P7NB2EiiS8VFG_oBsdyq2ro3syHpUGNbV6fgH1VGX4shBJGecAXRs-tzBh-0"/>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">Kyoto Sanctuaries: Places of Stillness</h4>
+<p class="font-body text-[11px] text-on-surface-variant leading-snug mb-3 line-clamp-2">An ongoing index of temples and gardens prioritizing spatial quietude.</p>
+<div class="flex items-center justify-between mt-1">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-primary-fixed overflow-hidden flex items-center justify-center text-[10px] font-bold text-on-primary-fixed">K</div>
+<span class="font-body text-[10px] text-on-surface-variant">by @k_travels</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">5.1k</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-[3/5]" data-alt="Abstract composition of light and shadow on a gallery wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8pXcC9b3JDPGSCJtT0WK8Sn5WNnrVLb5DwZRuRuM254DhTcfbIVmh-r4K2Bap8tXpVFPt3wjHfpwGl3OzDFvkwwJZatoAmKKQBb0zTefeq7VFlbqu_6KIFgC5WHZFYC5p7h2kwHeH__edbX-yqmcXMmEX1qYPqp4KV_1kS34M67owy9SK97bgWQNzySHycEwlH0fDRM-bWwzakdG4N1G2YXLxBeJW0HrmpzZBpiHMf1y0mjUvWnAaD9HUzEQRRLx2IqJtPNoksFc"/>
+<div class="absolute top-2 right-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-label font-bold text-on-surface flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-primary">local_fire_department</span> Hot
+    </div>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">Gallery Whites: Interior Palettes</h4>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-surface-variant overflow-hidden flex items-center justify-center text-[10px] font-bold text-on-surface-variant">D</div>
+<span class="font-body text-[10px] text-on-surface-variant">by @design_index</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">892</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="break-inside-avoid rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow group cursor-pointer border border-outline-variant/20">
+<div class="relative w-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 aspect-video" data-alt="Close up of heavily textured raw linen fabric" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuZVcdOB_kaA8KFPyo7GQzEpk5tAKnEsjM1p4M5h0RDLms1gRd0jcRcWHOhFlvfXebxytLKbcWNywnEHpOsPRRUn7picKGQI8NMaiRllIvfZIEinuO3tXS56VcAvoHbJlxkz25P-EH206WHCcRogIzf652grkuoHohjvUPz-Ee5yFiQzrsn7n7KRw6dgVJR2bo1JQiJz5fTkOiEPkV2txHF4tjXmUG8JXwiVULgPuLLGYl4DCD948peDZsfqWf2Otb6UP1y0JMrbo"/>
+</div>
+<div class="p-3">
+<h4 class="font-headline text-lg leading-tight text-on-surface mb-2">Raw Textiles &amp; Material Studies</h4>
+<div class="flex items-center justify-between mt-3">
+<div class="flex items-center gap-1.5">
+<div class="w-5 h-5 rounded-full bg-secondary-fixed overflow-hidden flex items-center justify-center text-[10px] font-bold text-on-secondary-fixed">S</div>
+<span class="font-body text-[10px] text-on-surface-variant">by @studio_nine</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-body text-[10px] font-medium">1.1k</span>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- Loading Spinner/Action -->
+<div class="mt-12 text-center flex flex-col items-center justify-center gap-3">
+<div class="w-6 h-6 border-2 border-outline-variant border-t-primary rounded-full animate-spin"></div>
+<span class="font-label text-xs text-on-surface-variant tracking-widest uppercase">Loading More</span>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-3 pb-safe px-4 bg-[#FBF9F6]/90 dark:bg-[#1B1C1A]/90 backdrop-blur-2xl border-t border-[#E4E2DF]/20 shadow-[0_-4px_24px_rgba(27,28,26,0.04)] rounded-t-none pb-6">
+<!-- Discover -->
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-90 duration-300 ease-out">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Discover</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-90 duration-300 ease-out">search</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Search</span>
+</a>
+<!-- Rank (Active) -->
+<a class="flex flex-col items-center justify-center text-[#55343B] dark:text-[#E4E2DF] font-bold group" href="#">
+<span class="material-symbols-outlined mb-1 scale-90 duration-300 ease-out" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Rank</span>
+</a>
+<!-- Shorts -->
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-90 duration-300 ease-out">play_circle</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Shorts</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#71715F] dark:text-[#A8A29E] hover:text-[#55343B] dark:hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-90 duration-300 ease-out">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>
