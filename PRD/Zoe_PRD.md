@@ -4,7 +4,7 @@
 **Document version:** 2.2  
 **Platform:** Mobile app first (iOS and Android)  
 **Product type:** Consumer social discovery, ranking, and taste graph app  
-**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine, refined through **"The Modern Curator — Soft Editorial Luxury"** aesthetic — editorial Home, immersive Shorts, curated Rankings hub. Canonical visual reference: `Design_guide/` prototypes (`home_page`, `search_page`, `ranking_page`, `shorts_page`, `profile_page`) + `PRD/Zoe_Visual_Direction_Kit.md` §2, §7, §11, §24.  
+**Design direction:** Instagram-like shell and interaction model; RedNote-like utility/discovery; Beli-like ranking engine, refined through **"The Modern Curator — Soft Editorial Luxury"** aesthetic — editorial Home, immersive Shorts, curated Rankings hub. Canonical visual reference: `Design_guide/` prototypes (`home_page`, `search_page`, `ranking_page`, `shorts_page`, `profile_page`, `posts/post_for_*`) + `PRD/Zoe_Visual_Direction_Kit.md` §2, §7, §11, §16.5–§16.6, §18–§18.6.  
 **Document purpose:** Define the updated product vision, navigation model, core systems, engagement loops, requirements, constraints, and launch plan for Zoe.
 
 ---
@@ -507,6 +507,9 @@ This should feel like Instagram in layout, but like RedNote in practical value.
 - cultural relevance
 - local relevance when appropriate
 - ranking interest alignment
+
+## 18.6 Post detail presentation
+When a user opens a feed or profile post, the **detail screen is not a single generic layout**. Zoe uses **three editorial templates** aligned to `Design_guide/posts/` — **discovery_photo** (place / food / travel, tall hero + tonal ranking strip + “Curator Notes” discussion), **album_review** (square artwork + gradient ranking ribbon + nested review card), and **product_hero** (wide hero + floating rank chip + left-rule copy + collection CTAs). The correct template is selected by `post.detail_layout` or inferred from the linked object category. Visual and component rules: `PRD/Zoe_Visual_Direction_Kit.md` §16.5 and §18.6; screen IA: `PRD/Zoe_Mobile_IA_Wireframe_Spec.md` SCREEN 08.
 
 ---
 

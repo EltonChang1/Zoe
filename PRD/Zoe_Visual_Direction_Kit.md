@@ -5,7 +5,7 @@
 **Product DNA:** Instagram-familiar shell · RedNote-style taste utility · Beli-inspired ranking engine
 **Brand name:** Zoe
 **Brand inspiration:** ζωή — “life” in Greek
-**Design source of truth:** `Design_guide/` (Home, Search, Rankings, Shorts, Profile prototypes + `DESIGN.md`). This kit expands those prototypes into tokens, rules, and content behavior for the rest of the app.
+**Design source of truth:** `Design_guide/` (Home, Search, Rankings, Shorts, Profile prototypes + **Post detail** layouts under `Design_guide/posts/` + shared `DESIGN.md`). This kit expands those prototypes into tokens, rules, and content behavior for the rest of the app.
 
 ---
 
@@ -27,7 +27,7 @@ It is designed to answer:
 - What should the brand look like at launch?
 - What colors define the product?
 - What typography system fits the brand and product behavior?
-- How should feed cards, ranking cards, activity cards, Shorts, and profile surfaces be art-directed?
+- How should feed cards, ranking cards, activity cards, **post detail** layouts, Shorts, and profile surfaces be art-directed?
 
 This is not a pretty moodboard. It is a practical handoff for product design, engineering, and content.
 
@@ -664,7 +664,54 @@ When a user opens a restaurant, perfume, or album, it should feel substantial.
 
 ---
 
-## 16.5 Shorts surface (immersive vertical)
+## 16.5 Post detail (full view) — three canonical layouts
+
+Full-screen posts are **not one template**. Pick the layout that matches the subject: photo-led discovery (places, food), artwork-first music, or wide-hero product editorial. Pixel reference lives in `Design_guide/posts/*/code.html`.
+
+### Variant A — Discovery / place post (`post_for_cafe/`)
+
+**Use when:** the hero is environmental photography (café, restaurant, neighborhood, travel moment) and ranking context should read as a calm **inline panel**, not a loud banner.
+
+- **Top bar:** glass (`bg-surface/70 backdrop-blur-xl`); `arrow_back` · centered Newsreader italic wordmark (or screen title) · `more_horiz`.
+- **Curator row:** 40px avatar; name `font-body text-sm font-medium`; timestamp `text-xs text-on-surface-variant`; trailing **Save** as `bookmark` in a circular hit target (`hover:bg-surface-container-low`).
+- **Hero media:** `rounded-xl`, typical `aspect-[4/5]`, ambient shadow `shadow-[0_8px_30px_rgb(0,0,0,0.04)]`, slow image hover scale (`duration-700`).
+- **Location chip (asymmetric):** bottom-left on the image — `bg-background/90 backdrop-blur-md`, `location_on` + venue name in Inter label.
+- **Ranking banner (tonal “lifted” strip):** `bg-surface-container-lowest`, ghost border `border-outline-variant/15`, `rounded-lg`; **1px vertical gradient** accent flush left (`from-primary to-primary-container`); rank **#N** in Newsreader inside a small `surface-container` tile; label stack `RANKED IN` (Inter uppercase, widest tracking) + list title (Newsreader); optional movement in `rank-up` / `rank-down` (e.g. `+1` + `arrow_upward`).
+- **Curator’s note:** Newsreader display headline (`~text-3xl`, tight leading) + Inter body `on-surface-variant` + hashtag chips (`rounded-full`, `bg-surface-container-low`, ghost borders).
+- **Interaction bar:** hairline top `border-outline-variant/15` — Like + Comment counts left, `ios_share` right (Material weight ~300, hover `text-primary`).
+- **Discussion (“Curator Notes”):** nested `surface-container-low` `rounded-xl` panel; title row with small **Discussion** capsule; composer is **underline** field (“Add a note or question…”); threads support a vertical connector + **Author** pill (`bg-primary/10 text-primary`, uppercase micro-label).
+
+### Variant B — Album / music review (`post_for_album/`)
+
+**Use when:** the subject is a **square cover** (album, playlist art, book jacket) and the ranking moment should feel like a **medal ribbon**.
+
+- **Top bar:** contextual title (e.g. “Album Review”) in Newsreader italic + `more_vert`.
+- **Artwork:** full-width square, `rounded-xl`, slightly deeper ambient shadow than Variant A.
+- **Title block:** centered — primary title Newsreader **4xl** bold; artist / creator line Inter **uppercase** with letterspacing (`on-surface-variant`).
+- **Ranking ribbon:** full-width **`bg-gradient-to-r from-primary to-primary-container`**, `on-primary`; leading `military_tech` (filled) + `RANKED #N` in Inter uppercase; category name in **Cormorant Garamond italic** for heritage contrast.
+- **Editorial body card:** `bg-surface-container-low rounded-xl p-6–8`; inner **curator row** with bottom hairline `border-outline-variant/20`; opening line as large Newsreader pull quote; supporting copy Inter `text-sm`; interaction bar with **bookmark** + **share** grouped on the trailing side.
+- **Discussion:** heading “Discussion”; comments as individual **`surface-container-lowest` rounded-lg** rows; composer = rounded-full pill field + circular **send** on solid `primary` (album prototype uses this pattern).
+
+### Variant C — Product / fashion hero (`post_for_shoes/`)
+
+**Use when:** the object is **sku-like** (sneakers, fashion, gear) and the layout should feel like a **lookbook spread** with commerce-adjacent CTAs.
+
+- **Hero:** wider aspect (`aspect-[4/3]`, `md:aspect-[16/9]`), `rounded-xl`.
+- **Floating rank chip:** anchored `right` and overlapping the hero bottom (`-bottom-4`) — `surface-container-highest` + `backdrop-blur-xl`, ghost border; **Newsreader italic** rank #; hairline divider; category in Inter **uppercase widest tracking** (`on-surface-variant`).
+- **Title:** Newsreader **4xl–5xl**; metadata line “Curated by … · time” with dot separators, `text-outline`.
+- **Editorial block:** body copy set in a **left rule** column (`border-l-2 border-surface-container-high`, generous left padding) — reads as curated margin notes, not a generic caption block.
+- **CTAs:** primary gradient **Add to Collection** (product intent: save / own / list); secondary ghost **View Details** (`border-outline-variant/15`).
+- **Discussion:** section title “Thoughts” (or synonym); underline composer; optional **Load more** as tertiary underlined control.
+
+### Cross-variant rules
+
+- Prefer **tonal panels** and ghost borders over 1px full-contrast dividers; hairlines at **15–20%** `outline-variant` only.
+- Ranking numerals: Newsreader in Variant A tile; **Cormorant** in Variant B ribbon; **Newsreader italic** in Variant C floating chip — keeps hierarchy distinct per template.
+- Bottom tab chrome in HTML prototypes may label the first tab “Discover”; product naming remains **Home** in shipped IA (see `Zoe_Mobile_IA_Wireframe_Spec.md` §2.1).
+
+---
+
+## 16.6 Shorts surface (immersive vertical)
 
 ### Goal
 Dark, warm immersion — **never flat black**. Use editorial darks (`inverse-surface` #30312F or Ink #14110F).
@@ -774,7 +821,7 @@ When viewing **my rankings** (vs community), collapse the header and show:
 - `bg-black` body with `overflow-hidden`
 - **Glass top bar** (`bg-[#FBF9F6]/70 backdrop-blur-xl`): menu · **Zoe** serif · avatar
 - **Full-screen vertical media** (`snap-y snap-mandatory`)
-- **Right rail glass pills** (see §16.5)
+- **Right rail glass pills** (see §16.6)
 - **Bottom-left info**: curator + description + location/audio pills
 - **Glass bottom tab bar** with fill-variant icon for active Shorts
 
@@ -799,6 +846,20 @@ Dark, warm, atmospheric — never flat black. Use `inverse-surface` (#30312F) as
 
 ### Instagram-familiar, editorial-refined
 Profile uses the Instagram mental model (3-column grid, stats row, tabs), but text tiles and serif titles elevate it beyond a photo-sharing app.
+
+---
+
+## 18.6 Post detail (`Design_guide/posts/`)
+
+Route the correct **detail template** from §16.5 based on `post.detail_layout` (or inferred category):
+
+| Folder | When to use |
+| :--- | :--- |
+| `post_for_cafe/` | Photo-led place / food / travel discovery; inline tonal ranking strip; “Curator Notes” discussion |
+| `post_for_album/` | Square artwork hero; gradient ranking ribbon; centered title/artist; nested editorial card |
+| `post_for_shoes/` | Wide product hero; floating rank chip; left-rule editorial copy; Collection / Details CTAs |
+
+**Top bar** matches other light surfaces: glass, Fig icons, Newsreader center title where applicable.
 
 ---
 
@@ -878,6 +939,7 @@ Use the following pairings in mockups, mapped to canonical sample users (see `Zo
 8. Shorts glass action pill (large / small)
 9. Avatar w/ story ring
 10. Primary button (gradient) / Secondary (ghost) / Tertiary (text)
+11. **Post detail** templates (§16.5): tonal **ranking strip** + glass location chip; **gradient ranking ribbon**; **floating rank chip** + left-rule editorial column + dual CTAs
 
 ## 22.3 Screens (use `Design_guide/*/code.html` as pixel truth)
 1. Home / Discover
@@ -885,7 +947,7 @@ Use the following pairings in mockups, mapped to canonical sample users (see `Zo
 3. Rankings / Community Hub + personal hub mode
 4. Shorts / immersive vertical
 5. Profile / self + other user
-6. Post Detail
+6. Post Detail — **three layouts** in `Design_guide/posts/post_for_cafe`, `post_for_album`, `post_for_shoes`
 7. Object Detail
 8. Ranking List Detail
 9. Add to Ranking flow
@@ -938,7 +1000,7 @@ In Figma, do this next:
 
 1. Import the Tailwind tokens from §13 as Figma styles
 2. Build component library per §22.2
-3. Rebuild the five Design_guide reference screens as Figma frames (§22.3)
+3. Rebuild the five shell screens plus **three post-detail templates** from `Design_guide/posts/` as Figma frames (§22.3)
 4. Apply the direction to the remaining screens:
    - Object Detail
    - Ranking List Detail
@@ -946,12 +1008,13 @@ In Figma, do this next:
    - Chat inbox + thread
    - Notifications
    - Auth / Onboarding
-5. Polish three signature cards until they feel right:
+5. Polish signature surfaces until they feel right:
    - Feed masonry card (Home)
    - Following activity card (Search)
    - Ranking list preview card (Rankings)
+   - At least one frame each for **post detail** templates in `Design_guide/posts/` (§16.5)
 
-If those three cards look right, the whole system will start to feel right.
+If those surfaces look right, the whole system will start to feel right.
 
 ---
 

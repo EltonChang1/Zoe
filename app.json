@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Zoe",
+    "slug": "zoe",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "zoe",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.zoe.app"
+    },
+    "android": {
+      "package": "com.zoe.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FBF9F6"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

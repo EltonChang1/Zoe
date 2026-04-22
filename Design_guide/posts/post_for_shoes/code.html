@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zoe - Sneaker Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&amp;family=Inter:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#2e1319",
+                        "outline": "#827475",
+                        "on-secondary-fixed-variant": "#474838",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#1c1c0f",
+                        "tertiary-fixed-dim": "#f1b8bf",
+                        "on-tertiary-container": "#f4bbc3",
+                        "inverse-surface": "#30312f",
+                        "inverse-on-surface": "#f2f0ed",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#efeeeb",
+                        "primary-container": "#6f4b52",
+                        "background": "#fbf9f6",
+                        "surface-variant": "#e4e2df",
+                        "surface-dim": "#dbdad7",
+                        "secondary-fixed-dim": "#c9c8b2",
+                        "secondary": "#5f5f4e",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbf9f6",
+                        "on-tertiary-fixed": "#311117",
+                        "surface": "#fbf9f6",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#74494f",
+                        "surface-tint": "#79545b",
+                        "tertiary-fixed": "#ffd9dd",
+                        "primary-fixed-dim": "#eabac2",
+                        "primary": "#55343b",
+                        "outline-variant": "#d3c2c4",
+                        "on-surface-variant": "#504446",
+                        "on-background": "#1b1c1a",
+                        "on-tertiary-fixed-variant": "#643b42",
+                        "inverse-primary": "#eabac2",
+                        "secondary-fixed": "#e5e4ce",
+                        "primary-fixed": "#ffd9df",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#5a3239",
+                        "secondary-container": "#e5e4ce",
+                        "on-surface": "#1b1c1a",
+                        "on-secondary-container": "#656554",
+                        "on-primary-fixed-variant": "#5f3d44",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e4e2df",
+                        "surface-container-low": "#f5f3f0",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#edbec6",
+                        "surface-container-high": "#eae8e5",
+                        "rank-up": "#547C65",
+                        "new-entry": "#8B6C3F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": [
+                            "Newsreader", "serif"
+                        ],
+                        "display": [
+                            "Newsreader", "serif"
+                        ],
+                        "body": [
+                            "Inter", "sans-serif"
+                        ],
+                        "label": [
+                            "Inter", "sans-serif"
+                        ]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.filled {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        /* Custom scrollbar to match the design */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d3c2c4;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #827475;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-[#fbf9f6]/70 dark:bg-[#1b1c1a]/70 backdrop-blur-xl docked full-width top-0 z-50 shadow-none flex justify-between items-center px-6 py-4 w-full sticky">
+<button class="text-[#55343b] dark:text-[#e4e2df] hover:opacity-70 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold font-headline text-[#2a211d] dark:text-[#fbf9f6] italic tracking-tight text-lg">Zoe</h1>
+<button class="text-[#55343b] dark:text-[#e4e2df] hover:opacity-70 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</header>
+<main class="flex-grow max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+<!-- Hero Image Section -->
+<section class="w-full relative group">
+<div class="aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-xl bg-surface-container-low">
+<img alt="Limited edition sneakers" class="w-full h-full object-cover object-center" data-alt="High-fidelity close-up of premium limited edition sneakers resting on a concrete block in an urban environment, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP7midFyvWKOQGmQY1FZWmdHUPovwzHZAWi8pfdjTEHoR2E6SmpRWEqukE3pXSxHZcjTcJNQJHRneNZPAcpdTMxwvQdR_KEeOEmJ0s-cqaDVNjdTsBNKJhsDq8Vgq0KW0wd0mvx2cySQiPOBRux6Ra1tQztIzzhPsgVPdcWbV-7OVrBH3kqnDt7uDZsyMbfunf1AkmtH3IQe5ucCp4u85q3zD9O99k4DB_IX7E4uWy8Xr7fBfRqO0NvhB5wPziPaNypFsXFg_NKdM"/>
+</div>
+<!-- Floating Rank Badge -->
+<div class="absolute -bottom-4 right-6 bg-surface-container-highest px-6 py-3 rounded-DEFAULT shadow-[0_4px_24px_rgba(27,28,26,0.04)] backdrop-blur-xl flex items-center gap-3 border border-outline-variant/15">
+<span class="font-headline italic text-primary text-xl">#5</span>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<span class="font-label text-xs uppercase tracking-widest text-on-surface-variant font-medium">All-Time Sneakers</span>
+</div>
+</section>
+<!-- Title & Curator Comment -->
+<section class="max-w-2xl">
+<div class="mb-4">
+<h2 class="font-headline text-4xl md:text-5xl tracking-tight text-on-background mb-2">Aether "Concrete" High</h2>
+<p class="font-label text-sm text-outline flex items-center gap-2">
+<span>Curated by Alex M.</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>2 hours ago</span>
+</p>
+</div>
+<div class="prose prose-stone prose-p:font-body prose-p:text-on-surface-variant prose-p:leading-relaxed prose-p:text-lg pl-4 border-l-2 border-surface-container-high">
+<p>
+                    The balance struck here between the raw urban aesthetic and surprisingly plush interior comfort is remarkable. These aren't just display pieces; they mold perfectly to the foot after a single wear. The textured suede overlays add a depth that most modern releases fail to achieve.
+                </p>
+</div>
+<div class="mt-8 flex gap-4">
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-8 py-3 rounded-DEFAULT font-label text-sm tracking-wide shadow-[0_4px_24px_rgba(85,52,59,0.15)] hover:opacity-90 transition-opacity">
+                    Add to Collection
+                </button>
+<button class="bg-transparent text-primary-container px-8 py-3 rounded-DEFAULT font-label text-sm tracking-wide border border-outline-variant/15 hover:bg-surface-container-low transition-colors">
+                    View Details
+                </button>
+</div>
+</section>
+<!-- Comments Section -->
+<section class="pt-8 border-t border-surface-container-low">
+<h3 class="font-headline text-2xl tracking-tight mb-6">Thoughts</h3>
+<!-- Comment Input -->
+<div class="flex gap-4 mb-10">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Minimalist headshot of a person looking forward against a neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0S2me5SP-9oCok2xj553xZc5Nctwg9LiWG1Jbz2fAcnA5-dV72RbU2Tq1fMk2o7cRr6khH9nlvt259BWwaEBIbRUcATIxgBSMhqrA34SO7vgPEgtpsJ5nktjRHbiQIoPi2IpHFLRzmj-nJ6qWp-Z65EeYk-LZ1bfFSGbyHJG-L3xnd-l0vTo_r4fROC5LGRJ4LA5-G5J1Mfjhc5fU2c4a2TZ5Fl1lo4zLYuDtmKIquesL7f_PF62n_6ORJHvRLJfTPgh-_6z8Jyg"/>
+</div>
+<div class="flex-grow">
+<input class="w-full bg-transparent border-0 border-b border-surface-container-high focus:border-primary-container focus:ring-0 px-0 py-2 font-body text-on-background placeholder:text-outline transition-colors" placeholder="Add a thought..." type="text"/>
+</div>
+</div>
+<!-- Comment List -->
+<div class="space-y-8">
+<!-- Comment 1 -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Commenter avatar" class="w-full h-full object-cover" data-alt="Portrait of a young woman with a soft smile in natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCte6zN525MV05swodYr-Ww1zwMfSbCnv7uMPKawT6BUQ8c4PtPQIU77J14oNBV25DMyJfZlUscd19yLHk3cQXJLBbKxdhrdIL-nfxn4kcy49eKfV_V2jLg7t-DA00VHz4A7yD8hKDk_-5XfsVnfmZnuwYhfFiu9YauiAf-eIE9Z_Kw2FV916B3gHXlKggjEnrEonXXTbg4ak6xJ2JPKCr_oGnygevmau7vIjSEkFfw7WPu5teF1HWzUL0EHTXZpg5oPS4l2UxaZ-g"/>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-label text-sm font-medium text-on-background">Sarah J.</span>
+<span class="font-label text-xs text-outline">1h ago</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed mb-2">
+                            Finally got my hands on these yesterday. The suede quality is insane in person.
+                        </p>
+<button class="font-label text-xs text-outline hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span>12</span>
+</button>
+</div>
+</div>
+<!-- Comment 2 -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<div class="w-full h-full bg-secondary-fixed flex items-center justify-center font-headline text-on-secondary-fixed">
+                            M
+                        </div>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="font-label text-sm font-medium text-on-background">Marcus T.</span>
+<span class="font-label text-xs text-outline">3h ago</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed mb-2">
+                            How does the sizing run? I'm usually an 11 in runners but 10.5 in these kinds of boots.
+                        </p>
+<button class="font-label text-xs text-outline hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+<span>4</span>
+</button>
+</div>
+</div>
+</div>
+<button class="mt-8 text-on-surface-variant text-sm font-label hover:text-primary transition-colors py-2 border-b border-transparent hover:border-primary">
+                Load more thoughts...
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-[#fbf9f6]/80 dark:bg-[#1b1c1a]/80 backdrop-blur-2xl fixed bottom-0 w-full z-50 pb-safe shadow-[0_-4px_24px_rgba(27,28,26,0.04)] md:hidden">
+<div class="flex justify-around items-center h-20 w-full px-4 border-t border-[#e4e2df]/10">
+<a class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1">play_circle</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Shorts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

@@ -3,7 +3,7 @@
 **Platform:** Mobile  
 **Purpose:** Give design a realistic content model and sample data pack so every Figma frame can be populated with believable posts, rankings, users, objects, comments, chats, notifications, and saved content.
 
-**Visual alignment:** All sample content should render against **"The Modern Curator — Soft Editorial Luxury"** — the canonical visual system in `Design_guide/` (per-page `code.html` prototypes for Home, Search, Rankings, Shorts, Profile) and codified in `PRD/Zoe_Visual_Direction_Kit.md` (§2 principles, §7 typography, §11 components, §24 screen specs). Home uses a **masonry grid** of mixed tall/short editorial cards; ranking badges are rendered as small glass pills (`bg-background/90 backdrop-blur-md`) with Cormorant Garamond numerals. **Shorts** is the product name for the full-bleed vertical video surface. Copy should pair well with **Newsreader** (serif display) and **Inter** (sans metadata) at editorial scale contrasts.
+**Visual alignment:** All sample content should render against **"The Modern Curator — Soft Editorial Luxury"** — the canonical visual system in `Design_guide/` (per-page `code.html` for Home, Search, Rankings, Shorts, Profile) plus **post detail** references in `Design_guide/posts/` (`post_for_cafe`, `post_for_album`, `post_for_shoes`), codified in `PRD/Zoe_Visual_Direction_Kit.md` (§2 principles, §7 typography, §11 components, §16.5 post detail layouts, §18 per-screen guide through §18.6). Home uses a **masonry grid** of mixed tall/short editorial cards; ranking badges are rendered as small glass pills (`bg-background/90 backdrop-blur-md`) with Cormorant Garamond numerals where specified. **Post detail** uses one of three templates (`discovery_photo`, `album_review`, `product_hero`) — see field `detail_layout` on Post (§3.3). **Shorts** is the product name for the full-bleed vertical video surface. Copy should pair well with **Newsreader** (serif display) and **Inter** (sans metadata) at editorial scale contrasts.
 
 ---
 
@@ -121,6 +121,10 @@ Main feed post.
 - `author_id`
 - `object_id`
 - `post_type` (photo, carousel, short_video)
+- `detail_layout` — which **full-screen post detail** template to use when this post is opened (maps to `Design_guide/posts/`):
+  - `discovery_photo` → `post_for_cafe/` (tall hero, glass location chip, tonal ranking strip with left gradient spine, “Curator Notes” threaded discussion)
+  - `album_review` → `post_for_album/` (square cover, gradient ranking ribbon, nested editorial card, “Discussion” with pill composer)
+  - `product_hero` → `post_for_shoes/` (wide hero, floating rank chip, left-rule body, **Add to Collection** + **View Details** CTAs, “Thoughts”)
 - `headline`
 - `caption`
 - `tags`
@@ -652,6 +656,7 @@ Bad:
 - `author_id`: U001
 - `object_id`: O001
 - `post_type`: photo
+- `detail_layout`: discovery_photo
 - `headline`: Best quiet café in Shadyside if you care more about light and mood than food.
 - `caption`: I keep coming back here for solo work blocks. The menu is small, but the room does exactly what I need it to do.
 - `tags`: quiet, laptop-friendly, aesthetic
@@ -667,6 +672,7 @@ Bad:
 - `author_id`: U002
 - `object_id`: O007
 - `post_type`: carousel
+- `detail_layout`: product_hero
 - `headline`: The clean-girl perfume that actually stays interesting on skin.
 - `caption`: Blanche still feels expensive to me because it stays crisp without becoming sterile. Best in close range, not for drama.
 - `tags`: clean scent, skin scent, minimal
@@ -682,6 +688,7 @@ Bad:
 - `author_id`: U003
 - `object_id`: O009
 - `post_type`: photo
+- `detail_layout`: album_review
 - `headline`: Still the album I measure every late-night walk against.
 - `caption`: I tried moving it down and immediately changed my mind. Some records are too welded to your life to rank casually.
 - `tags`: all-time favorite, late night, headphones
@@ -697,6 +704,7 @@ Bad:
 - `author_id`: U004
 - `object_id`: O012
 - `post_type`: short_video
+- `detail_layout`: discovery_photo
 - `headline`: Beautiful, overpriced, and somehow I’d still bring a friend here.
 - `caption`: The matcha is not the point. The room is. Good for a slow afternoon when you want something a little performative.
 - `tags`: matcha, aesthetic, solo date
@@ -712,6 +720,7 @@ Bad:
 - `author_id`: U005
 - `object_id`: O005
 - `post_type`: photo
+- `detail_layout`: discovery_photo
 - `headline`: The kind of bar that makes your whole outfit feel more correct.
 - `caption`: Go late, sit near the back, order something bitter first.
 - `tags`: low-light, date night, natural wine
@@ -727,6 +736,7 @@ Bad:
 - `author_id`: U006
 - `object_id`: O008
 - `post_type`: short_video
+- `detail_layout`: discovery_photo
 - `headline`: If you want one elegant night fragrance that does not scream for attention.
 - `caption`: Gris Charnel is smooth from the first minute and somehow gets better in cold air. One of the few evening scents I never get tired of.
 - `tags`: woody, tea, night
@@ -742,6 +752,7 @@ Bad:
 - `author_id`: U009
 - `object_id`: O004
 - `post_type`: photo
+- `detail_layout`: discovery_photo
 - `headline`: This is my safest answer when someone asks where to eat near campus.
 - `caption`: It’s comforting, generous, and never feels like a compromise.
 - `tags`: comforting, casual, group-friendly
@@ -757,6 +768,7 @@ Bad:
 - `author_id`: U008
 - `object_id`: O006
 - `post_type`: photo
+- `detail_layout`: product_hero
 - `headline`: I know it’s obvious. I still love it at night.
 - `caption`: Not subtle, not niche, still one of the quickest ways to feel dressed.
 - `tags`: luxury, loud, night

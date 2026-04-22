@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Album Review</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1b1c1a",
+                        "on-tertiary-fixed": "#311117",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#74494f",
+                        "inverse-surface": "#30312f",
+                        "tertiary": "#5a3239",
+                        "outline-variant": "#d3c2c4",
+                        "primary-fixed": "#ffd9df",
+                        "on-primary": "#ffffff",
+                        "secondary": "#5f5f4e",
+                        "outline": "#827475",
+                        "surface-container-low": "#f5f3f0",
+                        "background": "#fbf9f6",
+                        "surface-container": "#efeeeb",
+                        "on-secondary-fixed": "#1c1c0f",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-primary-fixed": "#2e1319",
+                        "on-surface": "#1b1c1a",
+                        "on-primary-fixed-variant": "#5f3d44",
+                        "secondary-fixed-dim": "#c9c8b2",
+                        "on-tertiary-container": "#f4bbc3",
+                        "surface-bright": "#fbf9f6",
+                        "surface-variant": "#e4e2df",
+                        "surface": "#fbf9f6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffd9dd",
+                        "tertiary-fixed-dim": "#f1b8bf",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#eabac2",
+                        "on-tertiary-fixed-variant": "#643b42",
+                        "on-primary-container": "#edbec6",
+                        "on-secondary-fixed-variant": "#474838",
+                        "surface-tint": "#79545b",
+                        "on-surface-variant": "#504446",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e5e4ce",
+                        "surface-container-highest": "#e4e2df",
+                        "surface-container-high": "#eae8e5",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#eabac2",
+                        "primary-container": "#6f4b52",
+                        "on-secondary-container": "#656554",
+                        "secondary-fixed": "#e5e4ce",
+                        "surface-dim": "#dbdad7",
+                        "primary": "#55343b",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "display": ["Newsreader", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fbf9f6; }
+        .font-newsreader { font-family: 'Newsreader', serif; }
+        .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+        
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(251, 249, 246, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        /* Hide scrollbar for clean editorial look */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Safe area padding for mobile */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface bg-background antialiased pb-24 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar (from JSON) -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-[#FBF9F6]/70 dark:bg-stone-950/70 backdrop-blur-xl docked full-width z-50 bg-[#F5F3F0] dark:bg-stone-900 flat no-shadows">
+<button class="text-[#55343B] dark:text-[#E4E2DF] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-['Newsreader'] italic tracking-tight text-2xl font-bold text-[#55343B] dark:text-[#FBF9F6]">Album Review</h1>
+<button class="text-[#55343B] dark:text-[#E4E2DF] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="more_vert" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-4 md:px-8 max-w-2xl mx-auto flex flex-col gap-8">
+<!-- Album Header Section -->
+<section class="flex flex-col gap-6">
+<!-- Artwork -->
+<div class="relative w-full aspect-square rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(27,28,26,0.06)] bg-surface-container-low">
+<img alt="Album Artwork" class="w-full h-full object-cover" data-alt="abstract expressionist painting with bold warm colors, deep reds and oranges, textured canvas, moody studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiNGddiK8jxBKgJqRYSRAGDjBpypEV9fdSuymQAKWuyXfHIbZabtqRkUAWAn7POhM6t8iP-iZ7eYKLB-45VVtF3GeRlt8b17_MpZa8nzpZVGkd7UjEYQwrMKMlLeAQcn_CHS1ncCsoJhPBwERx51or4m2hCFZWEz3Hn0cwPWf_N0nVlL75IoPJFf4mMHEpEeC0YR9_kF8zS--AKNCgWwWxewCDxdYk3WOZobXqW9RFqaatyey70kfl9T5TtJ7DcAhbq2EFnQ3jnsM"/>
+</div>
+<!-- Title & Artist -->
+<div class="flex flex-col items-center text-center px-4">
+<h2 class="font-headline font-bold text-4xl tracking-tight text-on-surface mb-1">Blonde</h2>
+<p class="font-body text-on-surface-variant tracking-wide text-sm uppercase font-medium">Frank Ocean</p>
+</div>
+<!-- Ranking Banner -->
+<div class="w-full bg-gradient-to-r from-primary to-primary-container rounded-lg p-4 flex items-center justify-between text-on-primary">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-2xl" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-body font-medium text-sm tracking-wide uppercase">Ranked #1</span>
+</div>
+<div class="font-cormorant italic text-lg opacity-90">
+                    All-Time Albums
+                </div>
+</div>
+</section>
+<!-- Editorial Review Section -->
+<section class="bg-surface-container-low rounded-xl p-6 sm:p-8 flex flex-col gap-6">
+<!-- Curator Info -->
+<div class="flex items-center gap-4 border-b border-outline-variant/20 pb-4">
+<img alt="Curator Avatar" class="w-12 h-12 rounded-full object-cover" data-alt="close up portrait of a young woman with natural light, soft muted tones, editorial fashion style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBva-hmPLXxI3FCc7380H_RxGp-VolqhAih-C8zzCwzOCwpIZw2xlt33INJ8bK5Huvx7Yn1N8sEqc8Y9RIcQb57CH7loAS8y-Gl1zHAJOFqLfge2FeWjkslAI1gO4iL9EZhULw54nRBvpO0r_bz8p248_Ht3m_l_gSqKCia6pVdjl5NRE0DNG6AdtgWa4lr4PgA2mOEtK_5519DovBaCFVdwZbQSUooYU_b-ugcasynPMhzX4XKe2H81ddYEOcoSjbIWsHeb1foS4Y"/>
+<div class="flex flex-col">
+<span class="font-body font-semibold text-on-surface text-sm">Zoe Curator</span>
+<span class="font-body text-xs text-on-surface-variant">Music Editor • 2 days ago</span>
+</div>
+</div>
+<!-- Review Text -->
+<article class="prose prose-stone max-w-none">
+<p class="font-headline text-xl leading-relaxed text-on-surface">
+                    "A masterclass in restraint and vulnerability. Every listen reveals a new layer of sonic architecture that feels both intimately personal and universally resonant."
+                </p>
+<p class="font-body text-sm leading-relaxed text-on-surface-variant mt-4">
+                    The spatial audio mix breathes new life into the minimalist arrangements. The transition from 'Nights' remains one of the most perfectly executed beat switches of the decade.
+                </p>
+</article>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/20 text-on-surface-variant">
+<div class="flex gap-6">
+<button class="flex items-center gap-2 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-active:scale-90 transition-transform" data-icon="favorite" style="font-variation-settings: 'FILL' 0;">favorite</span>
+<span class="font-body text-sm font-medium">12.4k</span>
+</button>
+<button class="flex items-center gap-2 hover:text-primary transition-colors group">
+<span class="material-symbols-outlined group-active:scale-90 transition-transform" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-body text-sm font-medium">342</span>
+</button>
+</div>
+<div class="flex gap-4">
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="bookmark" style="font-variation-settings: 'FILL' 0;">bookmark</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="share" style="font-variation-settings: 'FILL' 0;">share</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Comments Section -->
+<section class="flex flex-col gap-6">
+<h3 class="font-headline font-semibold text-lg text-on-surface">Discussion</h3>
+<div class="flex flex-col gap-4">
+<!-- Comment 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg flex gap-4">
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" data-alt="portrait of young man with glasses, warm natural lighting, casual setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkQ553c4648lvQJeJ86f66nzO8Z4Uf-keR7NAyO-N2BUSznVzQFlhdEYw_u9Vdv84xsjDiWe8W6D832_I1nJEcHWr2d55DkndKkEpERah6LjzY8uBk2acg-ZVSZhpY7GpwDQhajTYLvt2ttHbnDy5RTAGtyRh1XAaXIa0L0M_hhWqF20mkUgnO-M5lV4Q0NmccXBWBG2QGRg7kL6EKTpHpJqnDxOj-TR2lPSFRq0pXaXhGgvrLhEp2BA9_4MvrTX6IZ2VIirDd5ik"/>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-2">
+<span class="font-body font-medium text-sm text-on-surface">Alex R.</span>
+<span class="font-body text-xs text-outline">4h ago</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+                            The way this album ages is incredible. It feels completely timeless.
+                        </p>
+</div>
+</div>
+<!-- Comment 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-lg flex gap-4">
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" data-alt="portrait of woman smiling, bright studio lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNgz2VjYfiQfHEMKJYVTM3CHjRWqKjUUkGYz2mLImX0AOp_7FNzYEGnAqsnVpjNNCPAZRufGXg9pn8GP9gVhvJYbNGdym_67wzC-rDncXGPOsUjGK70bOpEnpR0a-Di5Qt_CqR99Zp6byM7LqO0CusSEBZ5jXqGYqk2FjVxLP01MeYKGtkresh77_u8F2a1LiAZgpTlpyvM-4sm1Ve2Q9ZWrgJc-q70k-IPVSea8dFrcaFBCYgUibb1Tj6ZUSAyRwNBOY0Li2HxcI"/>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-2">
+<span class="font-body font-medium text-sm text-on-surface">Sarah M.</span>
+<span class="font-body text-xs text-outline">12h ago</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+                            Agreed with the review. The spatial audio mix is a revelation.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Add Comment Input -->
+<div class="flex gap-3 mt-2">
+<input class="flex-1 bg-surface-container-low border-none focus:ring-0 rounded-full px-4 font-body text-sm text-on-surface placeholder:text-outline-variant" placeholder="Add a comment..." type="text"/>
+<button class="bg-primary text-on-primary w-10 h-10 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="send" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (from JSON) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-[#FBF9F6]/80 dark:bg-stone-950/80 backdrop-blur-2xl docked full-width z-50 rounded-t-none border-t border-[#E4E2DF]/30 dark:border-stone-800 shadow-[0_-4px_24px_rgba(27,28,26,0.04)] md:hidden">
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-stone-500 opacity-60 hover:text-[#55343B] dark:hover:text-[#FBF9F6] transition-all active:translate-y-0.5 duration-150 group">
+<span class="material-symbols-outlined mb-1" data-icon="explore" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Discover</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-stone-500 opacity-60 hover:text-[#55343B] dark:hover:text-[#FBF9F6] transition-all active:translate-y-0.5 duration-150 group">
+<span class="material-symbols-outlined mb-1" data-icon="search" style="font-variation-settings: 'FILL' 0;">search</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#55343B] dark:text-[#FBF9F6] bg-gradient-to-br from-[#55343B]/10 to-[#6F4B52]/5 rounded-sm px-3 py-1 hover:text-[#55343B] dark:hover:text-[#FBF9F6] transition-all active:translate-y-0.5 duration-150 group">
+<span class="material-symbols-outlined mb-1" data-icon="format_list_numbered" style="font-variation-settings: 'FILL' 1;">format_list_numbered</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Rank</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-stone-500 opacity-60 hover:text-[#55343B] dark:hover:text-[#FBF9F6] transition-all active:translate-y-0.5 duration-150 group">
+<span class="material-symbols-outlined mb-1" data-icon="play_circle" style="font-variation-settings: 'FILL' 0;">play_circle</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Shorts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#71715F] dark:text-stone-500 opacity-60 hover:text-[#55343B] dark:hover:text-[#FBF9F6] transition-all active:translate-y-0.5 duration-150 group">
+<span class="material-symbols-outlined mb-1" data-icon="person" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Profile</span>
+</button>
+</nav>
+</body></html>

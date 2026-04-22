@@ -1,0 +1,288 @@
+// Zoe backend schema.
+// Source of truth for all columns / relations is PRD/Zoe_Content_Model_Sample_Data_Pack.md.
+// tsvector columns are added in the accompanying SQL migration — Prisma only
+// knows about them as `Unsupported("tsvector")`.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ObjectType {
+  place
+  restaurant
+  cafe
+  bar
+  perfume
+  album
+  fashion
+  sneaker
+  product
+}
+
+enum PostType {
+  photo
+  carousel
+  short_video
+}
+
+enum DetailLayout {
+  discovery_photo
+  album_review
+  product_hero
+}
+
+enum ListVisibility {
+  public
+  followers
+  private
+}
+
+enum RankMovement {
+  up
+  down
+  new
+  stable
+}
+
+// -------- Auth -----------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  handle       String   @unique
+  displayName  String
+  passwordHash String
+  avatarUrl    String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions     Session[]
+  posts        Post[]
+  lists        RankingList[]
+  comments     Comment[]
+  likes        Like[]
+  saves        Save[]
+  shorts       Short[]
+  followers    Follow[]     @relation("follower")
+  following    Follow[]     @relation("followee")
+
+  @@map("users")
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  // sha256(token || pepper) — raw token lives only with the client.
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  userAgent  String?
+  ipAddress  String?
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// -------- Catalog --------------------------------------------------------
+
+model Object {
+  id              String     @id @default(cuid())
+  type            ObjectType
+  title           String
+  subtitle        String?
+  city            String?
+  neighborhood    String?
+  tags            String[]
+  shortDescriptor String?
+  heroImage       String?
+  metadata        Json?
+  createdAt       DateTime   @default(now())
+
+  // Generated tsvector column (see prisma/migrations/**/search.sql).
+  searchTsv       Unsupported("tsvector")? @map("search_tsv")
+
+  posts           Post[]
+  entries         RankingEntry[]
+  shorts          Short[]
+
+  @@index([type])
+  @@index([city])
+  @@map("objects")
+}
+
+// -------- Social & content ----------------------------------------------
+
+model Post {
+  id             String        @id @default(cuid())
+  authorId       String
+  author         User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  objectId       String
+  object         Object        @relation(fields: [objectId], references: [id])
+
+  postType       PostType      @default(photo)
+  detailLayout   DetailLayout  @default(discovery_photo)
+
+  headline       String
+  caption        String
+  tags           String[]
+
+  // Denormalised ranking context shown on the card / detail.
+  rankingListId  String?
+  rankingList    RankingList?  @relation(fields: [rankingListId], references: [id])
+  rankingRank    Int?
+  rankingMovement RankMovement? @default(stable)
+  rankingDelta   Int?
+
+  locationLabel  String?
+  aspect         String?       @default("tall") // tall | square | wide
+  featured       Boolean       @default(false)
+
+  publishedAt    DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  searchTsv      Unsupported("tsvector")? @map("search_tsv")
+
+  comments       Comment[]
+  likes          Like[]
+  saves          Save[]
+
+  @@index([authorId, publishedAt])
+  @@index([publishedAt])
+  @@index([rankingListId])
+  @@map("posts")
+}
+
+model RankingList {
+  id          String         @id @default(cuid())
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title       String
+  category    String
+  description String?
+  visibility  ListVisibility @default(public)
+  coverImage  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  entries     RankingEntry[]
+  posts       Post[]
+
+  @@index([ownerId])
+  @@index([category])
+  @@map("ranking_lists")
+}
+
+model RankingEntry {
+  id        String       @id @default(cuid())
+  listId    String
+  list      RankingList  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  objectId  String
+  object    Object       @relation(fields: [objectId], references: [id])
+  rank      Int
+  movement  RankMovement @default(stable)
+  delta     Int?
+  note      String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([listId, objectId])
+  @@unique([listId, rank])
+  @@index([listId])
+  @@map("ranking_entries")
+}
+
+// -------- Graph ---------------------------------------------------------
+
+model Follow {
+  followerId String
+  follower   User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followeeId String
+  followee   User     @relation("followee", fields: [followeeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([followerId, followeeId])
+  @@index([followeeId])
+  @@map("follows")
+}
+
+model Like {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("likes")
+}
+
+model Save {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("saves")
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("replies")
+
+  body      String
+  likes     Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([postId, createdAt])
+  @@index([parentId])
+  @@map("comments")
+}
+
+model Short {
+  id         String   @id @default(cuid())
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  objectId   String
+  object     Object   @relation(fields: [objectId], references: [id])
+
+  hookLine   String
+  caption    String
+  audioLabel String?
+  heroImage  String
+  videoUrl   String?
+
+  rankingListTitle String?
+  rankingRank      Int?
+  rankingMovement  RankMovement? @default(stable)
+
+  likes      Int      @default(0)
+  comments   Int      @default(0)
+  saves      Int      @default(0)
+
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([authorId, publishedAt])
+  @@map("shorts")
+}

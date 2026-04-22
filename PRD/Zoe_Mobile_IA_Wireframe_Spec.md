@@ -2,7 +2,7 @@
 **Version:** 2.0
 **Platform:** Mobile-first (iOS and Android)
 **Product direction:** Instagram-familiar shell · RedNote-style discovery utility · Beli-inspired ranking integrated into profiles, feeds, and updates
-**Visual reference:** `Design_guide/` prototypes (Home / Search / Rankings / Shorts / Profile) + `Design_guide/*/DESIGN.md` ("The Modern Curator"). Design tokens and component rules live in `PRD/Zoe_Visual_Direction_Kit.md` §7, §11, §13, §18.
+**Visual reference:** `Design_guide/` prototypes (Home / Search / Rankings / Shorts / Profile) + **post detail** layouts in `Design_guide/posts/` (`post_for_cafe`, `post_for_album`, `post_for_shoes`) + `Design_guide/*/DESIGN.md` ("The Modern Curator"). Design tokens and component rules live in `PRD/Zoe_Visual_Direction_Kit.md` §7, §11, §13, §16.5–§16.6, §18–§18.6.
 **Document purpose:** Define the full screen-level information architecture, wireframe structure, navigation model, states, and end-to-end user flows for the Zoe mobile MVP.
 
 ---
@@ -558,30 +558,107 @@ If user is already on Home and taps Home again:
 ## SCREEN 08 — Post Detail
 
 ### Purpose
-Full-screen post consumption and interaction.
+Full-screen post consumption and interaction. The UI **routes among three editorial templates** (see `Design_guide/posts/` and `Zoe_Visual_Direction_Kit.md` §16.5, §18.6) so place posts, album posts, and product posts each feel native — not a single generic “Instagram clone” sheet.
 
 ### Entry points
 - tap feed post
 - tap shared post
 - tap profile grid item
 
-### Required components
-- media
-- user header
-- caption
-- tags
-- linked ranked object
-- ranking context
-- comments section or preview
-- share
-- save
-- related ranking list link
-- follow CTA if not following
+### Template selection (`detail_layout`)
+| `detail_layout` | Prototype folder | Best for |
+| :--- | :--- | :--- |
+| `discovery_photo` | `post_for_cafe/` | Places, food, travel — tall hero, glass location chip, **tonal ranking strip** with left gradient accent |
+| `album_review` | `post_for_album/` | Music / square artwork — centered title + artist, **gradient ranking ribbon**, nested editorial card |
+| `product_hero` | `post_for_shoes/` | Fashion, sneakers, objects — **wide hero** + **floating rank chip** overlapping bottom-right, left-rule body copy, Collection CTA |
+
+**Default inference (if field unset):** album-like `object` category → `album_review`; fashion / footwear / product SKUs → `product_hero`; else `discovery_photo`.
+
+### Shared chrome (all templates)
+- Glass **top app bar**: `arrow_back` · contextual center title (Newsreader italic **Zoe** or e.g. “Album Review”) · overflow (`more_horiz` or `more_vert` per template).
+- **Save** affordance: bookmark in header (café) or in-body action row (album) — product template may emphasize **Add to Collection** instead of duplicating save.
+- **Ranking → list:** tapping the ranking banner / ribbon / chip opens **Ranking Detail** for that list (deep link preserves entry rank context).
+
+### Required components (union across templates)
+- hero media (aspect and width vary by template)
+- curator attribution (avatar + name + relative time — inline row or inside editorial card per variant)
+- headline + long-form caption / review body
+- tags (rounded-full ghost chips on discovery; optional elsewhere)
+- **ranking context** surfaced as strip, ribbon, or floating chip (never identical across all three)
+- linked object (implicit via ranking banner or explicit “View Details” on product)
+- **Discussion** — section naming varies (“Curator Notes”, “Discussion”, “Thoughts”); supports threaded reply + **Author** badge on discovery template
+- like + comment counts + share (`ios_share` or `share`)
+- related ranking list link (from ranking UI)
+- **Follow** CTA in header or composer-adjacent row when viewer does not follow author (not shown in HTML prototypes; required for MVP parity)
+
+### Per-template wireframes
+
+**A — `discovery_photo` (`post_for_cafe`)**
+```text
++-----------------------------------------+
+| ←        Zoe (italic)            ⋯      |  glass
+| [avatar] Elena Rostova      [bookmark]  |
+|            2 hours ago                  |
+| ┌─────────────────────────────────────┐ |
+| │         [4:5 hero image]              │ |
+| │  📍 Kurasu, Kyoto    (glass chip)   │ |
+| └─────────────────────────────────────┘ |
+| │#3│ RANKED IN  Best Matcha Spots  +1↑ │  tonal strip + gradient spine
+|                                         |
+| The perfect balance of umami…           |  Newsreader ~3xl
+| [body Inter on-surface-variant]         |
+| #Matcha #KyotoCafes …                   |
+| ─────────────────────────────────────   |  hairline 15%
+| ♥ 1.2k    💬 48              share →    |
+| ┌─ Curator Notes ───────── [Discussion]┐ |
+| │ [avatar] Add a note or question…    │ |
+| │ thread + Author pill on replies       │ |
+| └─────────────────────────────────────┘ |
++-----------------------------------------+
+```
+
+**B — `album_review` (`post_for_album`)**
+```text
++-----------------------------------------+
+| ←    Album Review (italic)        ⋮     |
+| ┌──────── square artwork ─────────────┐ |
+| └─────────────────────────────────────┘ |
+|        Blonde                           |  Newsreader 4xl centered
+|     FRANK OCEAN                         |  Inter uppercase
+| ████ RANKED #1 ████ All-Time Albums ████|  gradient ribbon + Cormorant
+| ┌─ surface-container-low card ────────┐ |
+| │ curator row                         │ |
+| │ pull quote Newsreader xl            │ |
+| │ body Inter                          │ |
+| │ ♥ counts  💬    [bookmark] [share]  │ |
+| └─────────────────────────────────────┘ |
+| Discussion                              |
+| [rounded cards…]  [pill input] [send] │
++-----------------------------------------+
+```
+
+**C — `product_hero` (`post_for_shoes`)**
+```text
++-----------------------------------------+
+| ←        Zoe                    ⋯      |
+| ┌────────── wide 4:3 / 16:9 ──────────┐ |
+| │         [hero product shot]          │ │
+| └─────────────────────────────────────┘ |
+|              ┌─ #5 │ ALL-TIME SNEAKERS ─┐|  floating chip -bottom-4
+|              └─────────────────────────┘|
+| Aether "Concrete" High                  |  Newsreader 4xl–5xl
+| Curated by Alex M. · 2 hours ago        |
+| │ long-form body with left vertical rule│
+| [ Add to Collection ] [ View Details ]  |  gradient + ghost
+| Thoughts                                |
+| [comments + underline composer]         |
++-----------------------------------------+
+```
 
 ### States
-- photo post
-- carousel post
-- short video post
+- photo post (any `detail_layout`)
+- carousel post (default to `discovery_photo` carousel until a dedicated carousel detail exists)
+- short video post (may reuse `discovery_photo` chrome with video hero, or push to Shorts viewer — product decision)
 - post unavailable
 - deleted/private
 

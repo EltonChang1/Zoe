@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Café Discovery Post</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&amp;family=Inter:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#2e1319",
+                        "outline": "#827475",
+                        "on-secondary-fixed-variant": "#474838",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#1c1c0f",
+                        "tertiary-fixed-dim": "#f1b8bf",
+                        "on-tertiary-container": "#f4bbc3",
+                        "inverse-surface": "#30312f",
+                        "inverse-on-surface": "#f2f0ed",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#efeeeb",
+                        "primary-container": "#6f4b52",
+                        "background": "#fbf9f6",
+                        "surface-variant": "#e4e2df",
+                        "surface-dim": "#dbdad7",
+                        "secondary-fixed-dim": "#c9c8b2",
+                        "secondary": "#5f5f4e",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbf9f6",
+                        "on-tertiary-fixed": "#311117",
+                        "surface": "#fbf9f6",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#74494f",
+                        "surface-tint": "#79545b",
+                        "tertiary-fixed": "#ffd9dd",
+                        "primary-fixed-dim": "#eabac2",
+                        "primary": "#55343b",
+                        "outline-variant": "#d3c2c4",
+                        "on-surface-variant": "#504446",
+                        "on-background": "#1b1c1a",
+                        "on-tertiary-fixed-variant": "#643b42",
+                        "inverse-primary": "#eabac2",
+                        "secondary-fixed": "#e5e4ce",
+                        "primary-fixed": "#ffd9df",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#5a3239",
+                        "secondary-container": "#e5e4ce",
+                        "on-surface": "#1b1c1a",
+                        "on-secondary-container": "#656554",
+                        "on-primary-fixed-variant": "#5f3d44",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e4e2df",
+                        "surface-container-low": "#f5f3f0",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#edbec6",
+                        "surface-container-high": "#eae8e5",
+                        "rank-up": "#547C65",
+                        "new-entry": "#8B6C3F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": [
+                            "Newsreader",
+                            "serif"
+                        ],
+                        "display": [
+                            "Newsreader",
+                            "serif"
+                        ],
+                        "body": [
+                            "Inter",
+                            "sans-serif"
+                        ],
+                        "label": [
+                            "Inter",
+                            "sans-serif"
+                        ]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f6;
+            color: #1b1c1a;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .font-headline {
+            font-family: 'Newsreader', serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Webkit Scrollbar Customization */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e4e2df;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d3c2c4;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-[#fbf9f6]/70 dark:bg-[#1b1c1a]/70 backdrop-blur-xl docked full-width top-0 z-50 flex justify-between items-center px-6 py-4 w-full shadow-none bg-[#f5f3f0] dark:bg-[#2a211d] fixed">
+<button aria-label="Go back" class="text-[#55343b] dark:text-[#e4e2df] hover:opacity-70 transition-opacity active:scale-95 transition-transform duration-200 focus:outline-none">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold font-serif text-[#2a211d] dark:text-[#fbf9f6] text-center w-full absolute left-0 -z-10 tracking-tight font-headline italic text-lg">Zoe</h1>
+<button aria-label="More options" class="text-[#55343b] dark:text-[#e4e2df] hover:opacity-70 transition-opacity active:scale-95 transition-transform duration-200 focus:outline-none">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-20 pb-24 md:pb-8 flex justify-center">
+<div class="w-full max-w-2xl px-4 md:px-8 space-y-12">
+<!-- Post Header & Image -->
+<article class="space-y-6 animate-fade-in-up">
+<!-- Curator Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<img alt="Curator avatar" class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Portrait of an elegant young woman with soft natural makeup, wearing a neutral tones, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAalKEJjl9Cjt0NyAbW8X8WSG6w2cMMR1owkKhF7W7gh6ZA-HsHhyP-w1zscc4q5Ru62_L6KBHO4vY5W2Cd_Uv1ecFQfXbb6yRMzCedHSR0hzzplaT2bGopiumi9KX-wh9YL1NikAAH2b307cs_x1L3n7xAzz6ROTkOM7uMDbQc-ZF408Lp6Rs5T8XYH9A3NQTPvfqNwvdrb_frQ-ZGbO3kyrBe6meFrzKuKZ9YRlv3VxsQpNzTXg9NYetY_P6YXp-xWOiLYCqJXA0"/>
+<div>
+<p class="font-body text-sm font-medium text-on-surface">Elena Rostova</p>
+<p class="font-label text-xs text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<button aria-label="Save post" class="text-on-surface-variant hover:text-primary transition-colors focus:outline-none p-2 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+<!-- Main Image -->
+<figure class="relative rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-surface-container-low">
+<img alt="Premium matcha latte" class="w-full h-auto aspect-[4/5] object-cover transition-transform duration-700 hover:scale-105" data-alt="Close up of a premium matcha latte with delicate latte art in a ceramic cup on a wooden saucer, placed on a light oak table in a minimalist cafe, soft natural light streaming in, shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzPqQxHWS9xCKCLAWiOTtKfZmaPi1xHkB5AYExeVyz4N2vPOlxHSZ0_WDb1-GtA4JCS1MHA9v3mfD20ma_jgF7MoN21n30ZqXoIek8ytghEP3Qc7HWV77nb8LZ6cazl7y6kiOA6f19OMgbtrIl_-U2xBS_d3TI0Q2TE2x3JvrNoxbj4kU1w97nvfpPBeJl6iweVnpBeUOv_BonlNYO_JlrarbDuZb2CuyGkOKJtKkdnw1wkVinrSMEal67lkqclzJLDuwKq5Ac34Y"/>
+<!-- Asymmetric Location Tag -->
+<div class="absolute bottom-4 left-4 bg-background/90 backdrop-blur-md px-3 py-1.5 rounded flex items-center space-x-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="location_on">location_on</span>
+<span class="font-label text-xs font-medium text-on-surface">Kurasu, Kyoto</span>
+</div>
+</figure>
+<!-- Ranking Banner -->
+<div class="bg-surface-container-lowest border border-outline-variant/15 rounded-lg p-4 flex items-center justify-between relative overflow-hidden group hover:bg-surface-container-low transition-colors duration-300">
+<!-- Subtle gradient accent -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-primary-container"></div>
+<div class="flex items-center space-x-4 pl-2">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container rounded-lg">
+<span class="font-headline text-xl text-primary font-bold">#3</span>
+</div>
+<div>
+<p class="font-label text-xs text-on-surface-variant uppercase tracking-wider mb-0.5">Ranked in</p>
+<p class="font-headline text-lg font-medium tracking-tight text-on-surface">Best Matcha Spots</p>
+</div>
+</div>
+<div class="flex items-center text-rank-up">
+<span class="font-label text-xs font-medium mr-1">+1</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_upward">arrow_upward</span>
+</div>
+</div>
+<!-- Curator's Note -->
+<div class="space-y-3 px-2">
+<h2 class="font-headline text-3xl font-medium tracking-tight text-on-surface leading-tight">The perfect balance of umami and ceremonial grade sweetness.</h2>
+<p class="font-body text-base text-on-surface-variant leading-relaxed font-light">
+                        There's a specific quietness to Kurasu that makes the experience of drinking matcha here feel almost sacred. The whisking is deliberate, not rushed. The resulting crema is impossibly fine, carrying a deep, grassy umami profile that completely avoids the astringent bite found in lesser grades. Pair it with their minimalist space, and it's an immediate top-tier entry.
+                    </p>
+<!-- Tags -->
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-label text-xs rounded-full border border-outline-variant/20 hover:border-outline-variant/50 transition-colors cursor-pointer">#Matcha</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-label text-xs rounded-full border border-outline-variant/20 hover:border-outline-variant/50 transition-colors cursor-pointer">#KyotoCafes</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-label text-xs rounded-full border border-outline-variant/20 hover:border-outline-variant/50 transition-colors cursor-pointer">#Minimalist</span>
+</div>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between border-t border-outline-variant/15 pt-4 px-2">
+<div class="flex space-x-6">
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="favorite">favorite</span>
+<span class="font-label text-sm font-medium">1.2k</span>
+</button>
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-label text-sm font-medium">48</span>
+</button>
+</div>
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" data-icon="ios_share">ios_share</span>
+</button>
+</div>
+</article>
+<!-- Unified Comment Section -->
+<section class="bg-surface-container-low rounded-xl p-6 space-y-6">
+<h3 class="font-headline text-xl text-on-surface flex items-center justify-between">
+<span>Curator Notes</span>
+<span class="font-label text-xs text-on-surface-variant uppercase tracking-widest bg-background px-2 py-1 rounded">Discussion</span>
+</h3>
+<!-- Add Comment Input -->
+<div class="flex items-start space-x-3">
+<img alt="Your avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" data-alt="Portrait of a young man with short hair wearing glasses and a casual grey shirt, natural soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrUpOSKzRZwD2Vw75tzB0xWd3uHy68mfnl444SMxqUSKrzeILvcE-yt8UWwRmUyc0Cgri9L0-cIso4Upc8mqt6nqIsiZm1g62Cl7CVO9vZ44nMXYl65YLyZgyj8K-K6pWkvil0nhMbxqlcAiiw3hMjRS-LxeG5BLjeU4t6-fE_67Qfljmp52LWUIEtAuag26XFTyR6PmR4eUtkEq8RkfMWw6GJF0cA4LxTsH_i6J3to3I8dnY00gV1e7XSpDa79lyoXgELO45hs_w"/>
+<div class="flex-grow">
+<input class="w-full bg-transparent border-b border-outline-variant/30 text-sm font-body text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-0 px-0 py-2 transition-colors" placeholder="Add a note or question..." type="text"/>
+</div>
+</div>
+<!-- Comment List -->
+<div class="space-y-5 pt-2">
+<!-- Comment 1 -->
+<div class="flex space-x-3 group">
+<img alt="Commenter avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0" data-alt="Portrait of a woman with long dark hair smiling, wearing a light colored top, soft warm outdoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASZ0Y7tAqPdCRkIde0dpHGsiMbKCbMKza4_KieisWvv2spqR0EdxUfftWSJmKmVzkQ3lX-ZjoViGlNfpKeCDtOU6rxvCkFiBUFY63FsoZ-pDA2rmUfYZtT01wiD44k0Vgs5f3KO7pkDkF9QqrkX94Stl-XWSFjwehomFBOs6BhgydrxQIjH8uURwmmwUmwfhDBuupBf96soGBnnDKOCEfhakQg2ayChrS3fK38cYQ-ihnhwx9SvXnVk_tZtA6FuJfOE0BteyUavDQ"/>
+<div class="flex-grow">
+<div class="flex items-baseline space-x-2">
+<span class="font-label text-sm font-medium text-on-surface">Sarah Jenkins</span>
+<span class="font-label text-xs text-on-surface-variant">1h</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant mt-0.5 leading-relaxed">Have you tried their seasonal hojicha? Might challenge this ranking!</p>
+<div class="flex items-center space-x-4 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-xs font-label text-on-surface-variant hover:text-primary transition-colors">Reply</button>
+<button class="flex items-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none">
+<span class="material-symbols-outlined text-[14px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Comment 2 (Author Reply) -->
+<div class="flex space-x-3 pl-11 group relative">
+<!-- Connecting line -->
+<div class="absolute left-[1.15rem] top-[-1.5rem] bottom-4 w-px bg-outline-variant/20"></div>
+<img alt="Author avatar" class="w-6 h-6 rounded-full object-cover flex-shrink-0 z-10 border-2 border-surface-container-low" data-alt="Portrait of an elegant young woman with soft natural makeup, wearing a neutral tones, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqBBgurN9Dry_b_vLK0QgH9L9uQR9hnJ-5435W3IezgPSTa3Xz9ED7_FUzuPpRRRnE8JHPdlMwwma48ce39xnw-cZd-1oD3LhoJXlk-_-vGPLwYNzCTBoUTYD_TG4-J8LxZ9LhVaaDTUjxlYRhkSaJKNEqXsOv_OoGnOb2clOAsBaoCVHSJMlFQxO-pHrmNcDk6ei2KKYmq3P_RAZ4J1qqzhom4GKoJlt0-UfhgfR0AnDlBIq81UdWJ0hA6DKLY7gVV-p-KddsYso"/>
+<div class="flex-grow">
+<div class="flex items-baseline space-x-2">
+<span class="font-label text-sm font-medium text-on-surface flex items-center">Elena Rostova <span class="ml-1 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded-full uppercase tracking-wider">Author</span></span>
+<span class="font-label text-xs text-on-surface-variant">45m</span>
+</div>
+<p class="font-body text-sm text-on-surface-variant mt-0.5 leading-relaxed">I have! It's fantastic, definitely top 5 for hojicha, but this specific ceremonial blend holds the crown for me right now.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-[#fbf9f6]/80 dark:bg-[#1b1c1a]/80 backdrop-blur-2xl fixed bottom-0 w-full z-50 pb-safe border-t border-[#e4e2df]/10 shadow-[0_-4px_24px_rgba(27,28,26,0.04)] flex justify-around items-center h-20 px-4 md:hidden">
+<button aria-label="Discover" class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out focus:outline-none w-16">
+<span class="material-symbols-outlined mb-1" data-icon="explore">explore</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Discover</span>
+</button>
+<button aria-label="Search" class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out focus:outline-none w-16">
+<span class="material-symbols-outlined mb-1" data-icon="search">search</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Search</span>
+</button>
+<button aria-label="Rank" class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out focus:outline-none w-16">
+<span class="material-symbols-outlined mb-1" data-icon="leaderboard">leaderboard</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Rank</span>
+</button>
+<button aria-label="Shorts" class="flex flex-col items-center justify-center text-[#71715f] dark:text-[#e4e2df]/40 hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 transition-all duration-300 ease-out focus:outline-none w-16">
+<span class="material-symbols-outlined mb-1" data-icon="play_circle">play_circle</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Shorts</span>
+</button>
+<button aria-label="Profile" class="flex flex-col items-center justify-center text-[#55343b] dark:text-[#e4e2df] scale-110 transition-all hover:text-[#55343b] dark:hover:text-[#fbf9f6] active:scale-90 duration-300 ease-out focus:outline-none w-16">
+<span class="material-symbols-outlined mb-1" data-icon="person" data-weight="fill">person</span>
+<span class="font-sans text-[10px] uppercase tracking-widest font-medium">Profile</span>
+</button>
+</nav>
+</body></html>

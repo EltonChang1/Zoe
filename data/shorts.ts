@@ -1,0 +1,43 @@
+import { Short } from "./types";
+
+export const shorts: Short[] = [
+  {
+    id: "S001",
+    authorId: "U004",
+    objectId: "O012",
+    hookLine: "Pretty? yes. Worth the line? depends.",
+    caption: "If you come here, come for the room and split dessert.",
+    ranking: { listTitle: "NYC Dessert Spots", rank: 6, movement: "new" },
+    likes: 3400,
+    comments: 82,
+    saves: 911,
+    hero: "https://images.unsplash.com/photo-1536520002442-39764a41e987?auto=format&fit=crop&w=1200&q=80",
+    audioLabel: "Original · @nina.ko",
+  },
+  {
+    id: "S002",
+    authorId: "U002",
+    objectId: "O008",
+    hookLine: "One elegant night fragrance — that's it.",
+    caption: "Gris Charnel in cold air. Top 1 for me.",
+    ranking: { listTitle: "Night Perfumes", rank: 1, movement: "stable" },
+    likes: 2210,
+    comments: 48,
+    saves: 907,
+    hero: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=1200&q=80",
+    audioLabel: "Original · @elton.p",
+  },
+  {
+    id: "S003",
+    authorId: "U003",
+    objectId: "O009",
+    hookLine: "Still #1 on every late-night walk.",
+    caption: "I tried moving it down. I couldn't.",
+    ranking: { listTitle: "All-Time Albums", rank: 1 },
+    likes: 5600,
+    comments: 210,
+    saves: 1400,
+    hero: "https://images.unsplash.com/photo-1514533212735-5df27d970db9?auto=format&fit=crop&w=1200&q=80",
+    audioLabel: "Ivy · Frank Ocean",
+  },
+];
