@@ -38,7 +38,7 @@ export default function SignInScreen() {
     setError(null);
     try {
       await signIn({ email, password });
-      router.replace("/");
+      router.replace("/(tabs)");
     } catch (err) {
       setError(
         err instanceof ApiHttpError
@@ -110,6 +110,13 @@ export default function SignInScreen() {
               disabled={!canSubmit}
               full
             />
+            <Link href="/(auth)/forgot-password" asChild>
+              <Pressable className="py-2 active:opacity-70">
+                <Body className="text-center text-primary text-[13px] underline">
+                  Forgot password?
+                </Body>
+              </Pressable>
+            </Link>
             <Link href="/(auth)/sign-up" asChild>
               <Pressable className="py-3 active:opacity-70">
                 <Body className="text-center text-primary text-[13px]">

@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -29,6 +29,7 @@ import {
   useAuth,
   useCreateRankingList,
   useInsertRankingEntry,
+  useObjectQuery,
   useObjectSearchQuery,
   useOwnerRankingListsQuery,
   useRankingListQuery,
@@ -55,6 +56,13 @@ export default function AddToRankingScreen() {
   const insets = useSafeAreaInsets();
   const { isSignedIn } = useAuth();
 
+  // Optional deep-link: `?objectId=O001` pre-selects the subject and skips
+  // the search step — e.g. tapping "Add to a ranking" on an object page.
+  const { objectId: objectIdParam } = useLocalSearchParams<{
+    objectId?: string;
+  }>();
+  const preselectQuery = useObjectQuery(objectIdParam ?? null);
+
   const [step, setStep] = useState<Step>("category");
   const [listId, setListId] = useState<string | null>(null);
   const [picked, setPicked] = useState<PickedObject | null>(null);
@@ -65,9 +73,52 @@ export default function AddToRankingScreen() {
   const [note, setNote] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Hydrate `picked` from the deep-link payload once the object detail lands.
+  // We keep it one-shot (only when picked is still null) so user navigation
+  // inside the flow isn't undone.
+  useEffect(() => {
+    if (!objectIdParam || picked) return;
+    const o = preselectQuery.data;
+    if (!o) return;
+    setPicked({
+      id: o.id,
+      title: o.title,
+      subtitle: o.subtitle ?? undefined,
+      city: o.city ?? undefined,
+      heroImage:
+        o.heroImage ??
+        "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=1200&q=80",
+      type: o.type,
+    });
+  }, [objectIdParam, picked, preselectQuery.data]);
+
   const listQuery = useRankingListQuery(listId ?? undefined);
   const list = listQuery.data?.list;
   const insertMutation = useInsertRankingEntry();
+
+  // On deep-link ("compare" without having picked via the search step first)
+  // the list may not have loaded when we switched steps. Once it lands,
+  // initialise the pairwise bounds. Unset state is `lo === 0 && hi === 0`
+  // (because the algorithm always terminates at one of those equalities and
+  // steps away from "compare").
+  const [compareSeeded, setCompareSeeded] = useState(false);
+  useEffect(() => {
+    if (step !== "compare") {
+      if (compareSeeded) setCompareSeeded(false);
+      return;
+    }
+    if (!list || compareSeeded) return;
+    const count = list.entries.length;
+    if (count === 0) {
+      setInsertIndex(0);
+      setStep("caption");
+      return;
+    }
+    setLo(0);
+    setHi(count - 1);
+    setMid(Math.floor(count / 2));
+    setCompareSeeded(true);
+  }, [step, list, compareSeeded]);
 
   const startCompare = (entriesCount: number) => {
     if (entriesCount === 0) {
@@ -189,15 +240,22 @@ export default function AddToRankingScreen() {
       >
         {step === "category" && (
           <CategoryStep
+            preselected={picked ?? undefined}
             onPick={(id, entriesCount) => {
               setListId(id);
-              if (entriesCount === 0) {
-                // Empty list: skip straight past compare — we'll still land
-                // at rank 1 once an object is chosen.
-                setStep("search");
-              } else {
-                setStep("search");
+              // If the subject is already chosen (deep-link), skip search.
+              if (picked) {
+                if (entriesCount === 0) {
+                  setInsertIndex(0);
+                  setStep("caption");
+                } else {
+                  // `useRankingListQuery` will hydrate once listId is set —
+                  // the "compare" step handles the loading state itself.
+                  setStep("compare");
+                }
+                return;
               }
+              setStep("search");
             }}
           />
         )}
@@ -297,8 +355,10 @@ type ListLite = {
 // ---------------- Category ----------------
 
 function CategoryStep({
+  preselected,
   onPick,
 }: {
+  preselected?: PickedObject;
   onPick: (id: string, entriesCount: number) => void;
 }) {
   const { user } = useAuth();
@@ -339,12 +399,38 @@ function CategoryStep({
     <View>
       <LabelCaps>Step one</LabelCaps>
       <Display className="mt-2 text-[34px] leading-[38px]">
-        Which list?
+        {preselected ? "Which list?" : "Which list?"}
       </Display>
       <Body className="mt-3">
-        Pick one of your lists — or start a new one in the category you care
-        about.
+        {preselected
+          ? `Pick a list to rank ${preselected.title} in.`
+          : "Pick one of your lists — or start a new one in the category you care about."}
       </Body>
+
+      {preselected ? (
+        <View className="mt-6 bg-surface-container-low rounded-xl p-4 flex-row items-center gap-3 border border-outline-variant/20">
+          <Image
+            source={{ uri: preselected.heroImage }}
+            style={{ width: 52, height: 52, borderRadius: 8 }}
+            contentFit="cover"
+          />
+          <View className="flex-1">
+            <Text
+              className="font-headline text-on-surface text-[16px]"
+              numberOfLines={1}
+            >
+              {preselected.title}
+            </Text>
+            <Label
+              className="mt-0.5 text-[11px]"
+              numberOfLines={1}
+            >
+              {preselected.subtitle ?? preselected.type}
+              {preselected.city ? ` · ${preselected.city}` : ""}
+            </Label>
+          </View>
+        </View>
+      ) : null}
 
       {isLoading && (
         <View className="mt-10 items-center">

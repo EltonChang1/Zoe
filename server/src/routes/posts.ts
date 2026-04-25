@@ -11,6 +11,11 @@ import {
   requireAuth,
   type AuthVariables,
 } from "../auth/middleware.js";
+import {
+  getHiddenUserIds,
+  isBlockedEitherWay,
+} from "../lib/moderation.js";
+import { sendPushToUser } from "../lib/push.js";
 
 const DetailLayout = z.enum(["discovery_photo", "album_review", "product_hero"]);
 const PostType = z.enum(["photo", "carousel", "short_video"]);
@@ -60,7 +65,13 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
       });
       if (!post) throw HttpError.notFound();
 
-      const [likedByMe, savedByMe, comments] = await Promise.all([
+      // Either side of a block erases the post for the viewer. 404 (not
+      // 403) so we don't leak that the author exists.
+      if (await isBlockedEitherWay(viewer?.id, post.authorId)) {
+        throw HttpError.notFound();
+      }
+
+      const [likedByMe, savedByMe] = await Promise.all([
         viewer
           ? prisma.like.findUnique({
               where: { userId_postId: { userId: viewer.id, postId: id } },
@@ -71,35 +82,11 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
               where: { userId_postId: { userId: viewer.id, postId: id } },
             })
           : null,
-        prisma.comment.findMany({
-          where: { postId: id, parentId: null },
-          orderBy: { createdAt: "asc" },
-          include: {
-            author: {
-              select: {
-                id: true,
-                handle: true,
-                displayName: true,
-                avatarUrl: true,
-              },
-            },
-            replies: {
-              orderBy: { createdAt: "asc" },
-              include: {
-                author: {
-                  select: {
-                    id: true,
-                    handle: true,
-                    displayName: true,
-                    avatarUrl: true,
-                  },
-                },
-              },
-            },
-          },
-        }),
       ]);
 
+      // Comments moved to a dedicated paginated endpoint (`/posts/:id/comments`)
+      // so threads with thousands of replies don't blow up the detail
+      // payload. Clients now hit both in parallel on first render.
       return c.json({
         post: {
           ...post,
@@ -110,7 +97,76 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
             isAuthor: viewer?.id === post.authorId,
           },
         },
-        comments,
+      });
+    },
+  )
+  .get(
+    "/:id/comments",
+    optionalAuth,
+    zValidator("param", z.object({ id: idParam })),
+    zValidator(
+      "query",
+      z.object({
+        limit: z.coerce.number().int().min(1).max(100).default(30),
+        cursor: z.string().optional(),
+      }),
+    ),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { limit, cursor } = c.req.valid("query");
+      const viewer = c.var.user;
+
+      const exists = await prisma.post.findUnique({
+        where: { id },
+        select: { id: true, authorId: true },
+      });
+      if (!exists) throw HttpError.notFound();
+      if (await isBlockedEitherWay(viewer?.id, exists.authorId)) {
+        throw HttpError.notFound();
+      }
+
+      const hidden = await getHiddenUserIds(viewer?.id);
+      const authorFilter =
+        hidden.length > 0 ? { authorId: { notIn: hidden } } : {};
+
+      // Paginate top-level threads chronologically; replies arrive inline per
+      // parent so the client renders a single-depth tree without a second
+      // round-trip (identical shape to /shorts/:id/comments). Block filter
+      // applies to both top-level rows and nested replies.
+      const rows = await prisma.comment.findMany({
+        where: { postId: id, parentId: null, ...authorFilter },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        take: limit + 1,
+        ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        include: {
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              displayName: true,
+              avatarUrl: true,
+            },
+          },
+          replies: {
+            where: authorFilter,
+            orderBy: { createdAt: "asc" },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  handle: true,
+                  displayName: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return c.json({
+        comments: rows.slice(0, limit),
+        nextCursor: rows.length > limit ? rows[limit]!.id : null,
       });
     },
   )
@@ -145,11 +201,25 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
     async (c) => {
       const me = currentUser(c);
       const { id } = c.req.valid("param");
+      const post = await prisma.post.findUnique({
+        where: { id },
+        select: { id: true, authorId: true, headline: true },
+      });
+      if (!post) throw HttpError.notFound();
+
       await prisma.like.upsert({
         where: { userId_postId: { userId: me.id, postId: id } },
         create: { userId: me.id, postId: id },
         update: {},
       });
+      if (post.authorId !== me.id) {
+        void sendPushToUser({
+          toUserId: post.authorId,
+          title: `@${me.handle} liked your post`,
+          body: post.headline,
+          data: { type: "like", postId: post.id },
+        });
+      }
       const count = await prisma.like.count({ where: { postId: id } });
       return c.json({ liked: true, likes: count });
     },
@@ -208,18 +278,20 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
 
       const post = await prisma.post.findUnique({
         where: { id },
-        select: { id: true },
+        select: { id: true, authorId: true, headline: true },
       });
       if (!post) throw HttpError.notFound();
 
+      let parentAuthorId: string | null = null;
       if (parentId) {
         const parent = await prisma.comment.findUnique({
           where: { id: parentId },
-          select: { postId: true },
+          select: { postId: true, authorId: true },
         });
         if (!parent || parent.postId !== id) {
           throw HttpError.badRequest("parentId must belong to this post");
         }
+        parentAuthorId = parent.authorId;
       }
 
       const comment = await prisma.comment.create({
@@ -235,6 +307,22 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
           },
         },
       });
+
+      if (parentId && parentAuthorId && parentAuthorId !== me.id) {
+        void sendPushToUser({
+          toUserId: parentAuthorId,
+          title: `@${me.handle} replied to your comment`,
+          body,
+          data: { type: "reply", postId: post.id, commentId: comment.id },
+        });
+      } else if (!parentId && post.authorId !== me.id) {
+        void sendPushToUser({
+          toUserId: post.authorId,
+          title: `@${me.handle} commented on your post`,
+          body,
+          data: { type: "comment", postId: post.id, commentId: comment.id },
+        });
+      }
       return c.json({ comment }, 201);
     },
   )
@@ -260,6 +348,27 @@ export const postsRouter = new Hono<{ Variables: AuthVariables }>()
       if (!canDelete) throw HttpError.forbidden();
 
       await prisma.comment.delete({ where: { id: commentId } });
+      return c.json({ ok: true });
+    },
+  )
+  .delete(
+    "/:id",
+    requireAuth,
+    zValidator("param", z.object({ id: idParam })),
+    async (c) => {
+      const me = currentUser(c);
+      const { id } = c.req.valid("param");
+      const post = await prisma.post.findUnique({
+        where: { id },
+        select: { authorId: true },
+      });
+      if (!post) throw HttpError.notFound();
+      if (post.authorId !== me.id) throw HttpError.forbidden();
+
+      // Cascades take care of likes / saves / comments. Posts themselves
+      // don't own uploaded media — the hero image lives on the Object
+      // record — so there's nothing to clean up in storage.
+      await prisma.post.delete({ where: { id } });
       return c.json({ ok: true });
     },
   );

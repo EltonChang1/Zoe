@@ -41,7 +41,7 @@ export function AlbumReviewView({
 
   return (
     <View className="flex-1 bg-background">
-      <PostTopBar />
+      <PostTopBar onMore={interaction?.onMore} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingTop: 96, paddingBottom: 120 }}
@@ -53,6 +53,7 @@ export function AlbumReviewView({
             publishedAt={post.publishedAt}
             saved={interaction?.saved}
             onToggleSave={interaction?.onToggleSave}
+            onPressAuthor={interaction?.onPressAuthor}
           />
 
           {/* Square artwork hero with ribbon */}
@@ -134,9 +135,17 @@ export function AlbumReviewView({
             comments={comments}
             variant="pill"
             viewerAvatar={interaction?.viewerAvatar}
+            viewerId={interaction?.viewerId}
             canPost={interaction?.canPost ?? true}
             onSubmit={interaction?.onSubmitComment}
             submitting={interaction?.submittingComment}
+            onDelete={interaction?.onDeleteComment}
+            onPressAuthor={interaction?.onPressCommentAuthor}
+            loadingInitial={interaction?.loadingComments}
+            hasMore={interaction?.hasMoreComments}
+            loadingMore={interaction?.loadingMoreComments}
+            onLoadMore={interaction?.onLoadMoreComments}
+            totalHint={interaction?.comments}
           />
         </View>
       </ScrollView>

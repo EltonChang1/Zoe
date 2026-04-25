@@ -10,10 +10,12 @@ import {
 } from "react";
 
 import {
+  deleteAccount as deleteAccountEndpoint,
   fetchMe,
   loginUser,
   logoutUser,
   registerUser,
+  resendVerificationEmail as resendVerificationEmailEndpoint,
 } from "./endpoints";
 import {
   clearSession,
@@ -41,6 +43,15 @@ interface AuthContextValue {
     displayName: string;
   }) => Promise<void>;
   signOut: () => Promise<void>;
+  /**
+   * Permanently delete the signed-in user's account on the server and
+   * drop the local session. Required by App Store Guideline 5.1.1(v).
+   */
+  deleteAccount: () => Promise<void>;
+  /** Re-fetch `/auth/me` and refresh the cached `user` (e.g. after email verify). */
+  refreshUser: () => Promise<void>;
+  /** Ask the server to send another verification email (throttled server-side). */
+  resendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -128,6 +139,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session?.token]);
 
+  const deleteAccount = useCallback<
+    AuthContextValue["deleteAccount"]
+  >(async () => {
+    const token = session?.token;
+    if (!token) return;
+    // Wait for the server to confirm the delete before wiping the local
+    // session — if the call fails (network, 401, etc.) we want the user
+    // to stay signed in and retry rather than be silently stranded.
+    await deleteAccountEndpoint(token);
+    setSession(null);
+    await clearSession();
+  }, [session?.token]);
+
+  const refreshUser = useCallback<AuthContextValue["refreshUser"]>(
+    async () => {
+      const token = session?.token;
+      const expiresAt = session?.expiresAt;
+      if (!token || !expiresAt) return;
+      const { user } = await fetchMe(token);
+      const next: PersistedSession = { token, expiresAt, user };
+      setSession(next);
+      await saveSession({ token, expiresAt }, user);
+    },
+    [session?.expiresAt, session?.token],
+  );
+
+  const resendVerificationEmail =
+    useCallback<AuthContextValue["resendVerificationEmail"]>(async () => {
+      const token = session?.token;
+      if (!token) throw new Error("Not signed in");
+      await resendVerificationEmailEndpoint(token);
+    }, [session?.token]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       bootstrapping,
@@ -137,8 +181,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      deleteAccount,
+      refreshUser,
+      resendVerificationEmail,
     }),
-    [bootstrapping, session, signIn, signUp, signOut],
+    [
+      bootstrapping,
+      session,
+      signIn,
+      signUp,
+      signOut,
+      deleteAccount,
+      refreshUser,
+      resendVerificationEmail,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

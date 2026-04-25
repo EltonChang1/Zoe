@@ -1,6 +1,7 @@
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -40,13 +41,24 @@ export default function SignUpScreen() {
     setError(null);
     try {
       await signUp({ email, password, handle, displayName });
-      router.replace("/");
-    } catch (err) {
-      setError(
-        err instanceof ApiHttpError
-          ? err.message
-          : "Something went wrong. Please try again.",
+      Alert.alert(
+        "Check your email",
+        "We sent a link to verify your address. You can keep using Zoe while it’s pending.",
+        [{ text: "OK", onPress: () => router.replace("/(tabs)") }],
+        { cancelable: true, onDismiss: () => router.replace("/(tabs)") },
       );
+    } catch (err) {
+      if (err instanceof ApiHttpError && err.status === 409) {
+        setError(
+          "That email or handle is already taken. Use Sign in, or try another email / handle.",
+        );
+      } else {
+        setError(
+          err instanceof ApiHttpError
+            ? err.message
+            : "Something went wrong. Please try again.",
+        );
+      }
     } finally {
       setBusy(false);
     }

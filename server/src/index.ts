@@ -8,12 +8,16 @@ import { logger } from "./logger.js";
 import { HttpError, sendError } from "./http/errors.js";
 import { authRouter } from "./routes/auth.js";
 import { feedRouter } from "./routes/feed.js";
+import { notificationsRouter } from "./routes/notifications.js";
 import { objectsRouter } from "./routes/objects.js";
 import { postsRouter } from "./routes/posts.js";
+import { pushTokensRouter } from "./routes/push-tokens.js";
 import { rankingListsRouter } from "./routes/ranking-lists.js";
+import { reportsRouter } from "./routes/reports.js";
 import { searchRouter } from "./routes/search.js";
 import { shortsRouter } from "./routes/shorts.js";
-import { usersRouter } from "./routes/users.js";
+import { uploadsRouter } from "./routes/uploads.js";
+import { myBlocksRouter, usersRouter } from "./routes/users.js";
 import type { AuthVariables } from "./auth/middleware.js";
 
 const app = new Hono<{ Variables: AuthVariables }>();
@@ -46,12 +50,20 @@ app.get("/health", (c) =>
 
 // --- API routes --------------------------------------------------------
 app.route("/auth", authRouter);
+// `/users/me/...` must be registered BEFORE `/users/:handle` so the
+// static-segment route wins over the parameterised one. Hono matches in
+// registration order.
+app.route("/users", myBlocksRouter);
 app.route("/users", usersRouter);
 app.route("/objects", objectsRouter);
 app.route("/posts", postsRouter);
+app.route("/push-tokens", pushTokensRouter);
 app.route("/ranking-lists", rankingListsRouter);
+app.route("/reports", reportsRouter);
 app.route("/search", searchRouter);
 app.route("/shorts", shortsRouter);
+app.route("/uploads", uploadsRouter);
+app.route("/notifications", notificationsRouter);
 app.route("/", feedRouter); // /feed + /activity live at the root
 
 // --- Error handling ----------------------------------------------------

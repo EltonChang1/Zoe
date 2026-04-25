@@ -1,5 +1,6 @@
 import { registerObject } from "@/data/objects";
 import type {
+  ActivityCard,
   Post,
   RankingContext,
   RankingList,
@@ -8,11 +9,13 @@ import type {
 import { registerUser } from "@/data/users";
 
 import type {
+  ApiActivityItem,
   ApiObjectFull,
   ApiPost,
   ApiRankingEntry,
   ApiRankingListDetail,
   ApiRankingListSummary,
+  ApiShort,
   ApiUser,
 } from "./types";
 
@@ -161,4 +164,105 @@ function visibilityToUi(v: ApiRankingListSummary["visibility"]): RankingList["vi
   // The UI only models "public" and "followers"; collapse "private" into
   // followers until a first-party settings surface exists.
   return v === "public" ? "public" : "followers";
+}
+
+/**
+ * Map a server `/activity` item → the client `ActivityCard` the existing
+ * `ActivityCard` component consumes. The component resolves actor + object
+ * from local caches by id, so we register both here as a side-effect.
+ *
+ * `verb`: the server only emits `added` | `moved`. We pass those through;
+ * `saved` and `published` remain on the client type for future use.
+ *
+ * `message`: the `ActivityCard` component parses the trailing "to <list>"
+ * substring when `rank != null`, so we format accordingly.
+ */
+export function mapActivityItem(api: ApiActivityItem): ActivityCard {
+  registerUser({
+    id: api.actor.id,
+    handle: api.actor.handle,
+    displayName: api.actor.displayName,
+    avatar:
+      api.actor.avatarUrl ??
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+    bio: "",
+    followers: 0,
+    following: 0,
+    postsCount: 0,
+  });
+  registerObject({
+    id: api.object.id,
+    type: api.object.type,
+    title: api.object.title,
+    city: api.object.city ?? undefined,
+    heroImage: api.object.heroImage ?? "",
+  });
+
+  const movement =
+    api.movement === "up" || api.movement === "down" || api.movement === "new"
+      ? api.movement
+      : undefined;
+
+  const message = api.list
+    ? `${api.verb === "moved" ? "Moved" : "Added"} ${api.object.title} to ${api.list.title}`
+    : `${api.verb === "moved" ? "Moved" : "Added"} ${api.object.title}`;
+
+  return {
+    id: api.id,
+    actorId: api.actor.id,
+    verb: api.verb,
+    objectId: api.object.id,
+    listId: api.list?.id,
+    rank: api.rank ?? undefined,
+    movement,
+    message,
+    body: api.body ?? undefined,
+    // The card uses this as a visual kicker ("2H · @handle") — server supplies
+    // an ISO timestamp so we do a lightweight relative-time formatting here.
+    timestamp: formatRelative(api.publishedAt),
+  };
+}
+
+/**
+ * Register the author + object referenced by a short into the local client
+ * caches so the Shorts screen can resolve them via `getUser` / `getObject`
+ * without another round-trip. Returned value mirrors the input so callers
+ * can use it directly in a `map` chain.
+ */
+export function registerShortRefs(api: ApiShort): ApiShort {
+  registerUser({
+    id: api.author.id,
+    handle: api.author.handle,
+    displayName: api.author.displayName,
+    avatar:
+      api.author.avatarUrl ??
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+    bio: api.author.bio ?? "",
+    followers: 0,
+    following: 0,
+    postsCount: 0,
+  });
+  registerObject({
+    id: api.object.id,
+    type: api.object.type,
+    title: api.object.title,
+    heroImage: api.object.heroImage ?? "",
+  });
+  return api;
+}
+
+function formatRelative(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "";
+  const diffMs = Date.now() - then;
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}M`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}H`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}D`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}W`;
+  return new Date(iso).toLocaleDateString();
 }

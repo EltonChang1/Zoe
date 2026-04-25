@@ -40,7 +40,7 @@ export function ProductHeroView({
 
   return (
     <View className="flex-1 bg-background">
-      <PostTopBar />
+      <PostTopBar onMore={interaction?.onMore} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingTop: 96, paddingBottom: 120 }}
@@ -86,6 +86,7 @@ export function ProductHeroView({
             publishedAt={post.publishedAt}
             saved={interaction?.saved}
             onToggleSave={interaction?.onToggleSave}
+            onPressAuthor={interaction?.onPressAuthor}
           />
 
           {/* Editorial copy with left rule */}
@@ -113,7 +114,12 @@ export function ProductHeroView({
               <Button label="Add to collection" full />
             </View>
             <View className="flex-1">
-              <Button label="View details" variant="secondary" full />
+              <Button
+                label="View details"
+                variant="secondary"
+                onPress={interaction?.onPressObject}
+                full
+              />
             </View>
           </View>
 
@@ -132,9 +138,17 @@ export function ProductHeroView({
             comments={comments}
             variant="thoughts"
             viewerAvatar={interaction?.viewerAvatar}
+            viewerId={interaction?.viewerId}
             canPost={interaction?.canPost ?? true}
             onSubmit={interaction?.onSubmitComment}
             submitting={interaction?.submittingComment}
+            onDelete={interaction?.onDeleteComment}
+            onPressAuthor={interaction?.onPressCommentAuthor}
+            loadingInitial={interaction?.loadingComments}
+            hasMore={interaction?.hasMoreComments}
+            loadingMore={interaction?.loadingMoreComments}
+            onLoadMore={interaction?.onLoadMoreComments}
+            totalHint={interaction?.comments}
           />
         </View>
       </ScrollView>

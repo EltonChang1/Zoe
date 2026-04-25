@@ -9,10 +9,16 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.zoe.app"
+      "bundleIdentifier": "com.zoe.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Zoe needs access to your photo library so you can attach images and videos to posts and shorts.",
+        "NSCameraUsageDescription": "Zoe uses your camera when you capture a new photo or video for a post or short.",
+        "NSMicrophoneUsageDescription": "Zoe records audio when you capture a video short."
+      }
     },
     "android": {
       "package": "com.zoe.app",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#FBF9F6"
       }
@@ -24,7 +30,17 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Zoe needs access to your photo library so you can attach images and videos to posts and shorts.",
+          "cameraPermission": "Zoe uses your camera when you capture a new photo or video for a post or short.",
+          "microphonePermission": "Zoe records audio when you capture a video short."
+        }
+      ],
+      "expo-notifications",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

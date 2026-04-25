@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "../db.js";
 import { optionalAuth, type AuthVariables } from "../auth/middleware.js";
+import { getHiddenUserIds } from "../lib/moderation.js";
 
 /**
  * Feed endpoints.
@@ -24,13 +25,54 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
       z.object({
         limit: z.coerce.number().int().min(1).max(40).default(20),
         cursor: z.string().optional(),
+        // Optional filters so profile + object-detail screens can reuse the
+        // feed payload shape + viewer annotations instead of bespoke
+        // `/users/:h/posts` or `/objects/:id/posts` endpoints.
+        author: z.string().min(3).max(24).optional(),
+        object: z.string().optional(),
       }),
     ),
     async (c) => {
-      const { limit, cursor } = c.req.valid("query");
+      const { limit, cursor, author, object } = c.req.valid("query");
       const viewer = c.var.user;
 
+      const authorId = author
+        ? (
+            await prisma.user.findUnique({
+              where: { handle: author.toLowerCase() },
+              select: { id: true },
+            })
+          )?.id
+        : undefined;
+
+      // Unknown author → empty page rather than a full feed leak.
+      if (author && !authorId) {
+        return c.json({ posts: [], nextCursor: null });
+      }
+
+      const hidden = await getHiddenUserIds(viewer?.id);
+
+      // Author-scoped fetch of a user who is on either side of a block
+      // with the viewer resolves to an empty page (same shape as an
+      // unknown author). The author never appears anywhere else in the
+      // app for them.
+      if (authorId && hidden.includes(authorId)) {
+        return c.json({ posts: [], nextCursor: null });
+      }
+
       const posts = await prisma.post.findMany({
+        where: {
+          // When `authorId` is scoped we already short-circuited any
+          // hidden match above, so a `notIn` would be redundant *and*
+          // would clobber the `authorId: "..."` key via object-spread
+          // key collision. Apply the notIn only to unscoped queries.
+          ...(authorId
+            ? { authorId }
+            : hidden.length > 0
+              ? { authorId: { notIn: hidden } }
+              : {}),
+          ...(object ? { objectId: object } : {}),
+        },
         orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
         take: limit + 1,
         ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -115,10 +157,22 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
           ).map((f) => f.followeeId)
         : [];
 
+      const hidden = await getHiddenUserIds(viewer?.id);
+
+      // Narrow followed IDs by block set — a follow relationship is not
+      // auto-broken on block (we might want nicer UX later) but activity
+      // must respect the viewer's current block graph.
+      const visibleFollowed =
+        followedIds.length > 0
+          ? followedIds.filter((id) => !hidden.includes(id))
+          : [];
+
       const authorFilter =
-        viewer && followedIds.length > 0
-          ? { authorId: { in: followedIds } }
-          : undefined;
+        viewer && visibleFollowed.length > 0
+          ? { authorId: { in: visibleFollowed } }
+          : hidden.length > 0
+            ? { authorId: { notIn: hidden } }
+            : undefined;
 
       const posts = await prisma.post.findMany({
         where: authorFilter,

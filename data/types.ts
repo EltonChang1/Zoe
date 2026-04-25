@@ -116,8 +116,16 @@ export interface Short {
 export interface Comment {
   id: string;
   authorId: UserId;
+  /** Handle snapshot, used for navigation to `/user/:handle` without a second
+   * lookup into the client registry. */
+  handle?: string;
   body: string;
   timestamp: string;
+  /** True when `authorId === post.authorId` — used to badge replies from the
+   * post's creator. Kept in the Comment so renderers don't need the Post. */
   isAuthor?: boolean;
+  /** `null` for top-level comments; id of the parent comment when this row is
+   * a reply. The discussion view walks this graph to render a threaded UI. */
+  parentId?: string | null;
   likes?: number;
 }

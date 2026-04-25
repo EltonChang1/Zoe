@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Share,
@@ -26,7 +27,14 @@ import { cn } from "@/lib/cn";
 import type { RankingEntry, RankingList, User } from "@/data/types";
 import { getObject } from "@/data/objects";
 import { getUser } from "@/data/users";
-import { useAuth, useRankingListQuery } from "@/lib/api";
+import {
+  useAuth,
+  useBlockUser,
+  useDeleteRankingList,
+  useRankingListQuery,
+  useReport,
+} from "@/lib/api";
+import { confirmBlock, runReportFlow } from "@/components/moderation/actions";
 import { gradients } from "@/theme/tokens";
 
 /**
@@ -47,12 +55,84 @@ export default function RankingListDetailScreen() {
   const list = data?.list;
   const owner = list ? getUser(list.ownerId) : null;
   const isOwner = Boolean(list && user && list.ownerId === user.id);
+  const deleteMutation = useDeleteRankingList();
+  const reportMutation = useReport();
+  const blockMutation = useBlockUser();
 
   const handleShare = () => {
     if (!list) return;
     Share.share({
       message: `${list.title} — ${list.category}\nhttps://zoe.app/l/${list.id}`,
     }).catch(() => undefined);
+  };
+
+  const handleDelete = () => {
+    if (!list) return;
+    Alert.alert(
+      "Delete this ranking?",
+      "The list and every ranked entry will be removed. Posts that cite the list keep their content but lose the ranking chip.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () =>
+            deleteMutation.mutate(list.id, {
+              onSuccess: () => router.back(),
+              onError: (err) =>
+                Alert.alert(
+                  "Couldn't delete list",
+                  err instanceof Error
+                    ? err.message
+                    : "Please try again in a moment.",
+                ),
+            }),
+        },
+      ],
+    );
+  };
+
+  const openMoreMenu = () => {
+    if (!list || !owner) return;
+    if (isOwner) {
+      handleDelete();
+      return;
+    }
+    Alert.alert("More", "What would you like to do?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Report list",
+        style: "destructive",
+        // Ranking lists live next to posts in the server's data model — we
+        // log the report against the list's *author* via subjectType=user
+        // so triage tooling can route it the same way it does for a
+        // profile report. If we later add a list-level subject type we
+        // can swap without any client migration.
+        onPress: () =>
+          runReportFlow({
+            subjectLabel: "list",
+            subjectType: "user",
+            subjectId: list.ownerId,
+            submit: (input) => reportMutation.mutateAsync(input),
+          }),
+      },
+      {
+        text: `Block @${owner.handle}`,
+        style: "destructive",
+        onPress: async () => {
+          const ok = await confirmBlock(owner.displayName);
+          if (!ok) return;
+          blockMutation.mutate(owner.handle, {
+            onSuccess: () => router.back(),
+            onError: (err) =>
+              Alert.alert(
+                "Couldn't block",
+                err instanceof Error ? err.message : "Please try again.",
+              ),
+          });
+        },
+      },
+    ]);
   };
 
   return (
@@ -69,9 +149,21 @@ export default function RankingListDetailScreen() {
           </Text>
         }
         trailing={
-          <Pressable hitSlop={10} onPress={handleShare}>
-            <Icon name="ios-share" size={20} color="#55343B" />
-          </Pressable>
+          <View className="flex-row items-center gap-3">
+            <Pressable hitSlop={10} onPress={handleShare}>
+              <Icon name="ios-share" size={20} color="#55343B" />
+            </Pressable>
+            {list && user ? (
+              <Pressable
+                hitSlop={10}
+                onPress={openMoreMenu}
+                accessibilityLabel="List options"
+                className="active:opacity-60"
+              >
+                <Icon name="more-horiz" size={22} color="#55343B" />
+              </Pressable>
+            ) : null}
+          </View>
         }
       />
 
@@ -106,7 +198,11 @@ export default function RankingListDetailScreen() {
               <EmptyEntries isOwner={isOwner} onAdd={() => router.push("/rank/add")} />
             ) : (
               list.entries.map((entry) => (
-                <EntryRow key={entry.objectId} entry={entry} />
+                <EntryRow
+                  key={entry.objectId}
+                  entry={entry}
+                  onPress={() => router.push(`/object/${entry.objectId}`)}
+                />
               ))
             )}
           </View>
@@ -189,11 +285,18 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 // ------------- Ranked entry row -------------
 
-function EntryRow({ entry }: { entry: RankingEntry }) {
+function EntryRow({
+  entry,
+  onPress,
+}: {
+  entry: RankingEntry;
+  onPress?: () => void;
+}) {
   const object = getObject(entry.objectId);
 
   return (
     <Pressable
+      onPress={onPress}
       className="flex-row bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/15 active:opacity-90"
       style={{
         shadowColor: "#1B1C1A",

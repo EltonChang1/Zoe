@@ -1,5 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // NativeWind / react-native-css-interop on web: default Tailwind
+  // `darkMode: "media"` maps to a CSS flag that forbids `setColorScheme()`,
+  // which the interop stack calls and crashes the bundle. "class" switches
+  // the runtime to a toggleable scheme (we still ship a light UI — no
+  // `<html class="dark">` unless you add it later).
+  darkMode: "class",
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {

@@ -35,13 +35,16 @@ export class HttpError extends Error {
   static unprocessable(message = "Unprocessable", details?: unknown) {
     return new HttpError(422, "unprocessable", message, details);
   }
+  static tooManyRequests(message = "Too many requests") {
+    return new HttpError(429, "too_many_requests", message);
+  }
 }
 
 export function sendError(c: Context, err: unknown) {
   if (err instanceof HttpError) {
     return c.json(
       { error: { code: err.code, message: err.message, details: err.details } },
-      err.status as 400 | 401 | 403 | 404 | 409 | 422 | 500,
+      err.status as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500,
     );
   }
   // Unknown — never leak details.

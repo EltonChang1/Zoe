@@ -17,7 +17,7 @@ import { HeadlineItalic } from "@/components/ui/Text";
 import { Icon } from "@/components/ui/Icon";
 import { MasonryCard, QuoteCard } from "@/components/cards/MasonryCard";
 import type { Post } from "@/data/types";
-import { useAuth, useFeedQuery } from "@/lib/api";
+import { useAuth, useFeedQuery, useNotifications } from "@/lib/api";
 
 /**
  * Home (Discover) — editorial waterfall feed (VDK §16.1, §18.1).
@@ -66,6 +66,7 @@ const NEAR_BOTTOM_THRESHOLD = 600; // px from the bottom that triggers paginatio
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { unreadCount } = useNotifications();
   const [activeCat, setActiveCat] = useState("For You");
 
   const {
@@ -127,8 +128,13 @@ export default function HomeScreen() {
     <View className="flex-1 bg-background">
       <GlassTopBar
         leading={
-          <Pressable className="active:opacity-70" hitSlop={10}>
-            <Icon name="menu" size={24} color="#55343B" />
+          <Pressable
+            className="active:opacity-70"
+            hitSlop={10}
+            onPress={() => router.push("/compose/post")}
+            accessibilityLabel="Compose a post"
+          >
+            <Icon name="edit" size={22} color="#55343B" />
           </Pressable>
         }
         title={
@@ -137,11 +143,35 @@ export default function HomeScreen() {
           </Text>
         }
         trailing={
-          user?.avatarUrl ? (
-            <Avatar uri={user.avatarUrl} size="sm" />
-          ) : (
-            <View className="w-8 h-8 rounded-full bg-surface-container" />
-          )
+          <View className="flex-row items-center gap-4">
+            {user ? (
+              <Pressable
+                hitSlop={10}
+                onPress={() => router.push("/notifications")}
+                accessibilityLabel="Notifications"
+                className="active:opacity-70"
+              >
+                <View>
+                  <Icon name="notifications-none" size={22} color="#55343B" />
+                  {unreadCount > 0 && (
+                    <View
+                      className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-1 rounded-full bg-primary items-center justify-center"
+                      // Small "dot" when no count; pill shape when 10+
+                    >
+                      <Text className="text-surface text-[9px] font-label-semibold">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </Pressable>
+            ) : null}
+            {user?.avatarUrl ? (
+              <Avatar uri={user.avatarUrl} size="sm" />
+            ) : (
+              <View className="w-8 h-8 rounded-full bg-surface-container" />
+            )}
+          </View>
         }
       />
 

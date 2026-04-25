@@ -50,6 +50,33 @@ enum RankMovement {
   stable
 }
 
+enum ReportSubjectType {
+  user
+  post
+  short
+  comment
+  short_comment
+}
+
+enum ReportReason {
+  spam
+  harassment
+  hate
+  sexual
+  violence
+  self_harm
+  misinformation
+  ip_violation
+  other
+}
+
+enum ReportStatus {
+  open
+  reviewed
+  actioned
+  dismissed
+}
+
 // -------- Auth -----------------------------------------------------------
 
 model User {
@@ -63,15 +90,35 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sessions     Session[]
-  posts        Post[]
-  lists        RankingList[]
-  comments     Comment[]
-  likes        Like[]
-  saves        Save[]
-  shorts       Short[]
-  followers    Follow[]     @relation("follower")
-  following    Follow[]     @relation("followee")
+  /// When set, the address is considered verified (login allowed as normal).
+  emailVerifiedAt                 DateTime?
+  emailVerificationTokenHash      String? @unique
+  emailVerificationExpiresAt      DateTime?
+  passwordResetTokenHash          String? @unique
+  passwordResetExpiresAt          DateTime?
+  /// Throttle POST /auth/resend-verification (authenticated).
+  lastVerificationEmailSentAt     DateTime?
+
+  sessions      Session[]
+  posts         Post[]
+  lists         RankingList[]
+  comments      Comment[]
+  likes         Like[]
+  saves         Save[]
+  shorts        Short[]
+  shortLikes    ShortLike[]
+  shortSaves    ShortSave[]
+  shortComments ShortComment[]
+  followers     Follow[]       @relation("follower")
+  following     Follow[]       @relation("followee")
+
+  // Moderation. Blocks hide content in BOTH directions (neither user sees
+  // the other anywhere in the app). `blocksMade` is "users I have
+  // blocked"; `blockedBy` is "users who have blocked me".
+  blocksMade     Block[]  @relation("blocker")
+  blockedBy      Block[]  @relation("blocked")
+  reportsMade    Report[] @relation("reporter")
+  pushTokens     PushToken[]
 
   @@map("users")
 }
@@ -276,13 +323,115 @@ model Short {
   rankingRank      Int?
   rankingMovement  RankMovement? @default(stable)
 
-  likes      Int      @default(0)
-  comments   Int      @default(0)
-  saves      Int      @default(0)
-
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
 
+  likedBy  ShortLike[]
+  savedBy  ShortSave[]
+  comments ShortComment[]
+
   @@index([authorId, publishedAt])
+  @@index([publishedAt])
   @@map("shorts")
+}
+
+model ShortLike {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shortId   String
+  short     Short    @relation(fields: [shortId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, shortId])
+  @@index([shortId])
+  @@map("short_likes")
+}
+
+model ShortSave {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shortId   String
+  short     Short    @relation(fields: [shortId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, shortId])
+  @@index([shortId])
+  @@map("short_saves")
+}
+
+model ShortComment {
+  id        String         @id @default(cuid())
+  shortId   String
+  short     Short          @relation(fields: [shortId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    ShortComment?  @relation("shortCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   ShortComment[] @relation("shortCommentReplies")
+
+  body      String
+  likes     Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([shortId, createdAt])
+  @@index([parentId])
+  @@map("short_comments")
+}
+
+// -------- Moderation ----------------------------------------------------
+
+// User-to-user block. A single row hides content symmetrically — both
+// sides of the pair stop seeing each other in feeds, search, comments,
+// notifications, and profile pages. Apple Guideline 1.2 requires this
+// for any UGC app.
+model Block {
+  blockerId String
+  blocker   User     @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("blocks")
+}
+
+// User-submitted report against content or another user. Reports are
+// write-only for end users; review happens out-of-band (ops tooling /
+// admin). Apple Guideline 1.2 requires in-app reporting for UGC.
+model Report {
+  id          String            @id @default(cuid())
+  reporterId  String
+  reporter    User              @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  subjectType ReportSubjectType
+  subjectId   String
+  reason      ReportReason
+  details     String?
+  status      ReportStatus      @default(open)
+  createdAt   DateTime          @default(now())
+  resolvedAt  DateTime?
+
+  @@index([reporterId])
+  @@index([subjectType, subjectId])
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+// Device-level Expo push token registration. A token can move across users
+// (log out/login on shared phone), so we key on `token` and upsert.
+model PushToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String    @unique
+  platform   String?
+  appVersion String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastSeenAt DateTime  @default(now())
+  disabledAt DateTime?
+
+  @@index([userId])
+  @@index([disabledAt])
+  @@map("push_tokens")
 }

@@ -53,7 +53,7 @@ export function MasonryCard({
           transition={240}
           className="w-full rounded-xl bg-surface-container-low"
         />
-        {post.ranking?.rank && (
+        {post.ranking != null && post.ranking.rank != null && (
           <View className="absolute top-3 right-3">
             <RankPill
               rank={post.ranking.rank}

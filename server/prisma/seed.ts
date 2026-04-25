@@ -67,9 +67,30 @@ const COMMENTS = [
 ] as const;
 
 const SHORTS = [
-  { id: "S001", authorId: "U004", objectId: "O012", hookLine: "Pretty? yes. Worth the line? depends.", caption: "If you come here, come for the room and split dessert.", rankingListTitle: "NYC Dessert Spots", rankingRank: 6, rankingMovement: "new", heroImage: img("1536520002442-39764a41e987"), audioLabel: "Original · @nina.ko", likes: 3400, comments: 82, saves: 911 },
-  { id: "S002", authorId: "U002", objectId: "O008", hookLine: "One elegant night fragrance — that's it.", caption: "Gris Charnel in cold air. Top 1 for me.", rankingListTitle: "Night Perfumes", rankingRank: 1, heroImage: img("1587017539504-67cfbddac569"), audioLabel: "Original · @elton.p", likes: 2210, comments: 48, saves: 907 },
-  { id: "S003", authorId: "U003", objectId: "O009", hookLine: "Still #1 on every late-night walk.", caption: "I tried moving it down. I couldn't.", rankingListTitle: "All-Time Albums", rankingRank: 1, heroImage: img("1514533212735-5df27d970db9"), audioLabel: "Ivy · Frank Ocean", likes: 5600, comments: 210, saves: 1400 },
+  { id: "S001", authorId: "U004", objectId: "O012", hookLine: "Pretty? yes. Worth the line? depends.", caption: "If you come here, come for the room and split dessert.", rankingListTitle: "NYC Dessert Spots", rankingRank: 6, rankingMovement: "new", heroImage: img("1536520002442-39764a41e987"), audioLabel: "Original · @nina.ko" },
+  { id: "S002", authorId: "U002", objectId: "O008", hookLine: "One elegant night fragrance — that's it.", caption: "Gris Charnel in cold air. Top 1 for me.", rankingListTitle: "Night Perfumes", rankingRank: 1, heroImage: img("1587017539504-67cfbddac569"), audioLabel: "Original · @elton.p" },
+  { id: "S003", authorId: "U003", objectId: "O009", hookLine: "Still #1 on every late-night walk.", caption: "I tried moving it down. I couldn't.", rankingListTitle: "All-Time Albums", rankingRank: 1, heroImage: img("1514533212735-5df27d970db9"), audioLabel: "Ivy · Frank Ocean" },
+] as const;
+
+/**
+ * Initial engagement seed for shorts — a smattering of likes, saves, and
+ * comments so the counters and relations light up out-of-the-box. Spread
+ * across users so viewer-specific flags (`likedByMe`) flip naturally
+ * depending on who's signed in.
+ */
+const SHORT_LIKES: Array<readonly [string, string]> = [
+  ["U001", "S001"], ["U002", "S001"], ["U003", "S001"], ["U008", "S001"],
+  ["U000", "S002"], ["U004", "S002"], ["U006", "S002"],
+  ["U001", "S003"], ["U002", "S003"], ["U004", "S003"], ["U005", "S003"],
+  ["U008", "S003"], ["U009", "S003"],
+];
+const SHORT_SAVES: Array<readonly [string, string]> = [
+  ["U001", "S001"], ["U006", "S002"], ["U000", "S003"], ["U004", "S003"],
+];
+const SHORT_COMMENTS = [
+  { id: "SC001", shortId: "S001", authorId: "U001", body: "That lighting is doing so much work." },
+  { id: "SC002", shortId: "S002", authorId: "U006", body: "Gris Charnel in cold air is unreal. Co-sign." },
+  { id: "SC003", shortId: "S003", authorId: "U009", body: "Blonde on a late-night walk = cinema." },
 ] as const;
 
 async function main() {
@@ -86,8 +107,26 @@ async function main() {
   for (const [id, email, handle, displayName, bio, avatarUrl] of USERS) {
     await prisma.user.upsert({
       where: { id },
-      update: { email, handle, displayName, bio, avatarUrl },
-      create: { id, email, handle, displayName, bio, avatarUrl, passwordHash },
+      update: {
+        email,
+        handle,
+        displayName,
+        bio,
+        avatarUrl,
+        emailVerifiedAt: new Date(),
+        emailVerificationTokenHash: null,
+        emailVerificationExpiresAt: null,
+      },
+      create: {
+        id,
+        email,
+        handle,
+        displayName,
+        bio,
+        avatarUrl,
+        passwordHash,
+        emailVerifiedAt: new Date(),
+      },
     });
   }
 
@@ -219,6 +258,8 @@ async function main() {
 
   // Shorts
   for (const s of SHORTS) {
+    const movement = ("rankingMovement" in s ? s.rankingMovement : "stable") as
+      | "up" | "down" | "new" | "stable";
     await prisma.short.upsert({
       where: { id: s.id },
       update: {
@@ -230,11 +271,7 @@ async function main() {
         audioLabel: s.audioLabel,
         rankingListTitle: s.rankingListTitle,
         rankingRank: s.rankingRank,
-        rankingMovement: ("rankingMovement" in s ? s.rankingMovement : "stable") as
-          | "up" | "down" | "new" | "stable",
-        likes: s.likes,
-        comments: s.comments,
-        saves: s.saves,
+        rankingMovement: movement,
       },
       create: {
         id: s.id,
@@ -246,12 +283,31 @@ async function main() {
         audioLabel: s.audioLabel,
         rankingListTitle: s.rankingListTitle,
         rankingRank: s.rankingRank,
-        rankingMovement: ("rankingMovement" in s ? s.rankingMovement : "stable") as
-          | "up" | "down" | "new" | "stable",
-        likes: s.likes,
-        comments: s.comments,
-        saves: s.saves,
+        rankingMovement: movement,
       },
+    });
+  }
+
+  // Short engagement — likes, saves, comments.
+  for (const [userId, shortId] of SHORT_LIKES) {
+    await prisma.shortLike.upsert({
+      where: { userId_shortId: { userId, shortId } },
+      create: { userId, shortId },
+      update: {},
+    });
+  }
+  for (const [userId, shortId] of SHORT_SAVES) {
+    await prisma.shortSave.upsert({
+      where: { userId_shortId: { userId, shortId } },
+      create: { userId, shortId },
+      update: {},
+    });
+  }
+  for (const c of SHORT_COMMENTS) {
+    await prisma.shortComment.upsert({
+      where: { id: c.id },
+      create: { id: c.id, shortId: c.shortId, authorId: c.authorId, body: c.body },
+      update: { body: c.body },
     });
   }
 
@@ -274,6 +330,9 @@ async function main() {
     prisma.comment.count(),
     prisma.short.count(),
     prisma.follow.count(),
+    prisma.shortLike.count(),
+    prisma.shortSave.count(),
+    prisma.shortComment.count(),
   ]);
   console.log("✓ seed complete", {
     users: counts[0],
@@ -284,6 +343,9 @@ async function main() {
     comments: counts[5],
     shorts: counts[6],
     follows: counts[7],
+    shortLikes: counts[8],
+    shortSaves: counts[9],
+    shortComments: counts[10],
   });
 }
 
