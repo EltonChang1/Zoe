@@ -45,7 +45,7 @@ This document captures what has been built so far and what remains for a cohesiv
 
 ### High impact (user-visible gaps)
 
-1. **Shorts — video playback** — Engagement is now real per-user; the remaining gap is swapping the hero image for `videoUrl` once the uploader (and a reliable mobile player) is in place. The schema already carries `videoUrl`, so this is client-only work.
+1. **Shorts — video playback** — **Done in-app:** [`components/shorts/ShortMedia.tsx`](components/shorts/ShortMedia.tsx) uses `expo-video` (`VideoView` + `useVideoPlayer`) when `videoUrl` is set; mute rail + play/pause follow the active pager item. **Seed data** now sets HTTPS sample MP4s on all three seeded shorts so local dev shows real playback after `npm run db:seed` (or `db:setup`). Remaining polish: production uploads/CDN URLs, optional error UI if a URL fails to load, web parity if needed.
 2. **Compose deep-link** — Optional polish so compose always lands on the right step when opened with `?objectId=` (object already pre-fills; next step is skipping the picker when it does).
 
 ### Notifications / inbox (next iterations)
