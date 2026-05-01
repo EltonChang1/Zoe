@@ -1,4 +1,5 @@
 import { registerObject } from "@/data/objects";
+import { DEFAULT_BOT_AVATAR_URL } from "@/lib/avatar";
 import type {
   ActivityCard,
   Post,
@@ -15,6 +16,7 @@ import type {
   ApiRankingEntry,
   ApiRankingListDetail,
   ApiRankingListSummary,
+  ApiRestaurantVisit,
   ApiShort,
   ApiUser,
 } from "./types";
@@ -32,9 +34,7 @@ export function mapUser(api: ApiUser): User {
     id: api.id,
     handle: api.handle,
     displayName: api.displayName,
-    avatar:
-      api.avatarUrl ??
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+    avatar: api.avatarUrl ?? DEFAULT_BOT_AVATAR_URL,
     bio: api.bio ?? "",
     followers: api.followers ?? 0,
     following: api.following ?? 0,
@@ -46,15 +46,18 @@ export function mapPost(api: ApiPost): Post {
   // Side-effect: keep the mock-shaped runtime caches in sync so the cards
   // (which look up author + object by id) don't fall back to placeholders.
   registerUser(mapUser(api.author));
-  registerObject({
-    id: api.object.id,
-    type: api.object.type,
-    title: api.object.title,
-    subtitle: api.object.subtitle ?? undefined,
-    city: api.object.city ?? undefined,
-    neighborhood: api.object.neighborhood ?? undefined,
-    heroImage: api.object.heroImage ?? "",
-  });
+  if (api.object) {
+    registerObject({
+      id: api.object.id,
+      type: api.object.type,
+      title: api.object.title,
+      subtitle: api.object.subtitle ?? undefined,
+      city: api.object.city ?? undefined,
+      neighborhood: api.object.neighborhood ?? undefined,
+      heroImage: api.object.heroImage ?? "",
+      metadata: api.object.metadata ?? undefined,
+    });
+  }
 
   const ranking: RankingContext = api.rankingList
     ? {
@@ -64,7 +67,7 @@ export function mapPost(api: ApiPost): Post {
         delta: api.rankingDelta ?? undefined,
       }
     : {
-        listTitle: api.object.title,
+        listTitle: api.object?.title ?? "Zoe",
         rank: api.rankingRank ?? 0,
         movement: api.rankingMovement ?? "stable",
         delta: api.rankingDelta ?? undefined,
@@ -73,12 +76,18 @@ export function mapPost(api: ApiPost): Post {
   return {
     id: api.id,
     authorId: api.authorId,
-    objectId: api.objectId,
+    objectId: api.objectId ?? undefined,
+    postKind: api.postKind,
     postType: api.postType,
     detailLayout: api.detailLayout,
+    imageUrl: api.imageUrl || api.object?.heroImage || "",
     headline: api.headline,
     caption: api.caption,
     tags: api.tags,
+    mentions: (api.mentions ?? []).map((mention) => mapMentionUser(mention.user)),
+    restaurantVisit: api.restaurantVisit
+      ? mapRestaurantVisit(api.restaurantVisit)
+      : undefined,
     ranking,
     likes: api.stats.likes,
     comments: api.stats.comments,
@@ -87,6 +96,7 @@ export function mapPost(api: ApiPost): Post {
     locationLabel: api.locationLabel ?? undefined,
     aspect: (api.aspect ?? "tall") as Post["aspect"],
     featured: api.featured,
+    why: api.why ?? undefined,
   };
 }
 
@@ -154,9 +164,56 @@ export function mapRankingEntry(api: ApiRankingEntry) {
   return {
     objectId: api.objectId,
     rank: api.rank,
+    score: api.score,
     movement: api.movement ?? undefined,
     delta: api.delta ?? undefined,
     note: api.note ?? undefined,
+    imageUrl: api.imageUrl ?? undefined,
+    restaurantVisit: api.restaurantVisit
+      ? mapRestaurantVisit(api.restaurantVisit)
+      : undefined,
+  };
+}
+
+function mapMentionUser(api: {
+  id: string;
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+}) {
+  const user = {
+    id: api.id,
+    handle: api.handle,
+    displayName: api.displayName,
+    avatar:
+      api.avatarUrl ??
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+  };
+  registerUser({
+    ...user,
+    bio: "",
+    followers: 0,
+    following: 0,
+    postsCount: 0,
+  });
+  return user;
+}
+
+export function mapRestaurantVisit(api: ApiRestaurantVisit) {
+  return {
+    id: api.id,
+    visitedAt: api.visitedAt ?? undefined,
+    mealType: api.mealType ?? undefined,
+    priceTier: api.priceTier ?? undefined,
+    note: api.note ?? undefined,
+    labels: api.labels,
+    companions: api.companions.map((companion) => mapMentionUser(companion.user)),
+    dishes: api.dishes.map((dish) => ({
+      id: dish.id,
+      name: dish.name,
+      note: dish.note ?? undefined,
+      recommended: dish.recommended,
+    })),
   };
 }
 
@@ -190,29 +247,33 @@ export function mapActivityItem(api: ApiActivityItem): ActivityCard {
     following: 0,
     postsCount: 0,
   });
-  registerObject({
-    id: api.object.id,
-    type: api.object.type,
-    title: api.object.title,
-    city: api.object.city ?? undefined,
-    heroImage: api.object.heroImage ?? "",
-  });
+  if (api.object) {
+    registerObject({
+      id: api.object.id,
+      type: api.object.type,
+      title: api.object.title,
+      city: api.object.city ?? undefined,
+      heroImage: api.object.heroImage ?? "",
+    });
+  }
 
   const movement =
     api.movement === "up" || api.movement === "down" || api.movement === "new"
       ? api.movement
       : undefined;
 
+  const objectTitle = api.object?.title ?? api.headline;
   const message = api.list
-    ? `${api.verb === "moved" ? "Moved" : "Added"} ${api.object.title} to ${api.list.title}`
-    : `${api.verb === "moved" ? "Moved" : "Added"} ${api.object.title}`;
+    ? `${api.verb === "moved" ? "Moved" : "Added"} ${objectTitle} to ${api.list.title}`
+    : `${api.verb === "moved" ? "Moved" : "Added"} ${objectTitle}`;
 
   return {
     id: api.id,
     actorId: api.actor.id,
     verb: api.verb,
-    objectId: api.object.id,
+    objectId: api.object?.id,
     listId: api.list?.id,
+    imageUrl: api.imageUrl ?? api.object?.heroImage ?? undefined,
     rank: api.rank ?? undefined,
     movement,
     message,
@@ -247,6 +308,7 @@ export function registerShortRefs(api: ApiShort): ApiShort {
     type: api.object.type,
     title: api.object.title,
     heroImage: api.object.heroImage ?? "",
+    metadata: api.object.metadata ?? undefined,
   });
   return api;
 }

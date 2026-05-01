@@ -17,9 +17,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { GlassTopBar } from "@/components/nav/GlassTopBar";
 import { Icon } from "@/components/ui/Icon";
+import { MusicPicker } from "@/components/music/MusicPicker";
+import { PlacePicker } from "@/components/places/PlacePicker";
 import {
   Body,
-  Display,
   HeadlineItalic,
   Label,
   LabelCaps,
@@ -31,11 +32,11 @@ import {
   useAuth,
   useCreateShort,
   useObjectQuery,
-  useObjectSearchQuery,
 } from "@/lib/api";
 import type { ApiSearchObjectHit } from "@/lib/api/types";
 import type { UploadProgress } from "@/lib/api/uploads";
 import { ApiHttpError } from "@/lib/api/client";
+import { displayObjectType } from "@/lib/objects/display";
 
 /**
  * Compose Short (PRD §20, VDK §16.6 — Shorts).
@@ -332,94 +333,65 @@ function fractionOf(p: UploadProgress): number {
 // ---------------- Step 1 — Pick object ----------------
 
 function PickStep({ onPick }: { onPick: (hit: ApiSearchObjectHit) => void }) {
-  const [query, setQuery] = useState("");
-  const debounced = useDebouncedValue(query, 220);
-  const { data, isFetching, isError } = useObjectSearchQuery(debounced);
-  const results = data?.objects ?? [];
+  const [mode, setMode] = useState<"places" | "music">("places");
 
   return (
     <View>
-      <LabelCaps>Step one</LabelCaps>
-      <Display className="mt-2 text-[32px] leading-[36px]">
-        What is this short about?
-      </Display>
-      <Body className="mt-2 text-on-surface-variant">
-        Shorts are always tied to a thing — a café, a perfume, an album. Pick
-        the subject so viewers can open the object page right from the clip.
-      </Body>
-
-      <View className="mt-6 border-b border-outline-variant/40 pb-3 flex-row items-center">
-        <Icon name="search" size={20} color="#504446" />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search the catalogue…"
-          placeholderTextColor="rgba(80,68,70,0.55)"
-          autoFocus
-          className="flex-1 ml-3 font-headline-italic text-on-surface text-[20px]"
-          style={{ paddingVertical: 4 }}
-          autoCorrect={false}
-          autoCapitalize="none"
+      <View className="mb-5 flex-row rounded-xl bg-surface-container-low p-1">
+        <ModeButton
+          label="Places"
+          active={mode === "places"}
+          onPress={() => setMode("places")}
         />
-        {isFetching && <ActivityIndicator color="#55343B" />}
+        <ModeButton
+          label="Music"
+          active={mode === "music"}
+          onPress={() => setMode("music")}
+        />
       </View>
 
-      {query.trim().length < 2 && (
-        <Body className="mt-5 text-on-surface-variant">
-          Type at least two characters to start.
-        </Body>
+      {mode === "music" ? (
+        <MusicPicker
+          label="Step one"
+          title="What is this short about?"
+          body="Pick from Zoe or add an album or song from Spotify so viewers can open the object page."
+          placeholder="Search albums, songs, artists..."
+          onPick={onPick}
+        />
+      ) : (
+        <PlacePicker
+          label="Step one"
+          title="What is this short about?"
+          body="Shorts are always tied to a thing. Pick from Zoe or add a place from Google so viewers can open the object page."
+          placeholder="Search a café, a place, an album..."
+          onPick={onPick}
+        />
       )}
-
-      {isError && (
-        <Body className="mt-5 text-rank-down">
-          Search hit a snag — try a different phrase.
-        </Body>
-      )}
-
-      {query.trim().length >= 2 && !isFetching && results.length === 0 && (
-        <Body className="mt-5 text-on-surface-variant">
-          No matches. Try a simpler phrase or a different spelling.
-        </Body>
-      )}
-
-      <View className="mt-4 gap-2">
-        {results.map((hit) => (
-          <Pressable
-            key={hit.id}
-            onPress={() => onPick(hit)}
-            className="flex-row items-center py-2 px-1 active:bg-surface-container-low rounded-lg"
-          >
-            {hit.heroImage ? (
-              <Image
-                source={{ uri: hit.heroImage }}
-                style={{ width: 52, height: 52, borderRadius: 8 }}
-                contentFit="cover"
-              />
-            ) : (
-              <View
-                style={{ width: 52, height: 52, borderRadius: 8 }}
-                className="bg-surface-container-low items-center justify-center"
-              >
-                <Icon name="image" size={18} color="#B0A49F" />
-              </View>
-            )}
-            <View className="ml-3 flex-1">
-              <Text
-                className="font-headline text-on-surface text-[15px]"
-                numberOfLines={1}
-              >
-                {hit.title}
-              </Text>
-              <Label className="mt-0.5 text-[11px]" numberOfLines={1}>
-                {hit.subtitle ?? hit.type}
-                {hit.city ? ` · ${hit.city}` : ""}
-              </Label>
-            </View>
-            <Icon name="chevron-right" size={20} color="#827475" />
-          </Pressable>
-        ))}
-      </View>
     </View>
+  );
+}
+
+function ModeButton({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={cn(
+        "flex-1 items-center rounded-lg py-2 active:opacity-75",
+        active && "bg-background",
+      )}
+    >
+      <Label className="font-label-semibold uppercase tracking-widest text-[11px]">
+        {label}
+      </Label>
+    </Pressable>
   );
 }
 
@@ -506,7 +478,7 @@ function ComposeStep(props: {
             </View>
           )}
           <View className="ml-3 flex-1">
-            <LabelCaps>{picked.type}</LabelCaps>
+            <LabelCaps>{displayObjectType(picked.type)}</LabelCaps>
             <HeadlineItalic
               className="mt-0.5 text-primary text-[18px] leading-[22px]"
               numberOfLines={1}
@@ -862,13 +834,4 @@ function isValidUrl(s: string): boolean {
   } catch {
     return false;
   }
-}
-
-function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(t);
-  }, [value, delayMs]);
-  return debounced;
 }

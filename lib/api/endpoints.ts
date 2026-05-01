@@ -2,23 +2,41 @@ import { request } from "./client";
 import type {
   ApiActivityResponse,
   ApiAuthResponse,
+  ApiConnectedAccountsResponse,
+  ApiConnectedAccount,
   ApiFeedResponse,
+  ApiMusicSearchResponse,
+  ApiMusicUpsertResponse,
   ApiNotificationsResponse,
   ApiObjectDetail,
   ApiObjectLite,
+  ApiPlaceDetailsResponse,
+  ApiPlaceSearchResponse,
+  ApiPlaceUpsertResponse,
   ApiPost,
   ApiPostCommentsResponse,
+  ApiCityRankingDetailResponse,
+  ApiPersonalRankHubResponse,
+  ApiQuickVoteResponse,
+  ApiRankHubCitiesResponse,
+  ApiRankHubCityResponse,
   ApiRankingEntry,
   ApiRankingListDetail,
   ApiRankingListSummary,
   ApiRankingListsResponse,
+  ApiRestaurantMapPin,
+  ApiRestaurantRecommendation,
+  ApiSavedLibraryResponse,
   ApiSearchObjectHit,
   ApiSearchResponse,
+  ApiSearchSuggestionResponse,
+  ApiFollowedSearch,
   ApiShort,
   ApiShortCommentsResponse,
   ApiShortsResponse,
   ApiUser,
   ApiUserProfile,
+  ApiTasteProfile,
 } from "./types";
 
 /**
@@ -34,6 +52,7 @@ export const registerUser = (input: {
   handle: string;
   displayName: string;
   bio?: string;
+  avatarUrl?: string | null;
 }) =>
   request<ApiAuthResponse>("/auth/register", {
     method: "POST",
@@ -44,6 +63,46 @@ export const loginUser = (input: { email: string; password: string }) =>
   request<ApiAuthResponse>("/auth/login", {
     method: "POST",
     body: input,
+  });
+
+export const loginWithGoogle = (input: {
+  idToken: string;
+  handle?: string;
+  displayName?: string;
+}) =>
+  request<ApiAuthResponse>("/auth/google", {
+    method: "POST",
+    body: input,
+  });
+
+export const loginWithApple = (input: {
+  idToken: string;
+  handle?: string;
+  displayName?: string;
+}) =>
+  request<ApiAuthResponse>("/auth/apple", {
+    method: "POST",
+    body: input,
+  });
+
+export const completeProfile = (
+  token: string,
+  body: {
+    handle: string;
+    displayName: string;
+    bio?: string;
+    avatarUrl?: string | null;
+    homeCityId?: string | null;
+    preferredCityId?: string | null;
+    discoveryLocationMode?: "home_city" | "anywhere";
+    locationPermissionState?: "unknown" | "denied" | "granted";
+    interestTopics?: string[];
+  },
+) =>
+  request<{ user: ApiUser }>("/auth/complete-profile", {
+    method: "POST",
+    token,
+    body,
   });
 
 export const logoutUser = (token: string) =>
@@ -79,6 +138,41 @@ export const resetPassword = (token: string, password: string) =>
     body: { token, password },
   });
 
+// ---------- Connected accounts ----------
+
+export const fetchConnectedAccounts = (token: string) =>
+  request<ApiConnectedAccountsResponse>("/connected-accounts", { token });
+
+export const startSpotifyConnect = (
+  token: string,
+  body: { redirectUri: string },
+) =>
+  request<{
+    authUrl: string;
+    state: string;
+    expiresAt: string;
+    scopes: string[];
+  }>("/connected-accounts/spotify/start", {
+    method: "POST",
+    token,
+    body,
+  });
+
+export const completeSpotifyConnect = (
+  token: string,
+  body: { code: string; state: string },
+) =>
+  request<{ account: ApiConnectedAccount }>(
+    "/connected-accounts/spotify/complete",
+    { method: "POST", token, body },
+  );
+
+export const disconnectSpotify = (token: string) =>
+  request<{ ok: true }>("/connected-accounts/spotify", {
+    method: "DELETE",
+    token,
+  });
+
 // ---------- Feed ----------
 
 export const fetchFeed = (params: {
@@ -86,6 +180,10 @@ export const fetchFeed = (params: {
   cursor?: string;
   author?: string;
   object?: string;
+  scope?: "for_you" | "home_city" | "anywhere";
+  cityId?: string | null;
+  category?: string | null;
+  savedOnly?: boolean;
   token?: string | null;
 }) =>
   request<ApiFeedResponse>("/feed", {
@@ -95,6 +193,10 @@ export const fetchFeed = (params: {
       cursor: params.cursor,
       author: params.author,
       object: params.object,
+      scope: params.scope,
+      cityId: params.cityId,
+      category: params.category,
+      savedOnly: params.savedOnly,
     },
   });
 
@@ -184,6 +286,9 @@ export const createRankingList = (
     description?: string;
     visibility?: "public" | "followers" | "private";
     coverImage?: string;
+    cityId?: string;
+    listType?: "official_city_connected" | "custom_personal";
+    linkedCityRankingListId?: string;
   },
 ) =>
   request<{ list: ApiRankingListSummary }>("/ranking-lists", {
@@ -195,16 +300,108 @@ export const createRankingList = (
 export const insertRankingEntry = (
   listId: string,
   token: string,
-  body: { objectId: string; insertAt: number; note?: string },
+  body: {
+    objectId: string;
+    insertAt: number;
+    note?: string;
+    imageUrl?: string;
+    publishPost?: {
+      headline?: string;
+      caption?: string;
+      tags?: string[];
+    };
+    mentionedUserIds?: string[];
+    restaurantVisit?: RestaurantVisitInput;
+  },
 ) =>
-  request<{ entry: ApiRankingEntry }>(`/ranking-lists/${listId}/entries`, {
-    method: "POST",
+  request<{ entry: ApiRankingEntry; postId?: string | null }>(
+    `/ranking-lists/${listId}/entries`,
+    {
+      method: "POST",
+      token,
+      body,
+    },
+  );
+
+export const replaceRankingEntries = (
+  listId: string,
+  token: string,
+  body: { entries: Array<{ objectId: string; note?: string }> },
+) =>
+  request<{ list: ApiRankingListDetail }>(`/ranking-lists/${listId}/entries`, {
+    method: "PUT",
     token,
     body,
   });
 
 export const deleteRankingList = (id: string, token: string) =>
   request<{ ok: true }>(`/ranking-lists/${id}`, { method: "DELETE", token });
+
+// ---------- Rank Hub ----------
+
+export const fetchRankHubCities = () =>
+  request<ApiRankHubCitiesResponse>("/rank-hub/cities");
+
+export const fetchRankHubCity = (params: {
+  cityId?: string | null;
+  token?: string | null;
+}) =>
+  request<ApiRankHubCityResponse>("/rank-hub/city", {
+    token: params.token ?? null,
+    query: { cityId: params.cityId },
+  });
+
+export const fetchCityRankingDetail = (
+  listId: string,
+  token?: string | null,
+) =>
+  request<ApiCityRankingDetailResponse>(`/rank-hub/city-lists/${listId}`, {
+    token: token ?? null,
+  });
+
+export const fetchPersonalRankHub = (params: {
+  cityId?: string | null;
+  token?: string | null;
+}) =>
+  request<ApiPersonalRankHubResponse>("/rank-hub/personal", {
+    token: params.token ?? null,
+    query: { cityId: params.cityId },
+  });
+
+export const fetchQuickVote = (params: {
+  cityId: string;
+  listId: string;
+  count?: number;
+  token?: string | null;
+}) =>
+  request<ApiQuickVoteResponse>("/rank-hub/quick-vote", {
+    token: params.token ?? null,
+    query: {
+      cityId: params.cityId,
+      listId: params.listId,
+      count: params.count,
+    },
+  });
+
+export const submitQuickVote = (
+  token: string,
+  body: {
+    cityId: string;
+    listId: string;
+    votes: Array<{
+      objectAId: string;
+      objectBId: string;
+      selectedObjectId?: string | null;
+      skipped?: boolean;
+      contextPrompt: string;
+    }>;
+  },
+) =>
+  request<{ ok: true }>("/rank-hub/quick-vote", {
+    method: "POST",
+    token,
+    body,
+  });
 
 // ---------- Search ----------
 
@@ -218,18 +415,132 @@ export const searchAll = (query: string, limit = 8) =>
     query: { q: query, type: "all", limit },
   });
 
+export const fetchSearchSuggestions = (token?: string | null) =>
+  request<ApiSearchSuggestionResponse>("/search/suggestions", {
+    token: token ?? null,
+  });
+
+export const recordSearchEvent = (
+  token: string,
+  body: {
+    query: string;
+    resultType?: "object" | "post" | "user" | "list" | "google_place" | "prompt";
+    resultId?: string;
+  },
+) =>
+  request<{ ok: true }>("/search/events", {
+    method: "POST",
+    token,
+    body,
+  });
+
+export const followSearch = (token: string, query: string) =>
+  request<{ followed: ApiFollowedSearch }>("/search/followed", {
+    method: "POST",
+    token,
+    body: { query },
+  });
+
+export const unfollowSearch = (token: string, id: string) =>
+  request<{ ok: true }>(`/search/followed/${id}`, {
+    method: "DELETE",
+    token,
+  });
+
+// ---------- Google-backed place search ----------
+
+export const searchGooglePlaces = (params: {
+  query: string;
+  cityId?: string | null;
+  type?: "all" | "place" | "restaurant" | "cafe" | "bar";
+  sessionToken?: string | null;
+  limit?: number;
+}) =>
+  request<ApiPlaceSearchResponse>("/places/search", {
+    query: {
+      q: params.query,
+      cityId: params.cityId,
+      type: params.type ?? "all",
+      sessionToken: params.sessionToken,
+      limit: params.limit,
+    },
+  });
+
+export const fetchGooglePlaceDetails = (params: {
+  placeId: string;
+  sessionToken?: string | null;
+}) =>
+  request<ApiPlaceDetailsResponse>("/places/details", {
+    query: {
+      placeId: params.placeId,
+      sessionToken: params.sessionToken,
+    },
+  });
+
+export const upsertGooglePlace = (body: {
+  placeId: string;
+  sessionToken?: string | null;
+  cityId?: string | null;
+}) =>
+  request<ApiPlaceUpsertResponse>("/places/upsert", {
+    method: "POST",
+    body,
+  });
+
+// ---------- Spotify-backed music search ----------
+
+export const searchSpotifyMusic = (params: {
+  query: string;
+  type?: "album" | "track" | "all";
+  market?: string | null;
+  limit?: number;
+  token?: string | null;
+}) =>
+  request<ApiMusicSearchResponse>("/music/search", {
+    token: params.token ?? null,
+    query: {
+      provider: "spotify",
+      q: params.query,
+      type: params.type ?? "all",
+      market: params.market,
+      limit: params.limit,
+    },
+  });
+
+export const upsertSpotifyMusic = (body: {
+  itemType: "album" | "track";
+  providerItemId: string;
+  market?: string | null;
+}) =>
+  request<ApiMusicUpsertResponse>("/music/spotify/upsert", {
+    method: "POST",
+    body: {
+      provider: "spotify",
+      itemType: body.itemType,
+      providerItemId: body.providerItemId,
+      market: body.market,
+    },
+  });
+
 // ---------- Create post ----------
 
 export interface CreatePostInput {
-  objectId: string;
+  objectId?: string;
+  postKind?: "place" | "music" | "blog" | "ranking_update";
+  imageUrl?: string;
   headline: string;
   caption: string;
   tags?: string[];
   postType?: "photo" | "carousel" | "short_video";
-  detailLayout?: "discovery_photo" | "album_review" | "product_hero";
+  detailLayout?: "discovery_photo" | "album_review" | "product_hero" | "blog_story";
   rankingListId?: string;
+  rankingAttachment?:
+    | { mode: "existing"; listId: string }
+    | { mode: "insert"; listId: string; insertAt: number; note?: string };
   locationLabel?: string;
   aspect?: "tall" | "square" | "wide";
+  mentionedUserIds?: string[];
+  restaurantVisit?: RestaurantVisitInput;
 }
 
 export const createPost = (input: CreatePostInput, token: string) =>
@@ -241,6 +552,60 @@ export const createPost = (input: CreatePostInput, token: string) =>
 
 export const deletePost = (id: string, token: string) =>
   request<{ ok: true }>(`/posts/${id}`, { method: "DELETE", token });
+
+export interface RestaurantVisitInput {
+  visitedAt?: string;
+  companionUserIds?: string[];
+  dishes?: Array<{ name: string; note?: string; recommended?: boolean }>;
+  labels?: string[];
+  mealType?:
+    | "breakfast"
+    | "brunch"
+    | "lunch"
+    | "dinner"
+    | "dessert"
+    | "drinks"
+    | "other";
+  priceTier?: 1 | 2 | 3 | 4;
+  note?: string;
+}
+
+// ---------- Restaurants ----------
+
+export const wantToTryRestaurant = (objectId: string, token: string) =>
+  request<{ bookmark: unknown }>(`/restaurants/${objectId}/want-to-try`, {
+    method: "POST",
+    token,
+  });
+
+export const removeWantToTryRestaurant = (objectId: string, token: string) =>
+  request<{ ok: true }>(`/restaurants/${objectId}/want-to-try`, {
+    method: "DELETE",
+    token,
+  });
+
+export const fetchRestaurantMap = (params: {
+  cityId?: string | null;
+  limit?: number;
+  token?: string | null;
+}) =>
+  request<{ pins: ApiRestaurantMapPin[] }>("/restaurants/map", {
+    token: params.token ?? null,
+    query: { cityId: params.cityId, limit: params.limit },
+  });
+
+export const fetchRestaurantRecommendations = (params: {
+  cityId?: string | null;
+  limit?: number;
+  token?: string | null;
+}) =>
+  request<{ recommendations: ApiRestaurantRecommendation[] }>(
+    "/restaurants/recommendations",
+    {
+      token: params.token ?? null,
+      query: { cityId: params.cityId, limit: params.limit },
+    },
+  );
 
 // ---------- Notifications ----------
 
@@ -273,8 +638,10 @@ export const unregisterPushToken = (token: string, pushToken: string) =>
 
 // ---------- Objects ----------
 
-export const fetchObject = (id: string) =>
-  request<{ object: ApiObjectDetail }>(`/objects/${id}`);
+export const fetchObject = (id: string, token?: string | null) =>
+  request<{ object: ApiObjectDetail }>(`/objects/${id}`, {
+    token: token ?? null,
+  });
 
 // ---------- Activity ----------
 
@@ -292,6 +659,21 @@ export const fetchActivity = (params: {
 
 export const fetchUserProfile = (handle: string, token: string | null) =>
   request<{ user: ApiUserProfile }>(`/users/${handle}`, { token });
+
+export const fetchSavedLibrary = (params: {
+  cityId?: string | null;
+  limit?: number;
+  token: string;
+}) =>
+  request<ApiSavedLibraryResponse>("/users/me/saves", {
+    token: params.token,
+    query: { cityId: params.cityId, limit: params.limit },
+  });
+
+export const fetchTasteProfile = (handle: string, token: string | null) =>
+  request<{ profile: ApiTasteProfile }>(`/users/${handle}/taste-profile`, {
+    token,
+  });
 
 export const followUser = (handle: string, token: string) =>
   request<{ ok: true }>(`/users/${handle}/follow`, {

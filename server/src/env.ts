@@ -78,6 +78,30 @@ const schema = z.object({
     .default("false"),
   /** Deep link host for in-app routes, e.g. `zoe://` */
   APP_DEEPLINK_ORIGIN: z.string().default("zoe://"),
+
+  // Google Places. Optional in local development; routes degrade gracefully
+  // when unset so the rest of the API can still boot and be tested.
+  GOOGLE_MAPS_API_KEY: z.string().min(1).optional(),
+
+  // Account OAuth. Google accepts multiple audiences because native iOS,
+  // Android, Expo/web, and backend client IDs can differ.
+  GOOGLE_OAUTH_CLIENT_IDS: z
+    .string()
+    .optional()
+    .transform((v) =>
+      (v ?? "")
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  APPLE_BUNDLE_ID: z.string().optional(),
+
+  // Spotify. Client credentials power catalogue search; authorization code
+  // + PKCE powers user account connection.
+  SPOTIFY_CLIENT_ID: z.string().optional(),
+  SPOTIFY_CLIENT_SECRET: z.string().optional(),
+  OAUTH_STATE_TTL_MINUTES: z.coerce.number().int().positive().default(10),
+  OAUTH_TOKEN_ENCRYPTION_KEY: z.string().optional(),
 });
 
 const parsed = schema
@@ -85,28 +109,37 @@ const parsed = schema
     // Enforce S3 cred completeness lazily — locals shouldn't have to set
     // any AWS vars, but once the driver flips to `s3` we want a clear,
     // boot-time error for anything missing.
-    if (cfg.UPLOADS_DRIVER !== "s3") return;
-    const missing: string[] = [];
-    if (!cfg.S3_REGION) missing.push("S3_REGION");
-    if (!cfg.S3_BUCKET) missing.push("S3_BUCKET");
-    if (!cfg.S3_ACCESS_KEY_ID) missing.push("S3_ACCESS_KEY_ID");
-    if (!cfg.S3_SECRET_ACCESS_KEY) missing.push("S3_SECRET_ACCESS_KEY");
-    if (missing.length > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Missing required S3 settings: ${missing.join(", ")}`,
-      });
+    if (cfg.UPLOADS_DRIVER === "s3") {
+      const missing: string[] = [];
+      if (!cfg.S3_REGION) missing.push("S3_REGION");
+      if (!cfg.S3_BUCKET) missing.push("S3_BUCKET");
+      if (!cfg.S3_ACCESS_KEY_ID) missing.push("S3_ACCESS_KEY_ID");
+      if (!cfg.S3_SECRET_ACCESS_KEY) missing.push("S3_SECRET_ACCESS_KEY");
+      if (missing.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Missing required S3 settings: ${missing.join(", ")}`,
+        });
+      }
+      // Public base URL is mandatory for S3 — we need to hand clients a
+      // readable URL after upload, and S3 virtual-hosted URLs are awkward
+      // for anything that wants HTTPS + a custom domain (iOS ATS, CDN).
+      if (!cfg.UPLOADS_PUBLIC_BASE_URL) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "UPLOADS_PUBLIC_BASE_URL must be set when UPLOADS_DRIVER=s3 — " +
+            "point it at your CloudFront / R2 custom domain.",
+        });
+      }
     }
-    // Public base URL is mandatory for S3 — we need to hand clients a
-    // readable URL after upload, and S3 virtual-hosted URLs are awkward
-    // for anything that wants HTTPS + a custom domain (iOS ATS, CDN).
-    if (!cfg.UPLOADS_PUBLIC_BASE_URL) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "UPLOADS_PUBLIC_BASE_URL must be set when UPLOADS_DRIVER=s3 — " +
-          "point it at your CloudFront / R2 custom domain.",
-      });
+    if (cfg.NODE_ENV === "production") {
+      if (!cfg.OAUTH_TOKEN_ENCRYPTION_KEY) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "OAUTH_TOKEN_ENCRYPTION_KEY is required in production",
+        });
+      }
     }
   })
   .safeParse(process.env);

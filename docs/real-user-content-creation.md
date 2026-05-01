@@ -42,6 +42,7 @@ Operator-facing guide: run the stack, configure networking and env, exercise **p
    - **SMTP** (`MAIL_FROM`, `SMTP_*`) for verification and password-reset emails (`server/.env.example`).
    - **S3 / R2** (`UPLOADS_DRIVER=s3` + `S3_*`, `UPLOADS_PUBLIC_BASE_URL`) for HTTPS media and App Store–friendly uploads.
    - **Push** (`PUSH_NOTIFICATIONS_ENABLED`, `EXPO_PUSH_ACCESS_TOKEN`) for Expo push fan-out.
+   - **OAuth/music** (`GOOGLE_OAUTH_CLIENT_IDS`, `APPLE_BUNDLE_ID`, `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `OAUTH_TOKEN_ENCRYPTION_KEY`) for social sign-in and Spotify listening links. See `docs/oauth-music-privacy.md`.
 
 ---
 
@@ -99,6 +100,8 @@ Base URL = `API_BASE_URL` (no trailing slash required). All JSON unless noted.
 | `/shorts` | Shorts feed, detail, likes, saves, comments. |
 | `/feed`, `/activity` | Mounted at **root** (`/`). |
 | `/search` | Full-text + trigram search. |
+| `/music` | Spotify-backed album/song search and catalog upsert. |
+| `/connected-accounts` | Connected apps, including Spotify OAuth connect/disconnect. |
 | `/notifications` | Derived inbox (auth). |
 | `/uploads` | Presigned upload **`POST /uploads/sign`** (auth); local driver also serves PUT/GET. |
 | `/push-tokens` | Register / unregister Expo device token (auth). |

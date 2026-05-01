@@ -26,6 +26,7 @@ import { View } from "react-native";
 export interface ShortMediaProps {
   heroImage: string;
   videoUrl?: string | null;
+  preserveArtwork?: boolean;
   /** True when this frame is the one currently snapped into view. */
   active: boolean;
   /** Mute state is lifted to the feed so it persists across frames. */
@@ -35,17 +36,26 @@ export interface ShortMediaProps {
 export function ShortMedia({
   heroImage,
   videoUrl,
+  preserveArtwork = false,
   active,
   muted,
 }: ShortMediaProps) {
   if (videoUrl) {
-    return <VideoFrame uri={videoUrl} poster={heroImage} active={active} muted={muted} />;
+    return (
+      <VideoFrame
+        uri={videoUrl}
+        poster={heroImage}
+        preservePoster={preserveArtwork}
+        active={active}
+        muted={muted}
+      />
+    );
   }
   return (
     <Image
       source={{ uri: heroImage }}
       style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      contentFit="cover"
+      contentFit={preserveArtwork ? "contain" : "cover"}
       transition={300}
     />
   );
@@ -54,11 +64,13 @@ export function ShortMedia({
 function VideoFrame({
   uri,
   poster,
+  preservePoster,
   active,
   muted,
 }: {
   uri: string;
   poster: string;
+  preservePoster: boolean;
   active: boolean;
   muted: boolean;
 }) {
@@ -101,7 +113,7 @@ function VideoFrame({
       <Image
         source={{ uri: poster }}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-        contentFit="cover"
+        contentFit={preservePoster ? "contain" : "cover"}
         transition={200}
       />
       <VideoView

@@ -3,11 +3,12 @@ import { Pressable, View, Text } from "react-native";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
-import { Body, HeadlineItalic, Label, Title } from "@/components/ui/Text";
+import { Body, HeadlineItalic, Label } from "@/components/ui/Text";
 import { cn } from "@/lib/cn";
 import type { ActivityCard as ActivityCardType } from "@/data/types";
 import { getUser } from "@/data/users";
 import { getObject } from "@/data/objects";
+import { displayObjectType } from "@/lib/objects/display";
 
 /**
  * Following activity card (VDK §16.3, §18.2).
@@ -68,10 +69,10 @@ export function ActivityCard({
           elevation: 2,
         }}
       >
-        {object && (
+        {(card.imageUrl || object?.heroImage) && (
           <View className="relative">
             <Image
-              source={{ uri: object.heroImage }}
+              source={{ uri: card.imageUrl || object?.heroImage }}
               style={{ aspectRatio: 16 / 10 }}
               contentFit="cover"
               transition={220}
@@ -91,15 +92,20 @@ export function ActivityCard({
         )}
 
         <View className="p-5">
-          {object && (
+          {object ? (
             <>
               <Label className="uppercase tracking-widest text-[10px] text-on-surface-variant">
-                {object.type} {object.city ? `· ${object.city}` : ""}
+                {displayObjectType(object.type)}{" "}
+                {object.city ? `· ${object.city}` : ""}
               </Label>
               <HeadlineItalic className="mt-1 text-primary text-[22px] leading-[26px]">
                 {object.title}
               </HeadlineItalic>
             </>
+          ) : (
+            <HeadlineItalic className="text-primary text-[22px] leading-[26px]">
+              {card.message}
+            </HeadlineItalic>
           )}
           {card.body && (
             <Body className="mt-2 text-[14px] leading-[20px]">{card.body}</Body>

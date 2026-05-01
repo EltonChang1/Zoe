@@ -214,6 +214,18 @@ const VERB: Record<
     tint: "#6B553B",
     copy: () => "started following you",
   },
+  mention: {
+    icon: "alternate-email",
+    tint: "#547C65",
+    copy: (h) =>
+      h ? `mentioned you in "${truncate(h, 60)}"` : "mentioned you",
+  },
+  companion_tag: {
+    icon: "restaurant",
+    tint: "#8B5D5D",
+    copy: (h) =>
+      h ? `tagged you at "${truncate(h, 60)}"` : "tagged you at a restaurant",
+  },
 };
 
 function NotificationRow({
@@ -299,6 +311,8 @@ function openTarget(
     case "like":
     case "comment":
     case "reply":
+    case "mention":
+    case "companion_tag":
       if (item.target.postId) {
         router.push(`/post/${item.target.postId}`);
       }

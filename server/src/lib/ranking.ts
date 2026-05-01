@@ -1,4 +1,4 @@
-import { Prisma, type RankingEntry } from "@prisma/client";
+import { Prisma, type PrismaClient, type RankingEntry } from "@prisma/client";
 
 import { prisma } from "../db.js";
 import { HttpError } from "../http/errors.js";
@@ -17,6 +17,7 @@ export interface InsertInput {
   objectId: string;
   insertAt: number; // 1-indexed target rank
   note?: string | null;
+  imageUrl?: string | null;
 }
 
 export interface MoveInput {
@@ -25,47 +26,57 @@ export interface MoveInput {
   toRank: number;
 }
 
-export async function insertEntry(input: InsertInput): Promise<RankingEntry> {
-  const { listId, objectId, insertAt, note } = input;
+type RankingDb = PrismaClient | Prisma.TransactionClient;
 
-  return prisma.$transaction(async (tx) => {
-    const list = await tx.rankingList.findUnique({
-      where: { id: listId },
-      select: { id: true, _count: { select: { entries: true } } },
-    });
-    if (!list) throw HttpError.notFound("Ranking list not found");
+export async function insertEntry(
+  input: InsertInput,
+  db?: RankingDb,
+): Promise<RankingEntry> {
+  if (db) return insertEntryWithDb(input, db);
+  return prisma.$transaction((tx) => insertEntryWithDb(input, tx));
+}
 
-    const total = list._count.entries;
-    if (insertAt < 1 || insertAt > total + 1) {
-      throw HttpError.badRequest(
-        `insertAt must be between 1 and ${total + 1}`,
-      );
-    }
+async function insertEntryWithDb(
+  input: InsertInput,
+  tx: RankingDb,
+): Promise<RankingEntry> {
+  const { listId, objectId, insertAt, note, imageUrl } = input;
 
-    const existing = await tx.rankingEntry.findUnique({
-      where: { listId_objectId: { listId, objectId } },
-      select: { id: true },
-    });
-    if (existing) {
-      throw HttpError.conflict("Object is already in this list");
-    }
+  const list = await tx.rankingList.findUnique({
+    where: { id: listId },
+    select: { id: true, _count: { select: { entries: true } } },
+  });
+  if (!list) throw HttpError.notFound("Ranking list not found");
 
-    // Shift everyone at or below the target down by one rank.
-    await tx.rankingEntry.updateMany({
-      where: { listId, rank: { gte: insertAt } },
-      data: { rank: { increment: 1 } },
-    });
+  const total = list._count.entries;
+  if (insertAt < 1 || insertAt > total + 1) {
+    throw HttpError.badRequest(`insertAt must be between 1 and ${total + 1}`);
+  }
 
-    return tx.rankingEntry.create({
-      data: {
-        listId,
-        objectId,
-        rank: insertAt,
-        movement: "new",
-        delta: null,
-        note: note ?? null,
-      },
-    });
+  const existing = await tx.rankingEntry.findUnique({
+    where: { listId_objectId: { listId, objectId } },
+    select: { id: true },
+  });
+  if (existing) {
+    throw HttpError.conflict("Object is already in this list");
+  }
+
+  // Shift everyone at or below the target down by one rank.
+  await tx.rankingEntry.updateMany({
+    where: { listId, rank: { gte: insertAt } },
+    data: { rank: { increment: 1 } },
+  });
+
+  return tx.rankingEntry.create({
+    data: {
+      listId,
+      objectId,
+      rank: insertAt,
+      movement: "new",
+      delta: null,
+      note: note ?? null,
+      imageUrl: imageUrl ?? null,
+    },
   });
 }
 
@@ -144,13 +155,52 @@ export async function readList(listId: string) {
       },
       entries: {
         orderBy: { rank: "asc" },
-        include: { object: true },
+        include: {
+          object: true,
+          restaurantVisit: {
+            include: {
+              companions: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      handle: true,
+                      displayName: true,
+                      avatarUrl: true,
+                    },
+                  },
+                },
+              },
+              dishes: { orderBy: { createdAt: "asc" } },
+            },
+          },
+        },
       },
       _count: { select: { entries: true, posts: true } },
     },
   });
   if (!list) throw HttpError.notFound("Ranking list not found");
-  return list;
+  return withPersonalScores(list);
+}
+
+export function personalRankingScore(rank: number, totalEntries: number) {
+  if (totalEntries <= 1) return 10.0;
+  const position = (rank - 1) / (totalEntries - 1);
+  const score = 10 - 5 * Math.pow(position, 0.85);
+  return Math.round(score * 10) / 10;
+}
+
+function withPersonalScores<T extends { entries: Array<{ rank: number }> }>(
+  list: T,
+) {
+  const total = list.entries.length;
+  return {
+    ...list,
+    entries: list.entries.map((entry) => ({
+      ...entry,
+      score: personalRankingScore(entry.rank, total),
+    })),
+  };
 }
 
 /**

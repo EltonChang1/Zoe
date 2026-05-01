@@ -2,11 +2,9 @@ import { Image } from "expo-image";
 import { ScrollView, View, Text } from "react-native";
 
 import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
 import {
   Body,
   Headline,
-  Label,
   LabelCaps,
 } from "@/components/ui/Text";
 import {
@@ -14,11 +12,13 @@ import {
   DiscussionSection,
   InteractionBar,
   PostTopBar,
+  RestaurantSocialSummary,
   TagRow,
 } from "@/components/post/PostChrome";
 import type { Comment, Post } from "@/data/types";
 import { getObject } from "@/data/objects";
 import { getUser } from "@/data/users";
+import { displayObjectType } from "@/lib/objects/display";
 import type { PostInteraction } from "./types";
 
 /**
@@ -36,7 +36,7 @@ export function ProductHeroView({
   interaction?: PostInteraction;
 }) {
   const author = getUser(post.authorId);
-  const object = getObject(post.objectId);
+  const object = post.objectId ? getObject(post.objectId) : undefined;
 
   return (
     <View className="flex-1 bg-background">
@@ -49,7 +49,7 @@ export function ProductHeroView({
         {/* Hero */}
         <View className="relative">
           <Image
-            source={{ uri: object?.heroImage }}
+            source={{ uri: post.imageUrl || object?.heroImage }}
             style={{ aspectRatio: 16 / 10 }}
             contentFit="cover"
             transition={260}
@@ -93,7 +93,7 @@ export function ProductHeroView({
           <View className="flex-row">
             <View className="w-[3px] bg-primary mr-4 rounded-full" />
             <View className="flex-1 gap-3">
-              <LabelCaps>{object?.type} · Feature</LabelCaps>
+              <LabelCaps>{displayObjectType(object?.type)} · Feature</LabelCaps>
               <Headline className="text-[26px] leading-[30px]">
                 {object?.title}
               </Headline>
@@ -107,6 +107,7 @@ export function ProductHeroView({
           </View>
 
           <TagRow tags={post.tags} />
+          <RestaurantSocialSummary post={post} />
 
           {/* CTAs */}
           <View className="flex-row gap-3">

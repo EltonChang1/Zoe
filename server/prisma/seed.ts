@@ -10,6 +10,8 @@
 import { PrismaClient } from "@prisma/client";
 import argon2 from "argon2";
 
+import { seedPittsburghDemo } from "./demo-pittsburgh.js";
+
 const prisma = new PrismaClient();
 
 const USERS = [
@@ -22,6 +24,44 @@ const USERS = [
   ["U006", "elena@zoe.app", "elena.r", "Elena Rostova", "Ceremonial grade anything.", avatar(7)],
   ["U008", "lila@zoe.app", "lila.a", "Lila A.", "Tour diaries and hotel-room truths.", avatar(8)],
   ["U009", "alex@zoe.app", "alex.m", "Alex M.", "Sneaker archivist. Concrete over carpet.", avatar(9)],
+] as const;
+
+const CITIES = [
+  { id: "city_pittsburgh", name: "Pittsburgh", state: "Pennsylvania", country: "United States", activeRankersCount: 1284 },
+  { id: "city_new_york", name: "New York", state: "New York", country: "United States", activeRankersCount: 2140 },
+  { id: "city_los_angeles", name: "Los Angeles", state: "California", country: "United States", activeRankersCount: 1880 },
+  { id: "city_san_francisco", name: "San Francisco", state: "California", country: "United States", activeRankersCount: 1268 },
+  { id: "city_chicago", name: "Chicago", state: "Illinois", country: "United States", activeRankersCount: 1542 },
+] as const;
+
+const OFFICIAL_CITY_LISTS = [
+  { id: "citylist_pittsburgh_best_spots", cityId: "city_pittsburgh", title: "Pittsburgh's Best Places to Go", slug: "best-places-to-go", category: "places_to_go", activeRankersCount: 1284 },
+  { id: "citylist_pittsburgh_best_restaurants", cityId: "city_pittsburgh", title: "Pittsburgh's Best Restaurants", slug: "best-restaurants", category: "restaurant", activeRankersCount: 1106 },
+  { id: "citylist_pittsburgh_best_cafes", cityId: "city_pittsburgh", title: "Pittsburgh's Best Cafés", slug: "best-cafes", category: "cafe", activeRankersCount: 842 },
+] as const;
+
+const CITY_RANKING_ENTRY_SEEDS = [
+  {
+    listId: "citylist_pittsburgh_best_spots",
+    entries: [
+      { objectId: "O001", rank: 1, score: 94, rankers: 421, tags: ["quiet", "coffee", "design"] },
+      { objectId: "O004", rank: 2, score: 90, rankers: 366, tags: ["comforting", "group", "seasonal"] },
+      { objectId: "O005", rank: 3, score: 86, rankers: 302, tags: ["date-night", "natural-wine", "low-light"] },
+    ],
+  },
+  {
+    listId: "citylist_pittsburgh_best_restaurants",
+    entries: [
+      { objectId: "O004", rank: 1, score: 93, rankers: 388, tags: ["seasonal", "comforting", "neighborhood"] },
+      { objectId: "O005", rank: 2, score: 88, rankers: 274, tags: ["date-night", "natural-wine", "low-light"] },
+    ],
+  },
+  {
+    listId: "citylist_pittsburgh_best_cafes",
+    entries: [
+      { objectId: "O001", rank: 1, score: 94, rankers: 421, tags: ["quiet", "laptop-friendly", "aesthetic"] },
+    ],
+  },
 ] as const;
 
 const OBJECTS = [
@@ -42,6 +82,9 @@ const LISTS = [
   { id: "L002", ownerId: "U000", title: "Night Perfumes", category: "Perfume", description: "Warm, close-range, stays interesting.", coverImage: img("1587017539504-67cfbddac569"), entries: [{ objectId: "O008", rank: 1 }, { objectId: "O006", rank: 2 }, { objectId: "O007", rank: 3, movement: "up", delta: 1 }] },
   { id: "L003", ownerId: "U003", title: "All-Time Albums", category: "Music", description: "Records welded to a period of my life.", coverImage: img("1514533212735-5df27d970db9"), entries: [{ objectId: "O009", rank: 1 }] },
   { id: "L004", ownerId: "U009", title: "All-Time Sneakers", category: "Fashion", description: "Concrete over carpet.", coverImage: img("1542291026-7eec264c27ff"), entries: [{ objectId: "O020", rank: 5 }] },
+  { id: "L005", ownerId: "U000", title: "My Best Pittsburgh Cafés", category: "cafe", description: "The Pittsburgh café list that shapes the city ranking.", coverImage: img("1453614512568-c4024d13c249"), cityId: "city_pittsburgh", listType: "official_city_connected", countsTowardCityRanking: true, linkedCityRankingListId: "citylist_pittsburgh_best_cafes", entries: [{ objectId: "O001", rank: 1 }] },
+  { id: "L006", ownerId: "U001", title: "My Best Pittsburgh Restaurants", category: "restaurant", description: "Reliable rooms and meals I would send a friend to first.", coverImage: img("1414235077428-338989a2e8c0"), cityId: "city_pittsburgh", listType: "official_city_connected", countsTowardCityRanking: true, linkedCityRankingListId: "citylist_pittsburgh_best_restaurants", entries: [{ objectId: "O004", rank: 1 }, { objectId: "O005", rank: 2 }] },
+  { id: "L007", ownerId: "U005", title: "My Best Pittsburgh Places to Go", category: "places_to_go", description: "All-purpose places I trust in Pittsburgh.", coverImage: img("1470337458703-46ad1756a187"), cityId: "city_pittsburgh", listType: "official_city_connected", countsTowardCityRanking: true, linkedCityRankingListId: "citylist_pittsburgh_best_spots", entries: [{ objectId: "O001", rank: 1 }, { objectId: "O005", rank: 2 }, { objectId: "O004", rank: 3 }] },
 ] as const;
 
 const POSTS = [
@@ -66,10 +109,20 @@ const COMMENTS = [
   { id: "C006", postId: "P010", authorId: "U003", body: "How does the sizing run? I'm usually an 11 in runners but 10.5 in these." },
 ] as const;
 
+/**
+ * Short HTTPS MP4 samples so the Shorts tab exercises real playback (`expo-video`)
+ * after seed — hero images remain posters / image-only fallback still works if url is null.
+ */
+const SAMPLE_SHORT_VIDEOS = [
+  "https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4",
+  "https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4",
+  "https://assets.mixkit.co/videos/preview/mixkit-going-down-the-road-in-first-person-1178-large.mp4",
+] as const;
+
 const SHORTS = [
-  { id: "S001", authorId: "U004", objectId: "O012", hookLine: "Pretty? yes. Worth the line? depends.", caption: "If you come here, come for the room and split dessert.", rankingListTitle: "NYC Dessert Spots", rankingRank: 6, rankingMovement: "new", heroImage: img("1536520002442-39764a41e987"), audioLabel: "Original · @nina.ko" },
-  { id: "S002", authorId: "U002", objectId: "O008", hookLine: "One elegant night fragrance — that's it.", caption: "Gris Charnel in cold air. Top 1 for me.", rankingListTitle: "Night Perfumes", rankingRank: 1, heroImage: img("1587017539504-67cfbddac569"), audioLabel: "Original · @elton.p" },
-  { id: "S003", authorId: "U003", objectId: "O009", hookLine: "Still #1 on every late-night walk.", caption: "I tried moving it down. I couldn't.", rankingListTitle: "All-Time Albums", rankingRank: 1, heroImage: img("1514533212735-5df27d970db9"), audioLabel: "Ivy · Frank Ocean" },
+  { id: "S001", authorId: "U004", objectId: "O012", hookLine: "Pretty? yes. Worth the line? depends.", caption: "If you come here, come for the room and split dessert.", rankingListTitle: "NYC Dessert Spots", rankingRank: 6, rankingMovement: "new", heroImage: img("1536520002442-39764a41e987"), audioLabel: "Original · @nina.ko", videoUrl: SAMPLE_SHORT_VIDEOS[0] },
+  { id: "S002", authorId: "U002", objectId: "O008", hookLine: "One elegant night fragrance — that's it.", caption: "Gris Charnel in cold air. Top 1 for me.", rankingListTitle: "Night Perfumes", rankingRank: 1, heroImage: img("1587017539504-67cfbddac569"), audioLabel: "Original · @elton.p", videoUrl: SAMPLE_SHORT_VIDEOS[1] },
+  { id: "S003", authorId: "U003", objectId: "O009", hookLine: "Still #1 on every late-night walk.", caption: "I tried moving it down. I couldn't.", rankingListTitle: "All-Time Albums", rankingRank: 1, heroImage: img("1514533212735-5df27d970db9"), audioLabel: "Ivy · Frank Ocean", videoUrl: SAMPLE_SHORT_VIDEOS[2] },
 ] as const;
 
 /**
@@ -130,8 +183,64 @@ async function main() {
     });
   }
 
+  // Cities + official city ranking shells.
+  for (const city of CITIES) {
+    await prisma.city.upsert({
+      where: { id: city.id },
+      update: {
+        name: city.name,
+        state: city.state,
+        country: city.country,
+        activeRankersCount: city.activeRankersCount,
+      },
+      create: city,
+    });
+  }
+
+  for (const cityList of OFFICIAL_CITY_LISTS) {
+    await prisma.officialCityRankingList.upsert({
+      where: { id: cityList.id },
+      update: {
+        cityId: cityList.cityId,
+        title: cityList.title,
+        slug: cityList.slug,
+        category: cityList.category,
+        activeRankersCount: cityList.activeRankersCount,
+        contributionSource: "hybrid",
+        acceptsUserContribution: true,
+        isOfficial: true,
+      },
+      create: {
+        ...cityList,
+        contributionSource: "hybrid",
+        acceptsUserContribution: true,
+        isOfficial: true,
+      },
+    });
+  }
+
+  // Home-city memberships give seeded users local trust for Pittsburgh.
+  for (const [id] of USERS) {
+    await prisma.userCityMembership.upsert({
+      where: { userId_cityId: { userId: id, cityId: "city_pittsburgh" } },
+      update: {
+        role: id === "U000" ? "verified_local" : "qualified_local",
+        isHomeCity: true,
+        trustWeight: id === "U000" ? 1.25 : 1,
+      },
+      create: {
+        userId: id,
+        cityId: "city_pittsburgh",
+        role: id === "U000" ? "verified_local" : "qualified_local",
+        isHomeCity: true,
+        trustWeight: id === "U000" ? 1.25 : 1,
+      },
+    });
+  }
+
   // Objects
   for (const o of OBJECTS) {
+    const cityId = cityIdForName("city" in o ? o.city : undefined);
     await prisma.object.upsert({
       where: { id: o.id },
       update: {
@@ -139,6 +248,7 @@ async function main() {
         title: o.title,
         subtitle: o.subtitle ?? null,
         city: "city" in o ? o.city : null,
+        cityId,
         neighborhood: "neighborhood" in o ? o.neighborhood : null,
         tags: [...o.tags],
         shortDescriptor: "shortDescriptor" in o ? o.shortDescriptor : null,
@@ -150,6 +260,7 @@ async function main() {
         title: o.title,
         subtitle: o.subtitle ?? null,
         city: "city" in o ? o.city : null,
+        cityId,
         neighborhood: "neighborhood" in o ? o.neighborhood : null,
         tags: [...o.tags],
         shortDescriptor: "shortDescriptor" in o ? o.shortDescriptor : null,
@@ -168,6 +279,18 @@ async function main() {
         description: list.description,
         coverImage: list.coverImage,
         ownerId: list.ownerId,
+        cityId: "cityId" in list ? list.cityId : null,
+        listType: ("listType" in list ? list.listType : "custom_personal") as
+          | "official_city_connected"
+          | "custom_personal",
+        countsTowardCityRanking:
+          "countsTowardCityRanking" in list
+            ? list.countsTowardCityRanking
+            : false,
+        linkedCityRankingListId:
+          "linkedCityRankingListId" in list
+            ? list.linkedCityRankingListId
+            : null,
       },
       create: {
         id: list.id,
@@ -176,6 +299,18 @@ async function main() {
         description: list.description,
         coverImage: list.coverImage,
         ownerId: list.ownerId,
+        cityId: "cityId" in list ? list.cityId : null,
+        listType: ("listType" in list ? list.listType : "custom_personal") as
+          | "official_city_connected"
+          | "custom_personal",
+        countsTowardCityRanking:
+          "countsTowardCityRanking" in list
+            ? list.countsTowardCityRanking
+            : false,
+        linkedCityRankingListId:
+          "linkedCityRankingListId" in list
+            ? list.linkedCityRankingListId
+            : null,
       },
     });
     await prisma.rankingEntry.deleteMany({ where: { listId: list.id } });
@@ -191,6 +326,37 @@ async function main() {
         },
       });
     }
+  }
+
+  // Official city rankings: seeded baseline so Rank Hub has answer-first data
+  // immediately. Live edits recalculate these rows from official personal
+  // lists and quick votes.
+  for (const cityList of CITY_RANKING_ENTRY_SEEDS) {
+    await prisma.cityRankingEntry.deleteMany({
+      where: { cityRankingListId: cityList.listId },
+    });
+    for (const entry of cityList.entries) {
+      await prisma.cityRankingEntry.create({
+        data: {
+          cityRankingListId: cityList.listId,
+          objectId: entry.objectId,
+          rank: entry.rank,
+          previousRank: null,
+          citytasteScore: entry.score,
+          rawRankPoints: entry.score,
+          confidenceMultiplier: 1,
+          recencyMultiplier: 1,
+          localRankersCount: entry.rankers,
+          movement: entry.rank === 1 ? "stable" : "new",
+          movementDelta: null,
+          tagsSummary: [...entry.tags],
+        },
+      });
+    }
+    await prisma.officialCityRankingList.update({
+      where: { id: cityList.listId },
+      data: { lastRecalculatedAt: new Date() },
+    });
   }
 
   // Posts
@@ -268,6 +434,7 @@ async function main() {
         hookLine: s.hookLine,
         caption: s.caption,
         heroImage: s.heroImage,
+        videoUrl: s.videoUrl,
         audioLabel: s.audioLabel,
         rankingListTitle: s.rankingListTitle,
         rankingRank: s.rankingRank,
@@ -280,6 +447,7 @@ async function main() {
         hookLine: s.hookLine,
         caption: s.caption,
         heroImage: s.heroImage,
+        videoUrl: s.videoUrl,
         audioLabel: s.audioLabel,
         rankingListTitle: s.rankingListTitle,
         rankingRank: s.rankingRank,
@@ -321,6 +489,8 @@ async function main() {
     });
   }
 
+  const pittsburghDemo = await seedPittsburghDemo(prisma, passwordHash);
+
   const counts = await Promise.all([
     prisma.user.count(),
     prisma.object.count(),
@@ -346,7 +516,14 @@ async function main() {
     shortLikes: counts[8],
     shortSaves: counts[9],
     shortComments: counts[10],
+    pittsburghDemo,
   });
+}
+
+function cityIdForName(name: string | undefined | null): string | null {
+  if (!name) return null;
+  const match = CITIES.find((city) => city.name === name);
+  return match?.id ?? null;
 }
 
 function avatar(n: number): string {

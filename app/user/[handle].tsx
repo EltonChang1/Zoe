@@ -33,11 +33,13 @@ import {
   useBlockUser,
   useOwnerRankingListsQuery,
   useReport,
+  useTasteProfileQuery,
   useToggleFollow,
   useUserPostsQuery,
   useUserProfileQuery,
 } from "@/lib/api";
 import { ApiHttpError } from "@/lib/api/client";
+import type { ApiTasteProfile } from "@/lib/api/types";
 import { confirmBlock, runReportFlow } from "@/components/moderation/actions";
 
 /**
@@ -62,6 +64,7 @@ export default function UserProfileScreen() {
   const profileQuery = useUserProfileQuery(handle);
   const postsQuery = useUserPostsQuery(handle);
   const listsQuery = useOwnerRankingListsQuery(handle);
+  const tasteQuery = useTasteProfileQuery(handle);
   const followMutation = useToggleFollow();
   const reportMutation = useReport();
   const blockMutation = useBlockUser();
@@ -202,12 +205,14 @@ export default function UserProfileScreen() {
               refreshing={
                 profileQuery.isRefetching ||
                 postsQuery.isRefetching ||
-                listsQuery.isRefetching
+                listsQuery.isRefetching ||
+                tasteQuery.isRefetching
               }
               onRefresh={() => {
                 profileQuery.refetch();
                 postsQuery.refetch();
                 listsQuery.refetch();
+                tasteQuery.refetch();
               }}
               tintColor="#55343B"
               colors={["#55343B"]}
@@ -259,6 +264,10 @@ export default function UserProfileScreen() {
               </View>
             )}
           </View>
+
+          {tasteQuery.data?.profile ? (
+            <TasteProfilePanel profile={tasteQuery.data.profile} />
+          ) : null}
 
           {/* Tabs */}
           <View className="mt-8 flex-row border-t border-outline-variant/30">
@@ -325,6 +334,57 @@ function Stat({ value, label }: { value: number; label: string }) {
       <Label className="mt-1 text-[10px] uppercase tracking-widest">
         {label}
       </Label>
+    </View>
+  );
+}
+
+function TasteProfilePanel({ profile }: { profile: ApiTasteProfile }) {
+  if (profile.stats.visits === 0) return null;
+  return (
+    <View className="mx-5 mt-6 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-4">
+      <View className="flex-row items-center justify-between">
+        <LabelCaps>Taste profile</LabelCaps>
+        {profile.matchScore != null ? (
+          <View className="rounded-full bg-surface-container-low px-3 py-1">
+            <Label className="text-[10px]">{profile.matchScore}% match</Label>
+          </View>
+        ) : null}
+      </View>
+      <View className="mt-3 flex-row gap-5">
+        <Stat value={profile.stats.visits} label="Visits" />
+        <Stat value={profile.stats.restaurants} label="Places" />
+        <Stat value={profile.stats.dishes} label="Dishes" />
+      </View>
+      <TasteChips title="Cities" items={profile.topCities} />
+      <TasteChips title="Labels" items={profile.topLabels} />
+      <TasteChips title="Dishes" items={profile.topDishes} />
+    </View>
+  );
+}
+
+function TasteChips({
+  title,
+  items,
+}: {
+  title: string;
+  items: { label: string; count: number }[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <View className="mt-4">
+      <Label className="text-[10px] uppercase tracking-widest">{title}</Label>
+      <View className="mt-2 flex-row flex-wrap gap-2">
+        {items.slice(0, 6).map((item) => (
+          <View
+            key={item.label}
+            className="rounded-full bg-surface-container-low px-3 py-1"
+          >
+            <Text className="font-label text-on-surface-variant text-[11px]">
+              {item.label} · {item.count}
+            </Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -454,7 +514,7 @@ function PhotoTile({ hero, onPress }: { hero: Post; onPress: () => void }) {
 function findHeroUri(post: Post): string | undefined {
   // Objects for any post returned by the feed endpoint are already registered
   // by `mapPost`, so this lookup is a plain cache read — no second fetch.
-  return getObject(post.objectId)?.heroImage;
+  return post.imageUrl || (post.objectId ? getObject(post.objectId)?.heroImage : undefined);
 }
 
 function TextTile({

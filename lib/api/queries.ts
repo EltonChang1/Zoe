@@ -8,6 +8,7 @@ import {
 import { useAuth } from "./AuthProvider";
 import {
   blockUser,
+  completeSpotifyConnect,
   createComment,
   createPost,
   createReport,
@@ -19,39 +20,64 @@ import {
   deleteShort,
   deleteShortComment,
   createRankingList,
+  disconnectSpotify,
   fetchActivity,
   fetchBlockedUsers,
+  fetchCityRankingDetail,
+  fetchConnectedAccounts,
   fetchFeed,
   fetchNotifications,
   fetchObject,
+  fetchPersonalRankHub,
   fetchPost,
   fetchPostComments,
+  fetchQuickVote,
   fetchRankingList,
   fetchRankingLists,
+  fetchRankHubCities,
+  fetchRankHubCity,
+  fetchRestaurantMap,
+  fetchRestaurantRecommendations,
+  fetchSavedLibrary,
+  fetchSearchSuggestions,
   fetchShort,
   fetchShortComments,
   fetchShorts,
+  fetchTasteProfile,
   fetchUserProfile,
   followUser,
   insertRankingEntry,
   likePost,
   likeShort,
+  replaceRankingEntries,
+  removeWantToTryRestaurant,
   savePost,
   saveShort,
   searchAll,
   searchObjects,
+  searchGooglePlaces,
+  searchSpotifyMusic,
+  followSearch,
+  recordSearchEvent,
+  startSpotifyConnect,
+  submitQuickVote,
   unblockUser,
   unfollowUser,
+  unfollowSearch,
   unlikePost,
   unlikeShort,
   unsavePost,
   unsaveShort,
+  upsertGooglePlace,
+  upsertSpotifyMusic,
+  wantToTryRestaurant,
 } from "./endpoints";
 import type {
   CreatePostInput,
   CreateShortInput,
   ReportReason,
   ReportSubjectType,
+  RestaurantVisitInput,
 } from "./endpoints";
 import {
   mapActivityItem,
@@ -71,14 +97,36 @@ import type { ApiPost, ApiShort } from "./types";
  *   ["activity"]         → following-activity (Search tab)
  */
 
-export function useFeedQuery(pageSize = 20) {
+export function useFeedQuery(
+  pageSize = 20,
+  params: {
+    scope?: "for_you" | "home_city" | "anywhere";
+    cityId?: string | null;
+    category?: string | null;
+    savedOnly?: boolean;
+  } = {},
+) {
   const { token } = useAuth();
   return useInfiniteQuery({
-    queryKey: ["feed", { pageSize, viewer: Boolean(token) }],
+    queryKey: [
+      "feed",
+      {
+        pageSize,
+        viewer: Boolean(token),
+        scope: params.scope ?? "for_you",
+        cityId: params.cityId ?? null,
+        category: params.category ?? null,
+        savedOnly: params.savedOnly ?? false,
+      },
+    ],
     queryFn: ({ pageParam }) =>
       fetchFeed({
         limit: pageSize,
         cursor: pageParam ?? undefined,
+        scope: params.scope,
+        cityId: params.cityId,
+        category: params.category,
+        savedOnly: params.savedOnly,
         token,
       }),
     initialPageParam: undefined as string | undefined,
@@ -177,6 +225,49 @@ export function useNotificationsQuery(pageSize = 20) {
   });
 }
 
+// -------- Connected accounts --------
+
+export function useConnectedAccountsQuery() {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: ["connected-accounts", { viewer: Boolean(token) }],
+    enabled: Boolean(token),
+    queryFn: () => fetchConnectedAccounts(token!),
+    staleTime: 30_000,
+  });
+}
+
+export function useStartSpotifyConnect() {
+  const { token } = useAuth();
+  return useMutation({
+    mutationFn: (body: { redirectUri: string }) =>
+      startSpotifyConnect(token!, body),
+  });
+}
+
+export function useCompleteSpotifyConnect() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { code: string; state: string }) =>
+      completeSpotifyConnect(token!, body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["connected-accounts"] });
+    },
+  });
+}
+
+export function useDisconnectSpotify() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => disconnectSpotify(token!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["connected-accounts"] });
+    },
+  });
+}
+
 export function usePostQuery(id: string | undefined) {
   const { token } = useAuth();
   return useQuery({
@@ -212,6 +303,84 @@ export function usePostComments(
       comments: data.pages.flatMap((p) => p.comments),
     }),
     staleTime: 15_000,
+  });
+}
+
+// -------- Restaurant social --------
+
+export function useRestaurantMapQuery(params: {
+  cityId?: string | null;
+  limit?: number;
+} = {}) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: ["restaurants", "map", params.cityId ?? null, params.limit ?? 150, Boolean(token)],
+    queryFn: () =>
+      fetchRestaurantMap({
+        cityId: params.cityId,
+        limit: params.limit,
+        token,
+      }),
+    staleTime: 30_000,
+  });
+}
+
+export function useRestaurantRecommendationsQuery(params: {
+  cityId?: string | null;
+  limit?: number;
+} = {}) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: [
+      "restaurants",
+      "recommendations",
+      params.cityId ?? null,
+      params.limit ?? 20,
+      Boolean(token),
+    ],
+    queryFn: () =>
+      fetchRestaurantRecommendations({
+        cityId: params.cityId,
+        limit: params.limit,
+        token,
+      }),
+    staleTime: 45_000,
+  });
+}
+
+export function useTasteProfileQuery(handle: string | undefined | null) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: ["taste-profile", handle ?? null, Boolean(token)],
+    enabled: Boolean(handle),
+    queryFn: () => fetchTasteProfile(handle!, token),
+    staleTime: 60_000,
+  });
+}
+
+export function useWantToTryRestaurant() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      objectId,
+      wanted,
+    }: {
+      objectId: string;
+      wanted: boolean;
+    }) => {
+      if (wanted) {
+        await removeWantToTryRestaurant(objectId, token!);
+      } else {
+        await wantToTryRestaurant(objectId, token!);
+      }
+      return { ok: true };
+    },
+    onSuccess: (_data, { objectId }) => {
+      qc.invalidateQueries({ queryKey: ["object", objectId] });
+      qc.invalidateQueries({ queryKey: ["restaurants"] });
+      qc.invalidateQueries({ queryKey: ["saved-library"] });
+    },
   });
 }
 
@@ -284,6 +453,8 @@ export function useSavePost() {
       saved ? unsavePost(id, token!) : savePost(id, token!),
     onSuccess: (_data, { id }) => {
       qc.invalidateQueries({ queryKey: ["post", id] });
+      qc.invalidateQueries({ queryKey: ["saved-library"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
     },
   });
 }
@@ -344,6 +515,106 @@ export function useObjectListsQuery(objectId: string | undefined | null) {
       lists: data.lists.map(mapRankingListSummary),
     }),
     staleTime: 30_000,
+  });
+}
+
+// -------- Rank Hub --------
+
+export function useRankHubCitiesQuery() {
+  return useQuery({
+    queryKey: ["rank-hub", "cities"],
+    queryFn: fetchRankHubCities,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useRankHubCityQuery(cityId: string | undefined | null) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: ["rank-hub", "city", cityId ?? null, { viewer: Boolean(token) }],
+    enabled: Boolean(cityId),
+    queryFn: () => fetchRankHubCity({ cityId, token }),
+    staleTime: 30_000,
+  });
+}
+
+export function useCityRankingDetailQuery(listId: string | undefined | null) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: [
+      "rank-hub",
+      "city-list",
+      listId ?? null,
+      { viewer: Boolean(token) },
+    ],
+    enabled: Boolean(listId),
+    queryFn: () => fetchCityRankingDetail(listId!, token),
+    staleTime: 30_000,
+  });
+}
+
+export function usePersonalRankHubQuery(cityId: string | undefined | null) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: [
+      "rank-hub",
+      "personal",
+      cityId ?? null,
+      { viewer: Boolean(token) },
+    ],
+    queryFn: () => fetchPersonalRankHub({ cityId, token }),
+    staleTime: 30_000,
+  });
+}
+
+export function useQuickVoteQuery(input: {
+  cityId?: string | null;
+  listId?: string | null;
+  count?: number;
+}) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: [
+      "rank-hub",
+      "quick-vote",
+      input.cityId ?? null,
+      input.listId ?? null,
+      { count: input.count ?? 5 },
+    ],
+    enabled: Boolean(input.cityId && input.listId),
+    queryFn: () =>
+      fetchQuickVote({
+        cityId: input.cityId!,
+        listId: input.listId!,
+        count: input.count ?? 5,
+        token,
+      }),
+    staleTime: 15_000,
+  });
+}
+
+export function useSubmitQuickVote() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      cityId: string;
+      listId: string;
+      votes: Array<{
+        objectAId: string;
+        objectBId: string;
+        selectedObjectId?: string | null;
+        skipped?: boolean;
+        contextPrompt: string;
+      }>;
+    }) => submitQuickVote(token!, body),
+    onSuccess: (_data, body) => {
+      qc.invalidateQueries({ queryKey: ["rank-hub", "city", body.cityId] });
+      qc.invalidateQueries({
+        queryKey: ["rank-hub", "city-list", body.listId],
+      });
+      qc.invalidateQueries({ queryKey: ["rank-hub", "quick-vote"] });
+    },
   });
 }
 
@@ -1021,10 +1292,11 @@ export function useDeleteShortComment() {
 }
 
 export function useObjectQuery(id: string | undefined | null) {
+  const { token } = useAuth();
   return useQuery({
-    queryKey: ["object", id ?? null],
+    queryKey: ["object", id ?? null, Boolean(token)],
     enabled: Boolean(id),
-    queryFn: () => fetchObject(id!),
+    queryFn: () => fetchObject(id!, token),
     select: (data) => data.object,
     staleTime: 60_000,
   });
@@ -1085,6 +1357,208 @@ export function useSearchAllQuery(
   });
 }
 
+export function useSearchSuggestionsQuery() {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: ["search", "suggestions", { viewer: Boolean(token) }],
+    queryFn: () => fetchSearchSuggestions(token),
+    staleTime: 30_000,
+  });
+}
+
+export function useRecordSearchEvent() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      query: string;
+      resultType?: "object" | "post" | "user" | "list" | "google_place" | "prompt";
+      resultId?: string;
+    }) => {
+      if (!token) return Promise.resolve({ ok: true as const });
+      return recordSearchEvent(token, body);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["search", "suggestions"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}
+
+export function useFollowSearch() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (query: string) => {
+      if (!token) {
+        return Promise.resolve({
+          followed: {
+            id: "local",
+            userId: "anonymous",
+            query,
+            normalizedQuery: query.trim().toLowerCase(),
+            inferredCategory: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        });
+      }
+      return followSearch(token, query);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["search", "suggestions"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+}
+
+export function useUnfollowSearch() {
+  const { token } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => unfollowSearch(token!, id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["search", "suggestions"] });
+    },
+  });
+}
+
+export function useSavedLibraryQuery(params: {
+  cityId?: string | null;
+  limit?: number;
+} = {}) {
+  const { token } = useAuth();
+  return useQuery({
+    queryKey: [
+      "saved-library",
+      params.cityId ?? null,
+      params.limit ?? 20,
+      { viewer: Boolean(token) },
+    ],
+    enabled: Boolean(token),
+    queryFn: () =>
+      fetchSavedLibrary({
+        token: token!,
+        cityId: params.cityId,
+        limit: params.limit,
+      }),
+    select: (data) => ({
+      ...data,
+      posts: data.posts.map(mapPost),
+    }),
+    staleTime: 30_000,
+  });
+}
+
+export function useGooglePlaceSearchQuery(
+  query: string,
+  opts: {
+    cityId?: string | null;
+    type?: "all" | "place" | "restaurant" | "cafe" | "bar";
+    sessionToken?: string | null;
+    limit?: number;
+    minLength?: number;
+  } = {},
+) {
+  const {
+    cityId = null,
+    type = "all",
+    sessionToken = null,
+    limit = 8,
+    minLength = 2,
+  } = opts;
+  const trimmed = query.trim();
+  return useQuery({
+    queryKey: [
+      "places",
+      "google",
+      trimmed,
+      { cityId, type, sessionToken: Boolean(sessionToken), limit },
+    ],
+    enabled: trimmed.length >= minLength,
+    queryFn: () =>
+      searchGooglePlaces({
+        query: trimmed,
+        cityId,
+        type,
+        sessionToken,
+        limit,
+      }),
+    staleTime: 30_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useUpsertGooglePlace() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      placeId: string;
+      sessionToken?: string | null;
+      cityId?: string | null;
+    }) => upsertGooglePlace(body),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["search"] });
+      qc.invalidateQueries({ queryKey: ["places"] });
+      qc.invalidateQueries({ queryKey: ["object", data.object.id] });
+    },
+  });
+}
+
+export function useSpotifyMusicSearchQuery(
+  query: string,
+  opts: {
+    type?: "album" | "track" | "all";
+    market?: string | null;
+    limit?: number;
+    minLength?: number;
+  } = {},
+) {
+  const { token } = useAuth();
+  const {
+    type = "all",
+    market = null,
+    limit = 8,
+    minLength = 2,
+  } = opts;
+  const trimmed = query.trim();
+  return useQuery({
+    queryKey: [
+      "music",
+      "spotify",
+      trimmed,
+      { type, market, limit, viewer: Boolean(token) },
+    ],
+    enabled: trimmed.length >= minLength,
+    queryFn: () =>
+      searchSpotifyMusic({
+        query: trimmed,
+        type,
+        market,
+        limit,
+        token,
+      }),
+    staleTime: 60_000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useUpsertSpotifyMusic() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      itemType: "album" | "track";
+      providerItemId: string;
+      market?: string | null;
+    }) => upsertSpotifyMusic(body),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["search"] });
+      qc.invalidateQueries({ queryKey: ["music"] });
+      qc.invalidateQueries({ queryKey: ["object", data.object.id] });
+    },
+  });
+}
+
 // -------- Mutations: ranking lists --------
 
 /**
@@ -1101,12 +1575,16 @@ export function useCreateRankingList() {
       description?: string;
       visibility?: "public" | "followers" | "private";
       coverImage?: string;
+      cityId?: string;
+      listType?: "official_city_connected" | "custom_personal";
+      linkedCityRankingListId?: string;
     }) => createRankingList(token!, body),
     onSuccess: () => {
       qc.invalidateQueries({
         queryKey: ["ranking-lists", "owner", user?.handle ?? null],
       });
       qc.invalidateQueries({ queryKey: ["ranking-lists", "community"] });
+      qc.invalidateQueries({ queryKey: ["rank-hub"] });
     },
   });
 }
@@ -1125,18 +1603,67 @@ export function useInsertRankingEntry() {
       objectId,
       insertAt,
       note,
+      imageUrl,
+      publishPost,
+      mentionedUserIds,
+      restaurantVisit,
     }: {
       listId: string;
       objectId: string;
       insertAt: number;
       note?: string;
-    }) => insertRankingEntry(listId, token!, { objectId, insertAt, note }),
+      imageUrl?: string;
+      publishPost?: {
+        headline?: string;
+        caption?: string;
+        tags?: string[];
+      };
+      mentionedUserIds?: string[];
+      restaurantVisit?: RestaurantVisitInput;
+    }) =>
+      insertRankingEntry(listId, token!, {
+        objectId,
+        insertAt,
+        note,
+        imageUrl,
+        publishPost,
+        mentionedUserIds,
+        restaurantVisit,
+      }),
     onSuccess: (_data, { listId }) => {
       qc.invalidateQueries({ queryKey: ["ranking-list", listId] });
       qc.invalidateQueries({
         queryKey: ["ranking-lists", "owner", user?.handle ?? null],
       });
       qc.invalidateQueries({ queryKey: ["ranking-lists", "community"] });
+      qc.invalidateQueries({ queryKey: ["rank-hub"] });
+      qc.invalidateQueries({ queryKey: ["feed"] });
+      qc.invalidateQueries({ queryKey: ["activity"] });
+      if (user?.handle) {
+        qc.invalidateQueries({ queryKey: ["feed", "author", user.handle] });
+        qc.invalidateQueries({ queryKey: ["user-profile", user.handle] });
+      }
+    },
+  });
+}
+
+export function useReplaceRankingEntries() {
+  const { token, user } = useAuth();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      listId,
+      entries,
+    }: {
+      listId: string;
+      entries: Array<{ objectId: string; note?: string }>;
+    }) => replaceRankingEntries(listId, token!, { entries }),
+    onSuccess: (_data, { listId }) => {
+      qc.invalidateQueries({ queryKey: ["ranking-list", listId] });
+      qc.invalidateQueries({
+        queryKey: ["ranking-lists", "owner", user?.handle ?? null],
+      });
+      qc.invalidateQueries({ queryKey: ["rank-hub"] });
     },
   });
 }

@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { View } from "react-native";
 
+import { DEFAULT_BOT_AVATAR_URL } from "@/lib/avatar";
 import { cn } from "@/lib/cn";
 
 type Size = "xs" | "sm" | "md" | "lg" | "xl";
@@ -23,7 +24,7 @@ export function Avatar({
   ring = false,
   className,
 }: {
-  uri: string;
+  uri?: string | null;
   size?: Size;
   ring?: boolean;
   className?: string;
@@ -39,7 +40,7 @@ export function Avatar({
       style={ring ? { borderRadius: radius + 2 } : undefined}
     >
       <Image
-        source={{ uri }}
+        source={{ uri: uri ?? DEFAULT_BOT_AVATAR_URL }}
         style={{
           width: box,
           height: box,

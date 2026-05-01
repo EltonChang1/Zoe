@@ -19,6 +19,8 @@ import { getHiddenUserIds } from "../lib/moderation.js";
  *
  *   like          →  Like.where(post.authorId = me)
  *   follow        →  Follow.where(followeeId  = me)
+ *   mention       →  PostMention.where(userId = me)
+ *   companion_tag →  RestaurantVisitCompanion.where(userId = me)
  *   comment       →  Comment.where(post.authorId = me, parentId is null)
  *   reply         →  Comment.where(parent.authorId = me, parentId is not null)
  *
@@ -48,7 +50,7 @@ const querySchema = z.object({
   before: z.string().datetime().optional(),
 });
 
-type NotifType = "like" | "comment" | "reply" | "follow";
+type NotifType = "like" | "comment" | "reply" | "follow" | "mention" | "companion_tag";
 
 type ActorSnapshot = {
   id: string;
@@ -97,7 +99,7 @@ export const notificationsRouter = new Hono<{ Variables: AuthVariables }>().get(
     const hidden = await getHiddenUserIds(me.id);
     const notHidden = hidden.length > 0 ? { notIn: hidden } : undefined;
 
-    const [likes, follows, comments, replies] = await Promise.all([
+    const [likes, follows, comments, replies, mentions, companionTags] = await Promise.all([
       prisma.like.findMany({
         where: {
           post: { authorId: me.id },
@@ -159,6 +161,43 @@ export const notificationsRouter = new Hono<{ Variables: AuthVariables }>().get(
           post: { select: { id: true, headline: true } },
         },
       }),
+      prisma.postMention.findMany({
+        where: {
+          userId: me.id,
+          createdById: { not: me.id, ...(notHidden ?? {}) },
+          ...(cursorFilter ? { createdAt: cursorFilter } : {}),
+        },
+        orderBy: { createdAt: "desc" },
+        take,
+        include: {
+          createdBy: {
+            select: { id: true, handle: true, displayName: true, avatarUrl: true },
+          },
+          post: { select: { id: true, headline: true } },
+        },
+      }),
+      prisma.restaurantVisitCompanion.findMany({
+        where: {
+          userId: me.id,
+          visit: {
+            authorId: { not: me.id, ...(notHidden ?? {}) },
+          },
+          ...(cursorFilter ? { createdAt: cursorFilter } : {}),
+        },
+        orderBy: { createdAt: "desc" },
+        take,
+        include: {
+          visit: {
+            include: {
+              author: {
+                select: { id: true, handle: true, displayName: true, avatarUrl: true },
+              },
+              post: { select: { id: true, headline: true } },
+              object: { select: { title: true } },
+            },
+          },
+        },
+      }),
     ]);
 
     const merged: NotificationItem[] = [
@@ -200,6 +239,28 @@ export const notificationsRouter = new Hono<{ Variables: AuthVariables }>().get(
           commentBody: cm.body,
         },
       })),
+      ...mentions.map((mention): NotificationItem => ({
+        id: `mention:${mention.id}`,
+        type: "mention",
+        actor: mention.createdBy,
+        createdAt: mention.createdAt,
+        target: {
+          postId: mention.post.id,
+          postHeadline: mention.post.headline,
+        },
+      })),
+      ...companionTags
+        .filter((tag) => tag.visit.post)
+        .map((tag): NotificationItem => ({
+          id: `companion_tag:${tag.visitId}:${tag.userId}`,
+          type: "companion_tag",
+          actor: tag.visit.author,
+          createdAt: tag.createdAt,
+          target: {
+            postId: tag.visit.post?.id,
+            postHeadline: tag.visit.post?.headline ?? tag.visit.object.title,
+          },
+        })),
     ];
 
     merged.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

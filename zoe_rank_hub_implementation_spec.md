@@ -56,7 +56,7 @@ Pittsburgh cafés
 Zoe should let them open:
 
 ```text
-Rank Hub → City → Pittsburgh → Best Restaurants / Best Cafés / Best Spots
+Rank Hub → City → Pittsburgh → Best Places to Go / Best Restaurants / Best Cafés
 ```
 
 and immediately see community-ranked answers.
@@ -148,7 +148,7 @@ City tab must show:
 
 MVP Featured Rankings:
 
-- Best Spots
+- Best Places to Go
 - Best Restaurants
 - Best Cafés
 
@@ -212,7 +212,7 @@ Your Rankings
 Rank something ▼
 
 Suggested from Pittsburgh:
-[ Best Spots ]
+[ Best Places to Go ]
 [ Best Restaurants ]
 [ Best Cafés ]
 
@@ -235,7 +235,7 @@ What do you want to rank?
 Official Pittsburgh Rankings
 These help shape the city rankings.
 
-[ Best Spots ]
+[ Best Places to Go ]
 Not started
 
 [ Best Restaurants ]
@@ -422,7 +422,7 @@ official_city_ranking_list:
   city_id: string
   title: string
   slug: string
-  category: enum[best_spots, restaurant, cafe, bar, date_night, study_spot, hidden_gem, new_rising, cheap_eats]
+  category: enum[places_to_go, restaurant, cafe]
   is_official: boolean
   accepts_user_contribution: boolean
   contribution_source: enum[official_personal_lists, pairwise_votes, hybrid]
@@ -642,7 +642,7 @@ RankingSaveConfirmation
 - [ ] User can switch between City and Personal.
 - [ ] User can select or add a city.
 - [ ] City tab shows official city ranking cards.
-- [ ] MVP official cards include Best Spots, Best Restaurants, Best Cafés.
+- [ ] MVP official cards include Best Places to Go, Best Restaurants, Best Cafés.
 - [ ] Each card shows top entries and ranked-by count.
 - [ ] User can open full official city list detail page.
 - [ ] City list detail shows CityTaste Score.
@@ -881,32 +881,16 @@ The City tab should show official city ranking lists first.
 ```text
 Featured Rankings
 
-[ Best Spots ]
+[ Best Places to Go ]
 [ Restaurants ]
 [ Cafés ]
-
-[ Bars ]
-[ Date Night ]
-[ Study Spots ]
-
-[ Hidden Gems ]
-[ New & Rising ]
-[ Cheap Eats ]
 ```
 
-For MVP, I would start with only the strongest three:
+Official city rankings are limited to these three:
 
-1. **Best Spots**
+1. **Best Places to Go**
 2. **Best Restaurants**
 3. **Best Cafés**
-
-Then add:
-
-4. Best Bars
-5. Best Date Night
-6. Best Study Spots
-7. Hidden Gems
-8. New & Rising
 
 The key is that these are **official city lists**, not user-created lists.
 
@@ -1025,7 +1009,7 @@ For example:
 | --------------------------------------- | --------------------------: | ------------------------------ |
 | My Best Pittsburgh Restaurants          |                         Yes | Matches official city category |
 | My Best Pittsburgh Cafés                |                         Yes | Matches official city category |
-| My Best Spots in Pittsburgh             |                         Yes | Matches official city category |
+| My Best Places to Go in Pittsburgh      |                         Yes | Matches official city category |
 | My Favorite Places to Cry in Pittsburgh |                          No | Custom personal list           |
 | Places I Took My Ex                     |                          No | Custom personal list           |
 | Best Asian Food Near Campus             |                 Maybe later | Not an official MVP category   |
@@ -1049,7 +1033,7 @@ Your Rankings
 Rank something ▼
 
 Suggested from Pittsburgh:
-[ Best Spots ]
+[ Best Places to Go ]
 [ Best Restaurants ]
 [ Best Cafés ]
 
@@ -1082,7 +1066,7 @@ What do you want to rank?
 Official Pittsburgh Rankings
 These help shape the city rankings.
 
-[ Best Spots ]
+[ Best Places to Go ]
 Not started
 
 [ Best Restaurants ]
@@ -1090,9 +1074,6 @@ Not started
 
 [ Best Cafés ]
 Not started
-
-[ Best Bars ]
-Coming soon
 
 Personal Lists
 These are for your profile only.
@@ -1512,7 +1493,7 @@ Thanks — you helped improve Pittsburgh’s café rankings.
 
 Your impact:
 Best Cafés +5
-Study Spots +2
+Best Restaurants +2
 
 [ View Updated List ]
 ```
@@ -1536,7 +1517,7 @@ This gives casual users a way to participate even if they do not want to build a
 |----------------------------------|
 | Featured Rankings                |
 |                                  |
-| [ Best Spots ]                   |
+| [ Best Places to Go ]            |
 | #1 Pusadee’s Garden              |
 | #2 Arriviste Coffee Bar          |
 | #3 Afterglow                     |
@@ -1582,7 +1563,7 @@ This gives casual users a way to participate even if they do not want to build a
 | Official Pittsburgh Rankings     |
 | These help shape city rankings   |
 |                                  |
-| Best Spots                       |
+| Best Places to Go                |
 | Not started                      |
 | [ Start ]                        |
 |                                  |
@@ -1617,13 +1598,9 @@ This gives casual users a way to participate even if they do not want to build a
 | Official Pittsburgh Rankings     |
 | These count toward city rankings |
 |                                  |
-| [ Best Spots ]                   |
+| [ Best Places to Go ]            |
 | [ Best Restaurants ]             |
 | [ Best Cafés ]                   |
-|                                  |
-| More official rankings           |
-| [ Bars ] [ Date Night ]          |
-| [ Study Spots ] [ Hidden Gems ]  |
 |----------------------------------|
 | Personal Lists                   |
 | These appear on your profile     |
@@ -1676,7 +1653,7 @@ city:
   country: United States
   active_rankers_count: 1284
   featured_lists:
-    - best_spots
+    - places_to_go
     - best_restaurants
     - best_cafes
 ```
@@ -1811,7 +1788,7 @@ Set your city to see official community rankings.
 Pittsburgh rankings are just getting started.
 
 Be one of the first people to shape:
-- Best Spots
+- Best Places to Go
 - Best Restaurants
 - Best Cafés
 
@@ -1911,7 +1888,7 @@ Allowed, fun, expressive, and profile-worthy — but not counted toward official
 Instead of forcing users to search through endless RedNote posts, Zoe gives them the answer directly:
 
 ```text
-Best Spots.
+Best Places to Go.
 Best Restaurants.
 Best Cafés.
 Ranked by the people who actually live the city.

@@ -7,13 +7,18 @@ import { env } from "./env.js";
 import { logger } from "./logger.js";
 import { HttpError, sendError } from "./http/errors.js";
 import { authRouter } from "./routes/auth.js";
+import { connectedAccountsRouter } from "./routes/connected-accounts.js";
 import { feedRouter } from "./routes/feed.js";
+import { musicRouter } from "./routes/music.js";
 import { notificationsRouter } from "./routes/notifications.js";
 import { objectsRouter } from "./routes/objects.js";
 import { postsRouter } from "./routes/posts.js";
+import { placesRouter } from "./routes/places.js";
 import { pushTokensRouter } from "./routes/push-tokens.js";
+import { rankHubRouter } from "./routes/rank-hub.js";
 import { rankingListsRouter } from "./routes/ranking-lists.js";
 import { reportsRouter } from "./routes/reports.js";
+import { restaurantsRouter } from "./routes/restaurants.js";
 import { searchRouter } from "./routes/search.js";
 import { shortsRouter } from "./routes/shorts.js";
 import { uploadsRouter } from "./routes/uploads.js";
@@ -29,7 +34,7 @@ app.use(
     origin: (origin) => origin ?? "*",
     credentials: false,
     allowHeaders: ["Authorization", "Content-Type"],
-    allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     maxAge: 86_400,
   }),
 );
@@ -50,16 +55,21 @@ app.get("/health", (c) =>
 
 // --- API routes --------------------------------------------------------
 app.route("/auth", authRouter);
+app.route("/connected-accounts", connectedAccountsRouter);
 // `/users/me/...` must be registered BEFORE `/users/:handle` so the
 // static-segment route wins over the parameterised one. Hono matches in
 // registration order.
 app.route("/users", myBlocksRouter);
 app.route("/users", usersRouter);
 app.route("/objects", objectsRouter);
+app.route("/music", musicRouter);
+app.route("/places", placesRouter);
 app.route("/posts", postsRouter);
 app.route("/push-tokens", pushTokensRouter);
+app.route("/rank-hub", rankHubRouter);
 app.route("/ranking-lists", rankingListsRouter);
 app.route("/reports", reportsRouter);
+app.route("/restaurants", restaurantsRouter);
 app.route("/search", searchRouter);
 app.route("/shorts", shortsRouter);
 app.route("/uploads", uploadsRouter);

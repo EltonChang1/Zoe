@@ -35,14 +35,43 @@ import { useAuth, useFeedQuery, useNotifications } from "@/lib/api";
  *  - An editorial quote card is injected at a stable spot (~25% in).
  */
 
-const CATEGORIES = [
-  "For You",
-  "Cafés",
-  "Travel",
-  "Perfume",
-  "Albums",
-  "Fashion",
-  "Food",
+const FEED_CHIPS = [
+  {
+    id: "for_you",
+    label: "For You",
+    title: "For you, today",
+    params: { scope: "for_you" as const },
+  },
+  {
+    id: "nearby_cafes",
+    label: "Cafés near you",
+    title: "Cafés near you",
+    params: { scope: "home_city" as const, category: "cafe" },
+  },
+  {
+    id: "date_night",
+    label: "Date night",
+    title: "Date night picks",
+    params: { scope: "home_city" as const, category: "restaurant" },
+  },
+  {
+    id: "saved_nearby",
+    label: "Saved nearby",
+    title: "Saved nearby",
+    params: { scope: "home_city" as const, savedOnly: true },
+  },
+  {
+    id: "trending_city",
+    label: "Trending here",
+    title: "Trending in your city",
+    params: { scope: "home_city" as const },
+  },
+  {
+    id: "anywhere",
+    label: "Anywhere",
+    title: "Anywhere on Zoe",
+    params: { scope: "anywhere" as const },
+  },
 ];
 
 type QuoteEntry = {
@@ -67,7 +96,9 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { unreadCount } = useNotifications();
-  const [activeCat, setActiveCat] = useState("For You");
+  const [activeChipId, setActiveChipId] = useState("for_you");
+  const activeChip =
+    FEED_CHIPS.find((chip) => chip.id === activeChipId) ?? FEED_CHIPS[0]!;
 
   const {
     data,
@@ -79,13 +110,19 @@ export default function HomeScreen() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useFeedQuery();
+  } = useFeedQuery(20, {
+    ...activeChip.params,
+    cityId:
+      activeChip.params.scope === "home_city"
+        ? user?.preferredCityId ?? user?.homeCityId ?? null
+        : null,
+  });
 
   const { width: screenWidth } = useWindowDimensions();
   // feed gutter: px-4 on wrapper, gap-3 between columns -> 16 + 12 + 16 = 44
   const columnWidth = (screenWidth - 44) / 2;
 
-  const posts = data?.posts ?? [];
+  const posts = useMemo(() => data?.posts ?? [], [data?.posts]);
 
   const { left, right } = useMemo(
     () => distributeIntoColumns(posts, EDITORS_NOTE, columnWidth),
@@ -166,11 +203,7 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             ) : null}
-            {user?.avatarUrl ? (
-              <Avatar uri={user.avatarUrl} size="sm" />
-            ) : (
-              <View className="w-8 h-8 rounded-full bg-surface-container" />
-            )}
+            <Avatar uri={user?.avatarUrl} size="sm" />
           </View>
         }
       />
@@ -198,12 +231,12 @@ export default function HomeScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
         >
           <View className="flex-row gap-2">
-            {CATEGORIES.map((c) => (
+            {FEED_CHIPS.map((c) => (
               <Chip
-                key={c}
-                label={c}
-                variant={c === activeCat ? "active" : "filled"}
-                onPress={() => setActiveCat(c)}
+                key={c.id}
+                label={c.label}
+                variant={c.id === activeChipId ? "active" : "filled"}
+                onPress={() => setActiveChipId(c.id)}
               />
             ))}
           </View>
@@ -211,7 +244,7 @@ export default function HomeScreen() {
 
         <View className="px-5 mb-3">
           <HeadlineItalic className="text-[28px] text-primary">
-            {activeCat === "For You" ? "For you, today" : activeCat}
+            {activeChip.title}
           </HeadlineItalic>
         </View>
 

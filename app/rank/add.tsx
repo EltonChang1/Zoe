@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { MusicPicker } from "@/components/music/MusicPicker";
+import { PlacePicker } from "@/components/places/PlacePicker";
 import {
   Body,
   Display,
@@ -23,19 +25,31 @@ import {
   LabelCaps,
 } from "@/components/ui/Text";
 import { cn } from "@/lib/cn";
-import { getObject } from "@/data/objects";
 import { gradients } from "@/theme/tokens";
+import {
+  PairwiseCompareStep,
+  usePairwiseInsertion,
+} from "@/components/rank/PairwiseCompare";
+import {
+  RestaurantSocialFields,
+  emptyRestaurantSocialDraft,
+  isRestaurantLikeClientObject,
+  mentionedUserIdsFromDraft,
+  restaurantVisitInputFromDraft,
+  type RestaurantSocialDraft,
+} from "@/components/social/RestaurantSocialFields";
 import {
   useAuth,
   useCreateRankingList,
   useInsertRankingEntry,
   useObjectQuery,
-  useObjectSearchQuery,
   useOwnerRankingListsQuery,
   useRankingListQuery,
 } from "@/lib/api";
 import type { ApiSearchObjectHit } from "@/lib/api/types";
 import { ApiHttpError } from "@/lib/api/client";
+import { pickAndUploadImage } from "@/lib/api/uploads";
+import { displayObjectType } from "@/lib/objects/display";
 
 /**
  * Add-to-Ranking (PRD §13, Spec SCREEN 16) — live.
@@ -48,29 +62,34 @@ import { ApiHttpError } from "@/lib/api/client";
  * `POST /ranking-lists/:id/entries { objectId, insertAt, note }` to the
  * transactional ranking engine, which dense-shifts existing ranks server-side.
  */
-type Step = "category" | "search" | "compare" | "caption" | "confirm";
-const STEPS: Step[] = ["category", "search", "compare", "caption", "confirm"];
+type Step = "category" | "search" | "compare" | "photo" | "caption" | "confirm";
+const STEPS: Step[] = ["category", "search", "compare", "photo", "caption", "confirm"];
 
 export default function AddToRankingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, token } = useAuth();
 
   // Optional deep-link: `?objectId=O001` pre-selects the subject and skips
   // the search step — e.g. tapping "Add to a ranking" on an object page.
-  const { objectId: objectIdParam } = useLocalSearchParams<{
+  const { objectId: objectIdParam, listId: listIdParam } = useLocalSearchParams<{
     objectId?: string;
+    listId?: string;
   }>();
   const preselectQuery = useObjectQuery(objectIdParam ?? null);
 
-  const [step, setStep] = useState<Step>("category");
-  const [listId, setListId] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>(
+    listIdParam ? (objectIdParam ? "compare" : "search") : "category",
+  );
+  const [listId, setListId] = useState<string | null>(listIdParam ?? null);
   const [picked, setPicked] = useState<PickedObject | null>(null);
-  const [lo, setLo] = useState(0);
-  const [hi, setHi] = useState(0);
-  const [mid, setMid] = useState(0);
-  const [insertIndex, setInsertIndex] = useState<number | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const pairwise = usePairwiseInsertion();
   const [note, setNote] = useState("");
+  const [socialDraft, setSocialDraft] = useState<RestaurantSocialDraft>(
+    emptyRestaurantSocialDraft,
+  );
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Hydrate `picked` from the deep-link payload once the object detail lands.
@@ -90,6 +109,7 @@ export default function AddToRankingScreen() {
         "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=1200&q=80",
       type: o.type,
     });
+    if (isMusicType(o.type)) setImageUrl(o.heroImage ?? "");
   }, [objectIdParam, picked, preselectQuery.data]);
 
   const listQuery = useRankingListQuery(listId ?? undefined);
@@ -109,54 +129,68 @@ export default function AddToRankingScreen() {
     }
     if (!list || compareSeeded) return;
     const count = list.entries.length;
-    if (count === 0) {
-      setInsertIndex(0);
-      setStep("caption");
+    const doneIndex = pairwise.start(count);
+    if (doneIndex !== null) {
+      setStep(needsPhoto(picked) ? "photo" : "caption");
       return;
     }
-    setLo(0);
-    setHi(count - 1);
-    setMid(Math.floor(count / 2));
     setCompareSeeded(true);
-  }, [step, list, compareSeeded]);
+  }, [step, list, compareSeeded, pairwise, pairwise.start]);
 
-  const startCompare = (entriesCount: number) => {
-    if (entriesCount === 0) {
-      setInsertIndex(0);
-      setStep("caption");
+  const startCompare = (entriesCount: number, subject: PickedObject | null = picked) => {
+    const doneIndex = pairwise.start(entriesCount);
+    if (doneIndex !== null) {
+      setStep(needsPhoto(subject) ? "photo" : "caption");
       return;
     }
-    setLo(0);
-    setHi(entriesCount - 1);
-    setMid(Math.floor(entriesCount / 2));
     setStep("compare");
+  };
+
+  const advanceToPublishPrep = () => {
+    if (needsPhoto(picked)) {
+      setStep("photo");
+      return;
+    }
+    if (picked?.heroImage && isMusicType(picked.type) && !imageUrl) {
+      setImageUrl(picked.heroImage);
+    }
+    setStep("caption");
   };
 
   const pairwiseAnswer = (newIsBetter: boolean) => {
     if (!list) return;
-    if (newIsBetter) {
-      if (mid === lo) {
-        setInsertIndex(mid);
-        setStep("caption");
-        return;
-      }
-      const nextHi = mid - 1;
-      setHi(nextHi);
-      setMid(Math.floor((lo + nextHi) / 2));
-    } else {
-      if (mid === hi) {
-        setInsertIndex(mid + 1);
-        setStep("caption");
-        return;
-      }
-      const nextLo = mid + 1;
-      setLo(nextLo);
-      setMid(Math.floor((nextLo + hi) / 2));
+    const doneIndex = pairwise.answer(newIsBetter);
+    if (doneIndex !== null) advanceToPublishPrep();
+  };
+
+  const handleUploadImage = async () => {
+    if (!token) return;
+    setSubmitError(null);
+    setUploadingImage(true);
+    try {
+      const uploaded = await pickAndUploadImage(token, {
+        allowsEditing: false,
+        quality: 0.85,
+      });
+      if (uploaded) setImageUrl(uploaded.publicUrl);
+    } catch (e) {
+      setSubmitError(
+        e instanceof Error ? e.message : "Couldn't upload that image.",
+      );
+    } finally {
+      setUploadingImage(false);
     }
   };
 
   const handlePublish = async () => {
+    const insertIndex = pairwise.insertIndex;
     if (!list || !picked || insertIndex == null) return;
+    const publishImageUrl = needsPhoto(picked) ? imageUrl : imageUrl || picked.heroImage;
+    if (!publishImageUrl) {
+      setSubmitError("Upload a photo before publishing this ranking.");
+      setStep("photo");
+      return;
+    }
     setSubmitError(null);
     try {
       await insertMutation.mutateAsync({
@@ -164,6 +198,15 @@ export default function AddToRankingScreen() {
         objectId: picked.id,
         insertAt: insertIndex + 1, // UI index -> 1-indexed rank
         note: note.trim() || undefined,
+        imageUrl: publishImageUrl,
+        publishPost: {
+          headline: `${picked.title} is #${insertIndex + 1} in ${list.title}`,
+          caption: note.trim() || `Added to ${list.title}.`,
+        },
+        mentionedUserIds: mentionedUserIdsFromDraft(socialDraft),
+        restaurantVisit: isRestaurantLikeClientObject(picked.type)
+          ? restaurantVisitInputFromDraft(socialDraft)
+          : undefined,
       });
       router.replace(`/ranking-list/${list.id}`);
     } catch (e) {
@@ -246,8 +289,8 @@ export default function AddToRankingScreen() {
               // If the subject is already chosen (deep-link), skip search.
               if (picked) {
                 if (entriesCount === 0) {
-                  setInsertIndex(0);
-                  setStep("caption");
+                  pairwise.setInsertIndex(0);
+                  setStep(needsPhoto(picked) ? "photo" : "caption");
                 } else {
                   // `useRankingListQuery` will hydrate once listId is set —
                   // the "compare" step handles the loading state itself.
@@ -262,6 +305,9 @@ export default function AddToRankingScreen() {
 
         {step === "search" && listId && (
           <SearchStep
+            cityId={listQuery.data?.raw.cityId ?? null}
+            category={list?.category}
+            placeType={placeSearchTypeFromCategory(list?.category)}
             onPick={(hit) => {
               const p: PickedObject = {
                 id: hit.id,
@@ -274,6 +320,8 @@ export default function AddToRankingScreen() {
                 type: hit.type,
               };
               setPicked(p);
+              setSocialDraft(emptyRestaurantSocialDraft());
+              setImageUrl(isMusicType(p.type) ? p.heroImage : "");
               // We need the list loaded to know entry count for pairwise.
               const entriesCount = list?.entries.length ?? 0;
               if (listQuery.isLoading) {
@@ -281,22 +329,21 @@ export default function AddToRankingScreen() {
                 setStep("compare");
                 return;
               }
-              startCompare(entriesCount);
+              startCompare(entriesCount, p);
             }}
             picked={picked}
           />
         )}
 
         {step === "compare" && list && picked && (
-          <CompareStep
-            list={list}
+          <PairwiseCompareStep
             picked={picked}
-            midObjectId={list.entries[mid]?.objectId}
-            midRank={mid + 1}
+            midObjectId={list.entries[pairwise.mid]?.objectId}
+            midRank={pairwise.mid + 1}
             onAnswer={pairwiseAnswer}
             onTie={() => {
-              setInsertIndex(mid + 1);
-              setStep("caption");
+              pairwise.tie();
+              advanceToPublishPrep();
             }}
           />
         )}
@@ -307,13 +354,28 @@ export default function AddToRankingScreen() {
           </View>
         )}
 
+        {step === "photo" && picked && (
+          <PhotoStep
+            picked={picked}
+            imageUrl={imageUrl}
+            uploading={uploadingImage}
+            error={submitError}
+            onUpload={handleUploadImage}
+            onNext={() => setStep("caption")}
+          />
+        )}
+
         {step === "caption" && picked && list && (
           <CaptionStep
             list={list}
             picked={picked}
-            insertIndex={insertIndex ?? 0}
+            imageUrl={imageUrl || picked.heroImage}
+            insertIndex={pairwise.insertIndex ?? 0}
             note={note}
             onChangeNote={setNote}
+            socialDraft={socialDraft}
+            onChangeSocialDraft={setSocialDraft}
+            restaurantEnabled={isRestaurantLikeClientObject(picked.type)}
             onNext={() => setStep("confirm")}
           />
         )}
@@ -322,7 +384,8 @@ export default function AddToRankingScreen() {
           <ConfirmStep
             list={list}
             picked={picked}
-            insertIndex={insertIndex ?? 0}
+            imageUrl={imageUrl || picked.heroImage}
+            insertIndex={pairwise.insertIndex ?? 0}
             note={note}
             submitting={insertMutation.isPending}
             error={submitError}
@@ -344,6 +407,14 @@ type PickedObject = {
   heroImage: string;
   type: string;
 };
+
+function isMusicType(type: string | undefined | null) {
+  return type === "album" || type === "track";
+}
+
+function needsPhoto(picked: PickedObject | null) {
+  return Boolean(picked && !isMusicType(picked.type));
+}
 
 type ListLite = {
   id: string;
@@ -425,7 +496,7 @@ function CategoryStep({
               className="mt-0.5 text-[11px]"
               numberOfLines={1}
             >
-              {preselected.subtitle ?? preselected.type}
+              {preselected.subtitle ?? displayObjectType(preselected.type)}
               {preselected.city ? ` · ${preselected.city}` : ""}
             </Label>
           </View>
@@ -440,7 +511,7 @@ function CategoryStep({
 
       {isError && (
         <View className="mt-6 rounded-xl bg-surface-container-low p-4">
-          <Body>Couldn't load your lists.</Body>
+          <Body>{"Couldn't load your lists."}</Body>
           <View className="mt-3">
             <Button label="Try again" onPress={() => refetch()} />
           </View>
@@ -550,264 +621,179 @@ function CategoryStep({
 
 // ---------------- Search ----------------
 
-function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(t);
-  }, [value, delayMs]);
-  return debounced;
-}
-
 function SearchStep({
   onPick,
   picked,
+  cityId,
+  category,
+  placeType,
 }: {
   onPick: (hit: ApiSearchObjectHit) => void;
   picked: PickedObject | null;
+  cityId?: string | null;
+  category?: string;
+  placeType: "all" | "place" | "restaurant" | "cafe" | "bar";
 }) {
-  const [query, setQuery] = useState("");
-  const debounced = useDebouncedValue(query, 220);
-  const { data, isFetching, isError } = useObjectSearchQuery(debounced);
+  const musicType = musicSearchTypeFromCategory(category);
 
-  const results = data?.objects ?? [];
-
-  return (
-    <View>
-      <LabelCaps>Step two</LabelCaps>
-      <Display className="mt-2 text-[34px] leading-[38px]">
-        What are we ranking?
-      </Display>
-
-      <View className="mt-6 border-b border-outline-variant/40 pb-3 flex-row items-center">
-        <Icon name="search" size={20} color="#504446" />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search a place, album, product…"
-          placeholderTextColor="rgba(80,68,70,0.55)"
-          autoFocus
-          className="flex-1 ml-3 font-headline-italic text-on-surface text-[20px]"
-          style={{ paddingVertical: 4 }}
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-        {isFetching && <ActivityIndicator color="#55343B" />}
-      </View>
-
-      {query.trim().length < 2 && (
-        <Body className="mt-5 text-on-surface-variant">
-          Type at least two characters to search the catalogue.
-        </Body>
-      )}
-
-      {isError && (
-        <Body className="mt-5 text-rank-down">
-          Search hit a snag. Try a different phrase.
-        </Body>
-      )}
-
-      {query.trim().length >= 2 && !isFetching && results.length === 0 && (
-        <Body className="mt-5 text-on-surface-variant">
-          No matches. Try a simpler phrase or a different spelling.
-        </Body>
-      )}
-
-      <View className="mt-6 gap-2">
-        {results.map((o) => (
-          <SearchResultRow
-            key={o.id}
-            hit={o}
-            selected={picked?.id === o.id}
-            onPress={() => onPick(o)}
-          />
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function SearchResultRow({
-  hit,
-  selected,
-  onPress,
-}: {
-  hit: ApiSearchObjectHit;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className={cn(
-        "flex-row items-center rounded-xl p-3 active:bg-surface-container-low",
-        selected && "bg-surface-container-low",
-      )}
-    >
-      {hit.heroImage ? (
-        <Image
-          source={{ uri: hit.heroImage }}
-          style={{ width: 60, height: 60, borderRadius: 8 }}
-          contentFit="cover"
-        />
-      ) : (
-        <View
-          style={{ width: 60, height: 60, borderRadius: 8 }}
-          className="bg-surface-container-low items-center justify-center"
-        >
-          <Icon name="image" size={20} color="#B0A49F" />
-        </View>
-      )}
-      <View className="ml-3 flex-1">
-        <Text
-          className="font-headline text-on-surface text-[16px]"
-          numberOfLines={1}
-        >
-          {hit.title}
-        </Text>
-        <Label className="mt-0.5 text-[11px]" numberOfLines={1}>
-          {hit.subtitle ?? hit.type}
-          {hit.city ? ` · ${hit.city}` : ""}
-        </Label>
-      </View>
-      <Icon name="chevron-right" size={20} color="#827475" />
-    </Pressable>
-  );
-}
-
-// ---------------- Compare ----------------
-
-function CompareStep({
-  list,
-  picked,
-  midObjectId,
-  midRank,
-  onAnswer,
-  onTie,
-}: {
-  list: { id: string; title: string; entries: { objectId: string }[] };
-  picked: PickedObject;
-  midObjectId?: string;
-  midRank: number;
-  onAnswer: (newIsBetter: boolean) => void;
-  onTie: () => void;
-}) {
-  // Server-side details were registered into the object registry by
-  // mapRankingListDetail, so this lookup resolves without another fetch.
-  const against = midObjectId ? getObject(midObjectId) : null;
-
-  if (!against) {
+  if (musicType) {
     return (
-      <View className="py-16 items-center">
-        <ActivityIndicator color="#55343B" />
-      </View>
+      <MusicPicker
+        label="Step two"
+        title="What are we ranking?"
+        body="Search Zoe first, or pull in an album or song from Spotify."
+        placeholder="Search albums, songs, artists..."
+        type={musicType}
+        picked={picked}
+        onPick={onPick}
+      />
     );
   }
 
   return (
-    <View>
-      <LabelCaps>Step three</LabelCaps>
-      <Display className="mt-2 text-[32px] leading-[36px]">
-        Which one is better?
-      </Display>
-      <Body className="mt-3">
-        We will narrow the exact rank in a few taps. Be honest — your list is
-        yours.
-      </Body>
-
-      <View className="mt-8 flex-row gap-3">
-        <CompareCard
-          heroImage={picked.heroImage}
-          title={picked.title}
-          subtitle={picked.subtitle}
-          label="The new one"
-          onPress={() => onAnswer(true)}
-          gradient
-        />
-        <CompareCard
-          heroImage={against.heroImage}
-          title={against.title}
-          subtitle={against.subtitle}
-          label={`Currently #${midRank}`}
-          onPress={() => onAnswer(false)}
-        />
-      </View>
-
-      <View className="mt-6 items-center">
-        <Pressable onPress={onTie} className="py-3 active:opacity-70">
-          <Text className="font-label text-secondary text-[13px] underline decoration-secondary/40">
-            About the same
-          </Text>
-        </Pressable>
-      </View>
-    </View>
+    <PlacePicker
+      label="Step two"
+      title="What are we ranking?"
+      body="Search Zoe first, or pull in a restaurant, café, bar, or spot from Google Places."
+      placeholder="Search restaurants, cafés, bars, spots…"
+      cityId={cityId}
+      type={placeType}
+      picked={picked}
+      onPick={onPick}
+    />
   );
 }
 
-function CompareCard({
-  heroImage,
-  title,
-  subtitle,
-  label,
-  onPress,
-  gradient,
+function placeSearchTypeFromCategory(
+  category: string | undefined,
+): "all" | "place" | "restaurant" | "cafe" | "bar" {
+  const normalized = (category ?? "").toLowerCase();
+  if (normalized.includes("cafe") || normalized.includes("coffee")) {
+    return "cafe";
+  }
+  if (normalized.includes("bar") || normalized.includes("wine")) {
+    return "bar";
+  }
+  if (
+    normalized.includes("restaurant") ||
+    normalized.includes("eat") ||
+    normalized.includes("food")
+  ) {
+    return "restaurant";
+  }
+  if (normalized.includes("spot") || normalized.includes("place")) {
+    return "place";
+  }
+  return "all";
+}
+
+function musicSearchTypeFromCategory(
+  category: string | undefined,
+): "all" | "album" | "track" | null {
+  const normalized = (category ?? "").toLowerCase();
+  if (normalized.includes("album")) return "album";
+  if (
+    normalized.includes("song") ||
+    normalized.includes("track") ||
+    normalized.includes("single")
+  ) {
+    return "track";
+  }
+  if (
+    normalized.includes("music") ||
+    normalized.includes("artist") ||
+    normalized.includes("playlist")
+  ) {
+    return "all";
+  }
+  return null;
+}
+
+// ---------------- Photo ----------------
+
+function PhotoStep({
+  picked,
+  imageUrl,
+  uploading,
+  error,
+  onUpload,
+  onNext,
 }: {
-  heroImage: string;
-  title: string;
-  subtitle?: string;
-  label: string;
-  onPress: () => void;
-  gradient?: boolean;
+  picked: PickedObject;
+  imageUrl: string;
+  uploading: boolean;
+  error: string | null;
+  onUpload: () => void;
+  onNext: () => void;
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      className="flex-1 rounded-xl overflow-hidden bg-surface-container-low border border-outline-variant/20 active:opacity-85"
-      style={{
-        shadowColor: "#1B1C1A",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.06,
-        shadowRadius: 24,
-      }}
-    >
-      <View className="relative">
+    <View>
+      <LabelCaps>Step four</LabelCaps>
+      <Display className="mt-2 text-[32px] leading-[36px]">
+        Add your photo
+      </Display>
+      <Body className="mt-3">
+        Ranking updates publish to the feed, so places need an image from you.
+      </Body>
+
+      <View className="mt-6 rounded-xl overflow-hidden bg-surface-container-low border border-outline-variant/20">
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ aspectRatio: 4 / 5 }}
+            contentFit="cover"
+          />
+        ) : (
+          <Pressable
+            onPress={onUpload}
+            disabled={uploading}
+            className="h-72 items-center justify-center border border-dashed border-outline-variant/50"
+          >
+            {uploading ? (
+              <ActivityIndicator color="#55343B" />
+            ) : (
+              <>
+                <Icon name="add-a-photo" size={28} color="#55343B" />
+                <Label className="mt-2 text-[11px] uppercase tracking-widest">
+                  Upload photo
+                </Label>
+              </>
+            )}
+          </Pressable>
+        )}
+      </View>
+
+      <View className="mt-4 bg-surface-container-low rounded-xl p-4 flex-row items-center gap-3">
         <Image
-          source={{ uri: heroImage }}
-          style={{ aspectRatio: 3 / 4 }}
+          source={{ uri: picked.heroImage }}
+          style={{ width: 52, height: 52, borderRadius: 8 }}
           contentFit="cover"
         />
-        {gradient && (
-          <LinearGradient
-            colors={gradients.primaryCTA}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              paddingHorizontal: 10,
-              paddingVertical: 5,
-              borderRadius: 2,
-            }}
-          >
-            <Text className="font-label-semibold text-on-primary uppercase tracking-widest text-[9px]">
-              New
-            </Text>
-          </LinearGradient>
-        )}
-      </View>
-      <View className="p-3">
-        <LabelCaps>{label}</LabelCaps>
-        <Text className="font-headline text-on-surface text-[16px] mt-1">
-          {title}
-        </Text>
-        {subtitle && (
-          <Text className="font-body text-on-surface-variant text-[12px] mt-0.5">
-            {subtitle}
+        <View className="flex-1">
+          <Text className="font-headline text-on-surface text-[17px]">
+            {picked.title}
           </Text>
-        )}
+          <Label className="mt-0.5">
+            {picked.subtitle ?? displayObjectType(picked.type)}
+          </Label>
+        </View>
       </View>
-    </Pressable>
+
+      {error && (
+        <Text className="mt-4 text-rank-down text-[12px] font-label">
+          {error}
+        </Text>
+      )}
+
+      <View className="mt-8 gap-3">
+        <Button
+          label={imageUrl ? "Continue" : uploading ? "Uploading…" : "Upload photo"}
+          onPress={imageUrl ? onNext : onUpload}
+          disabled={uploading}
+          full
+        />
+      </View>
+    </View>
   );
 }
 
@@ -816,16 +802,24 @@ function CompareCard({
 function CaptionStep({
   list,
   picked,
+  imageUrl,
   insertIndex,
   note,
   onChangeNote,
+  socialDraft,
+  onChangeSocialDraft,
+  restaurantEnabled,
   onNext,
 }: {
   list: { title: string };
   picked: PickedObject;
+  imageUrl: string;
   insertIndex: number;
   note: string;
   onChangeNote: (s: string) => void;
+  socialDraft: RestaurantSocialDraft;
+  onChangeSocialDraft: (draft: RestaurantSocialDraft) => void;
+  restaurantEnabled: boolean;
   onNext: () => void;
 }) {
   const newRank = insertIndex + 1;
@@ -841,7 +835,7 @@ function CaptionStep({
 
       <View className="mt-6 bg-surface-container-low rounded-xl p-5 flex-row items-center gap-4">
         <Image
-          source={{ uri: picked.heroImage }}
+          source={{ uri: imageUrl || picked.heroImage }}
           style={{ width: 56, height: 56, borderRadius: 8 }}
           contentFit="cover"
         />
@@ -874,6 +868,12 @@ function CaptionStep({
         />
       </View>
 
+      <RestaurantSocialFields
+        draft={socialDraft}
+        onChange={onChangeSocialDraft}
+        restaurantEnabled={restaurantEnabled}
+      />
+
       <View className="mt-8">
         <Button label="Continue" onPress={onNext} full />
       </View>
@@ -886,6 +886,7 @@ function CaptionStep({
 function ConfirmStep({
   list,
   picked,
+  imageUrl,
   insertIndex,
   note,
   submitting,
@@ -894,6 +895,7 @@ function ConfirmStep({
 }: {
   list: { title: string };
   picked: PickedObject;
+  imageUrl: string;
   insertIndex: number;
   note: string;
   submitting: boolean;
@@ -909,9 +911,9 @@ function ConfirmStep({
       <View className="mt-8 rounded-xl overflow-hidden bg-surface-container-lowest border border-outline-variant/20">
         <View className="relative">
           <Image
-            source={{ uri: picked.heroImage }}
+            source={{ uri: imageUrl || picked.heroImage }}
             style={{ aspectRatio: 16 / 10 }}
-            contentFit="cover"
+            contentFit={isMusicType(picked.type) ? "contain" : "cover"}
           />
           <LinearGradient
             colors={gradients.primaryCTA}
@@ -937,7 +939,9 @@ function ConfirmStep({
             {picked.title}
           </HeadlineItalic>
           {!!note && (
-            <Body className="mt-3 text-[14px] leading-[20px]">"{note}"</Body>
+            <Body className="mt-3 text-[14px] leading-[20px]">
+              {`"${note}"`}
+            </Body>
           )}
         </View>
       </View>

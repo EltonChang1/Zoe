@@ -5,6 +5,11 @@ import { z } from "zod";
 import { prisma } from "../db.js";
 import { optionalAuth, type AuthVariables } from "../auth/middleware.js";
 import { getHiddenUserIds } from "../lib/moderation.js";
+import {
+  categoryToObjectTypes,
+  explainPost,
+  normalizeSearchQuery,
+} from "../lib/personalization.js";
 
 /**
  * Feed endpoints.
@@ -25,6 +30,10 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
       z.object({
         limit: z.coerce.number().int().min(1).max(40).default(20),
         cursor: z.string().optional(),
+        scope: z.enum(["for_you", "home_city", "anywhere"]).default("for_you"),
+        cityId: z.string().optional(),
+        category: z.string().max(40).optional(),
+        savedOnly: z.coerce.boolean().default(false),
         // Optional filters so profile + object-detail screens can reuse the
         // feed payload shape + viewer annotations instead of bespoke
         // `/users/:h/posts` or `/objects/:id/posts` endpoints.
@@ -35,6 +44,7 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
     async (c) => {
       const { limit, cursor, author, object } = c.req.valid("query");
       const viewer = c.var.user;
+      const { scope, cityId, category, savedOnly } = c.req.valid("query");
 
       const authorId = author
         ? (
@@ -51,6 +61,46 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
       }
 
       const hidden = await getHiddenUserIds(viewer?.id);
+      const effectiveCityId =
+        cityId ??
+        (scope === "anywhere"
+          ? undefined
+          : viewer?.preferredCityId ?? viewer?.homeCityId ?? undefined);
+      const objectTypes = categoryToObjectTypes(category);
+
+      const [followedRows, recentRows, savedRows] = viewer
+        ? await Promise.all([
+            prisma.follow.findMany({
+              where: { followerId: viewer.id },
+              select: { followeeId: true },
+            }),
+            prisma.recentSearch.findMany({
+              where: { userId: viewer.id },
+              orderBy: { updatedAt: "desc" },
+              take: 8,
+              select: { normalizedQuery: true, inferredCategory: true },
+            }),
+            prisma.save.findMany({
+              where: { userId: viewer.id, post: { objectId: { not: null } } },
+              orderBy: { createdAt: "desc" },
+              take: 80,
+              select: { post: { select: { objectId: true } } },
+            }),
+          ])
+        : [[], [], []];
+      const followedAuthorIds = new Set(followedRows.map((f) => f.followeeId));
+      const savedObjectIds = new Set(
+        savedRows
+          .map((row) => row.post.objectId)
+          .filter((id): id is string => Boolean(id)),
+      );
+      const recentTerms = recentRows
+        .flatMap((row) => [
+          normalizeSearchQuery(row.normalizedQuery),
+          row.inferredCategory ?? "",
+        ])
+        .filter(Boolean)
+        .slice(0, 10);
 
       // Author-scoped fetch of a user who is on either side of a block
       // with the viewer resolves to an empty page (same shape as an
@@ -72,9 +122,22 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
               ? { authorId: { notIn: hidden } }
               : {}),
           ...(object ? { objectId: object } : {}),
+          ...(savedOnly
+            ? { objectId: { in: [...savedObjectIds] } }
+            : {}),
+          ...(effectiveCityId || objectTypes.length > 0
+            ? {
+                object: {
+                  ...(effectiveCityId ? { cityId: effectiveCityId } : {}),
+                  ...(objectTypes.length > 0
+                    ? { type: { in: objectTypes } }
+                    : {}),
+                },
+              }
+            : {}),
         },
         orderBy: [{ publishedAt: "desc" }, { id: "desc" }],
-        take: limit + 1,
+        take: author || object ? limit + 1 : Math.min(limit * 4 + 1, 100),
         ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         include: {
           author: {
@@ -87,18 +150,69 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
               title: true,
               subtitle: true,
               city: true,
+              cityId: true,
+              neighborhood: true,
+              tags: true,
               heroImage: true,
+              metadata: true,
             },
           },
           rankingList: {
             select: { id: true, title: true, category: true },
           },
+          mentions: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  handle: true,
+                  displayName: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+          },
+          restaurantVisit: {
+            include: {
+              companions: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      handle: true,
+                      displayName: true,
+                      avatarUrl: true,
+                    },
+                  },
+                },
+              },
+              dishes: { orderBy: { createdAt: "asc" } },
+            },
+          },
           _count: { select: { likes: true, comments: true, saves: true } },
         },
       });
 
-      const pageItems = posts.slice(0, limit);
-      const nextCursor = posts.length > limit ? posts[limit]!.id : null;
+      const rankedPosts =
+        author || object
+          ? posts
+          : posts
+              .map((post) => ({
+                post,
+                score: scoreFeedPost(post, {
+                  cityId: effectiveCityId,
+                  followedAuthorIds,
+                  savedObjectIds,
+                  recentTerms,
+                  category,
+                  interestTopics: viewer?.interestTopics ?? [],
+                }),
+              }))
+              .sort((a, b) => b.score - a.score)
+              .map((row) => row.post);
+
+      const pageItems = rankedPosts.slice(0, limit);
+      const nextCursor = posts.length > limit ? posts[Math.min(limit, posts.length - 1)]!.id : null;
 
       // Annotate viewer state in a single extra query.
       let likedSet = new Set<string>();
@@ -122,7 +236,23 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
       return c.json({
         posts: pageItems.map((p) => ({
           ...p,
+          mentions: p.mentions.filter((mention) => !hidden.includes(mention.userId)),
+          restaurantVisit: p.restaurantVisit
+            ? {
+                ...p.restaurantVisit,
+                companions: p.restaurantVisit.companions.filter(
+                  (companion) => !hidden.includes(companion.userId),
+                ),
+              }
+            : null,
           stats: p._count,
+          why: explainPost(p, {
+            cityId: effectiveCityId,
+            followedAuthorIds,
+            savedObjectIds,
+            recentTerms,
+            interestTopics: viewer?.interestTopics ?? [],
+          }),
           viewer: {
             likedByMe: likedSet.has(p.id),
             savedByMe: savedSet.has(p.id),
@@ -190,6 +320,7 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
               title: true,
               city: true,
               heroImage: true,
+              metadata: true,
             },
           },
           rankingList: {
@@ -203,6 +334,7 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
           id: p.id,
           actor: p.author,
           verb: p.rankingRank === 1 ? "moved" : "added",
+          imageUrl: p.imageUrl,
           object: p.object,
           list: p.rankingList,
           rank: p.rankingRank,
@@ -216,3 +348,75 @@ export const feedRouter = new Hono<{ Variables: AuthVariables }>()
       });
     },
   );
+
+type FeedPost = {
+  id: string;
+  authorId: string;
+  objectId: string | null;
+  headline: string;
+  caption: string;
+  tags: string[];
+  featured: boolean;
+  publishedAt: Date;
+  rankingRank: number | null;
+  object: {
+    id: string;
+    type: string;
+    title: string;
+    subtitle: string | null;
+    city: string | null;
+    cityId: string | null;
+    neighborhood: string | null;
+    tags: string[];
+    heroImage: string | null;
+    metadata: unknown;
+  } | null;
+  rankingList: { id: string; title: string; category: string } | null;
+  _count: { likes: number; comments: number; saves: number };
+};
+
+function scoreFeedPost(
+  post: FeedPost,
+  context: {
+    cityId?: string | null;
+    followedAuthorIds: Set<string>;
+    savedObjectIds: Set<string>;
+    recentTerms: string[];
+    category?: string;
+    interestTopics: string[];
+  },
+) {
+  const ageHours = Math.max(1, (Date.now() - post.publishedAt.getTime()) / 3_600_000);
+  let score = 40 / Math.sqrt(ageHours);
+  score += post._count.saves * 2 + post._count.comments * 1.5 + post._count.likes * 0.5;
+  if (post.featured) score += 8;
+  if (context.followedAuthorIds.has(post.authorId)) score += 20;
+  if (post.object?.cityId && post.object.cityId === context.cityId) score += 16;
+  if (post.objectId && context.savedObjectIds.has(post.objectId)) score += 18;
+  if (post.rankingRank) score += Math.max(2, 12 - post.rankingRank);
+
+  const haystack = [
+    post.headline,
+    post.caption,
+    post.object?.title,
+    post.object?.city,
+    post.object?.type,
+    ...(post.tags ?? []),
+    ...(post.object?.tags ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (context.category && haystack.includes(context.category.toLowerCase())) {
+    score += 10;
+  }
+  for (const term of context.recentTerms) {
+    if (term.length >= 2 && haystack.includes(term)) score += 8;
+  }
+  for (const topic of context.interestTopics) {
+    const normalized = topic.toLowerCase();
+    if (normalized && haystack.includes(normalized)) score += 7;
+  }
+  return score;
+}

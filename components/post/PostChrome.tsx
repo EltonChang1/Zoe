@@ -140,6 +140,88 @@ export function TagRow({ tags }: { tags: string[] }) {
   );
 }
 
+export function RestaurantSocialSummary({ post }: { post: Post }) {
+  const mentions = post.mentions ?? [];
+  const visit = post.restaurantVisit;
+  if (mentions.length === 0 && !visit) return null;
+
+  return (
+    <View className="rounded-lg border border-outline-variant/20 bg-surface-container-lowest p-4 gap-3">
+      {mentions.length > 0 ? (
+        <View>
+          <LabelCaps>Mentioned</LabelCaps>
+          <View className="mt-2 flex-row flex-wrap gap-2">
+            {mentions.map((user) => (
+              <Pill key={user.id} label={`@${user.handle}`} />
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {visit ? (
+        <View className="gap-3">
+          {visit.companions.length > 0 ? (
+            <View>
+              <LabelCaps>With</LabelCaps>
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                {visit.companions.map((user) => (
+                  <Pill key={user.id} label={`@${user.handle}`} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {visit.dishes.length > 0 ? (
+            <View>
+              <LabelCaps>Ordered</LabelCaps>
+              <View className="mt-2 gap-2">
+                {visit.dishes.map((dish, index) => (
+                  <View
+                    key={`${dish.name}:${index}`}
+                    className="rounded bg-surface-container-low px-3 py-2"
+                  >
+                    <Text className="font-headline text-on-surface text-[14px]">
+                      {dish.name}
+                      {dish.recommended ? " · recommended" : ""}
+                    </Text>
+                    {dish.note ? (
+                      <Label className="mt-0.5 text-[11px]">{dish.note}</Label>
+                    ) : null}
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {(visit.mealType || visit.priceTier || visit.labels.length > 0) ? (
+            <View className="flex-row flex-wrap gap-2">
+              {visit.mealType ? <Pill label={visit.mealType} /> : null}
+              {visit.priceTier ? <Pill label={"$".repeat(visit.priceTier)} /> : null}
+              {visit.labels.map((label) => (
+                <Pill key={label} label={`#${label}`} />
+              ))}
+            </View>
+          ) : null}
+
+          {visit.note ? (
+            <Body className="text-[13px] leading-[18px]">{visit.note}</Body>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function Pill({ label }: { label: string }) {
+  return (
+    <View className="rounded-full bg-surface-container-low px-3 py-1">
+      <Text className="font-label text-on-surface-variant text-[11px]">
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 export function InteractionBar({
   likes,
   comments,

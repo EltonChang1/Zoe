@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button } from "@/components/ui/Button";
+import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 import { Body, Display, HeadlineItalic, LabelCaps } from "@/components/ui/Text";
 import { ApiHttpError, useAuth } from "@/lib/api";
 
@@ -109,6 +110,14 @@ export default function SignInScreen() {
               onPress={handleSubmit}
               disabled={!canSubmit}
               full
+            />
+            <SocialAuthButtons
+              mode="sign-in"
+              onSuccess={(result) =>
+                router.replace(
+                  (result.onboardingRequired ? "/complete-profile" : "/(tabs)") as never,
+                )
+              }
             />
             <Link href="/(auth)/forgot-password" asChild>
               <Pressable className="py-2 active:opacity-70">

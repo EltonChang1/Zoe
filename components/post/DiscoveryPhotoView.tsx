@@ -14,6 +14,7 @@ import {
   DiscussionSection,
   InteractionBar,
   PostTopBar,
+  RestaurantSocialSummary,
   TagRow,
 } from "@/components/post/PostChrome";
 import type { Comment, Post } from "@/data/types";
@@ -39,7 +40,7 @@ export function DiscoveryPhotoView({
   interaction?: PostInteraction;
 }) {
   const author = getUser(post.authorId);
-  const object = getObject(post.objectId);
+  const object = post.objectId ? getObject(post.objectId) : undefined;
 
   return (
     <View className="flex-1 bg-background">
@@ -61,7 +62,7 @@ export function DiscoveryPhotoView({
           {/* Hero photo */}
           <View className="relative rounded-xl overflow-hidden bg-surface-container-low">
             <Image
-              source={{ uri: object?.heroImage }}
+              source={{ uri: post.imageUrl || object?.heroImage }}
               style={{ aspectRatio: 4 / 5 }}
               contentFit="cover"
               transition={260}
@@ -134,6 +135,7 @@ export function DiscoveryPhotoView({
             <View className="pt-2">
               <TagRow tags={post.tags} />
             </View>
+            <RestaurantSocialSummary post={post} />
           </View>
 
           <InteractionBar

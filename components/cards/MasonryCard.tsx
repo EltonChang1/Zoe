@@ -37,7 +37,7 @@ export function MasonryCard({
   onPress?: () => void;
 }) {
   const author = getUser(post.authorId);
-  const object = getObject(post.objectId);
+  const object = post.objectId ? getObject(post.objectId) : undefined;
 
   const ratio = aspectRatioFor(post.aspect);
   // masonry column is half screen minus gutter; feed height ~ width / ratio
@@ -47,7 +47,7 @@ export function MasonryCard({
     <Pressable onPress={onPress} className="mb-4 active:opacity-90">
       <View className="relative">
         <Image
-          source={{ uri: object?.heroImage }}
+          source={{ uri: post.imageUrl || object?.heroImage }}
           style={imageStyle}
           contentFit="cover"
           transition={240}
@@ -73,6 +73,17 @@ export function MasonryCard({
       </View>
 
       <View className="pt-3 pr-1">
+        {post.why ? (
+          <View className="mb-2 flex-row items-center">
+            <Icon name="auto-awesome" size={12} color="#8A5A63" />
+            <Label
+              className="ml-1.5 text-[10px] uppercase tracking-widest text-primary"
+              numberOfLines={1}
+            >
+              {post.why}
+            </Label>
+          </View>
+        ) : null}
         <Title className="text-[17px] leading-[20px]" numberOfLines={2}>
           {post.headline}
         </Title>

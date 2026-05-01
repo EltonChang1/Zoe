@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +12,7 @@ import {
 
 import { ActivityCard } from "@/components/cards/ActivityCard";
 import { Avatar } from "@/components/ui/Avatar";
+import { Chip } from "@/components/ui/Chip";
 import { GlassTopBar } from "@/components/nav/GlassTopBar";
 import {
   Body,
@@ -27,13 +28,22 @@ import {
   mapUser,
   useActivityQuery,
   useAuth,
+  useFollowSearch,
+  useGooglePlaceSearchQuery,
+  useRecordSearchEvent,
+  useSavedLibraryQuery,
   useSearchAllQuery,
+  useSearchSuggestionsQuery,
+  useUpsertGooglePlace,
 } from "@/lib/api";
 import type {
+  ApiGooglePlaceHit,
+  ApiSearchListHit,
   ApiSearchObjectHit,
   ApiSearchPostHit,
   ApiSearchUserHit,
 } from "@/lib/api/types";
+import { displayObjectType } from "@/lib/objects/display";
 
 /**
  * Search / Following Activity — VDK §18.2, Design_guide/search_page.
@@ -53,8 +63,48 @@ export default function SearchScreen() {
   const debounced = useDebouncedValue(query, 220);
   const trimmed = debounced.trim();
   const active = trimmed.length >= 2;
+  const googleSessionToken = useMemo(createSessionToken, []);
+  const [pendingGooglePlaceId, setPendingGooglePlaceId] = useState<string | null>(
+    null,
+  );
+  const [googleSelectError, setGoogleSelectError] = useState<string | null>(
+    null,
+  );
 
   const { data, isFetching, isError } = useSearchAllQuery(trimmed);
+  const suggestionsQuery = useSearchSuggestionsQuery();
+  const recordSearch = useRecordSearchEvent();
+  const followSearch = useFollowSearch();
+  const googleQuery = useGooglePlaceSearchQuery(trimmed, {
+    sessionToken: googleSessionToken,
+    limit: 8,
+  });
+  const upsertGoogle = useUpsertGooglePlace();
+
+  const openGooglePlace = async (hit: ApiGooglePlaceHit) => {
+    setGoogleSelectError(null);
+    setPendingGooglePlaceId(hit.placeId);
+    recordSearch.mutate({
+      query: trimmed || hit.title,
+      resultType: "google_place",
+      resultId: hit.placeId,
+    });
+    try {
+      const res = await upsertGoogle.mutateAsync({
+        placeId: hit.placeId,
+        sessionToken: googleSessionToken,
+      });
+      router.push(`/object/${res.object.id}`);
+    } catch (err) {
+      setGoogleSelectError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't open this Google place.",
+      );
+    } finally {
+      setPendingGooglePlaceId(null);
+    }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -106,7 +156,7 @@ export default function SearchScreen() {
               </Pressable>
             )}
           </View>
-          {active && isFetching && (
+          {active && (isFetching || googleQuery.isFetching) && (
             <View className="flex-row items-center mt-3">
               <ActivityIndicator size="small" color="#55343B" />
               <Label className="ml-2 text-[11px]">Searching…</Label>
@@ -121,11 +171,40 @@ export default function SearchScreen() {
             onOpenPost={(id) => router.push(`/post/${id}`)}
             onOpenUser={(handle) => router.push(`/user/${handle}`)}
             onOpenObject={(id) => router.push(`/object/${id}`)}
+            onOpenList={(id) => router.push(`/ranking-list/${id}`)}
+            query={trimmed}
+            onRecordResult={(resultType, resultId) =>
+              recordSearch.mutate({ query: trimmed, resultType, resultId })
+            }
+            onFollowQuery={() => followSearch.mutate(trimmed)}
+            followPending={followSearch.isPending}
+            googlePlaces={googleQuery.data?.googlePlaces ?? []}
+            googleAttribution={googleQuery.data?.attribution}
+            googleUnavailable={Boolean(googleQuery.data?.unavailable)}
+            googleError={googleSelectError}
+            pendingGooglePlaceId={pendingGooglePlaceId}
+            onOpenGooglePlace={openGooglePlace}
           />
         ) : (
-          <FollowingActivity
-            onOpenPost={(id) => router.push(`/post/${id}`)}
-          />
+          <>
+            <SearchHabitPanel
+              prompts={suggestionsQuery.data?.prompts ?? []}
+              recent={suggestionsQuery.data?.recent ?? []}
+              followed={suggestionsQuery.data?.followed ?? []}
+              trending={suggestionsQuery.data?.trending ?? []}
+              onPick={(q) => {
+                setQuery(q);
+                recordSearch.mutate({ query: q, resultType: "prompt" });
+              }}
+              onOpenObject={(id) => router.push(`/object/${id}`)}
+              onFollow={(q) => followSearch.mutate(q)}
+              followPending={followSearch.isPending}
+            />
+            <SavedTasteShelf />
+            <FollowingActivity
+              onOpenPost={(id) => router.push(`/post/${id}`)}
+            />
+          </>
         )}
       </ScrollView>
     </View>
@@ -140,18 +219,44 @@ function SearchResults({
   onOpenPost,
   onOpenUser,
   onOpenObject,
+  onOpenList,
+  query,
+  onRecordResult,
+  onFollowQuery,
+  followPending,
+  googlePlaces,
+  googleAttribution,
+  googleUnavailable,
+  googleError,
+  pendingGooglePlaceId,
+  onOpenGooglePlace,
 }: {
   data:
     | {
         objects?: ApiSearchObjectHit[];
         posts?: ApiSearchPostHit[];
         users?: ApiSearchUserHit[];
+        lists?: ApiSearchListHit[];
       }
     | undefined;
   isError: boolean;
   onOpenPost: (id: string) => void;
   onOpenUser: (handle: string) => void;
   onOpenObject: (id: string) => void;
+  onOpenList: (id: string) => void;
+  query: string;
+  onRecordResult: (
+    resultType: "object" | "post" | "user" | "list",
+    resultId: string,
+  ) => void;
+  onFollowQuery: () => void;
+  followPending: boolean;
+  googlePlaces: ApiGooglePlaceHit[];
+  googleAttribution?: string;
+  googleUnavailable: boolean;
+  googleError: string | null;
+  pendingGooglePlaceId: string | null;
+  onOpenGooglePlace: (hit: ApiGooglePlaceHit) => void;
 }) {
   if (isError) {
     return (
@@ -169,9 +274,11 @@ function SearchResults({
   const users = data?.users ?? [];
   const objects = data?.objects ?? [];
   const posts = data?.posts ?? [];
-  const totalHits = users.length + objects.length + posts.length;
+  const lists = data?.lists ?? [];
+  const totalHits =
+    users.length + objects.length + posts.length + lists.length + googlePlaces.length;
 
-  if (data && totalHits === 0) {
+  if (data && totalHits === 0 && !googleUnavailable) {
     return (
       <View className="px-5">
         <View className="rounded-xl bg-surface-container-low p-5">
@@ -190,6 +297,18 @@ function SearchResults({
 
   return (
     <View className="gap-8">
+      <View className="px-5">
+        <Pressable
+          disabled={followPending}
+          onPress={onFollowQuery}
+          className="self-start rounded-full bg-primary/10 px-3 py-1.5 active:opacity-70"
+        >
+          <Label className="text-[11px] uppercase tracking-widest text-primary">
+            Follow “{query}”
+          </Label>
+        </Pressable>
+      </View>
+
       {users.length > 0 && (
         <Section label="People" kicker={`${users.length} curators`}>
           <View className="gap-1">
@@ -197,7 +316,10 @@ function SearchResults({
               <UserRow
                 key={u.id}
                 hit={u}
-                onPress={() => onOpenUser(u.handle)}
+                onPress={() => {
+                  onRecordResult("user", u.id);
+                  onOpenUser(u.handle);
+                }}
               />
             ))}
           </View>
@@ -214,23 +336,302 @@ function SearchResults({
               <ObjectRow
                 key={o.id}
                 hit={o}
-                onPress={() => onOpenObject(o.id)}
+                onPress={() => {
+                  onRecordResult("object", o.id);
+                  onOpenObject(o.id);
+                }}
               />
             ))}
           </View>
         </Section>
       )}
 
+      {googlePlaces.length > 0 && (
+        <Section
+          label="Google Places"
+          kicker={googleAttribution ?? "Powered by Google"}
+        >
+          <View className="gap-1">
+            {googlePlaces.map((p) => (
+              <GooglePlaceRow
+                key={p.placeId}
+                hit={p}
+                pending={pendingGooglePlaceId === p.placeId}
+                onPress={() => onOpenGooglePlace(p)}
+              />
+            ))}
+          </View>
+        </Section>
+      )}
+
+      {googleError ? (
+        <View className="px-5">
+          <Body className="text-rank-down text-[13px]">{googleError}</Body>
+        </View>
+      ) : null}
+
+      {googleUnavailable ? (
+        <View className="px-5">
+          <Label className="text-[11px] text-on-surface-variant">
+            Google Places is not configured on this server yet.
+          </Label>
+        </View>
+      ) : null}
+
       {posts.length > 0 && (
         <Section label="Posts" kicker={`${posts.length} reviews`}>
           <View className="gap-3">
             {posts.map((p) => (
-              <PostRow key={p.id} hit={p} onPress={() => onOpenPost(p.id)} />
+              <PostRow
+                key={p.id}
+                hit={p}
+                onPress={() => {
+                  onRecordResult("post", p.id);
+                  onOpenPost(p.id);
+                }}
+              />
+            ))}
+          </View>
+        </Section>
+      )}
+
+      {lists.length > 0 && (
+        <Section label="Rankings" kicker={`${lists.length} lists`}>
+          <View className="gap-3">
+            {lists.map((list) => (
+              <RankingListRow
+                key={list.id}
+                hit={list}
+                onPress={() => {
+                  onRecordResult("list", list.id);
+                  onOpenList(list.id);
+                }}
+              />
             ))}
           </View>
         </Section>
       )}
     </View>
+  );
+}
+
+function SearchHabitPanel({
+  prompts,
+  recent,
+  followed,
+  trending,
+  onPick,
+  onOpenObject,
+  onFollow,
+  followPending,
+}: {
+  prompts: string[];
+  recent: { id: string; query: string; inferredCategory: string | null }[];
+  followed: { id: string; query: string; inferredCategory: string | null }[];
+  trending: {
+    id: string;
+    title: string;
+    type: string;
+    city: string | null;
+    rank: number;
+    listTitle: string;
+  }[];
+  onPick: (query: string) => void;
+  onOpenObject: (id: string) => void;
+  onFollow: (query: string) => void;
+  followPending: boolean;
+}) {
+  const starterPrompts = prompts.slice(0, 4);
+  return (
+    <View className="px-5 mb-8 gap-5">
+      <View>
+        <LabelCaps>Search habit</LabelCaps>
+        <HeadlineItalic className="mt-1 text-primary text-[28px]">
+          Decide with taste
+        </HeadlineItalic>
+      </View>
+
+      {recent.length > 0 ? (
+        <View>
+          <Label className="mb-2 text-[11px] uppercase tracking-widest">
+            Recent searches
+          </Label>
+          <View className="flex-row flex-wrap gap-2">
+            {recent.map((item) => (
+              <Chip
+                key={item.id}
+                label={item.query}
+                variant="filled"
+                dense
+                onPress={() => onPick(item.query)}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      <View>
+        <Label className="mb-2 text-[11px] uppercase tracking-widest">
+          Try asking Zoe
+        </Label>
+        <View className="flex-row flex-wrap gap-2">
+          {starterPrompts.map((prompt) => (
+            <Chip
+              key={prompt}
+              label={prompt}
+              variant="ghost"
+              dense
+              onPress={() => onPick(prompt)}
+            />
+          ))}
+        </View>
+      </View>
+
+      {followed.length > 0 ? (
+        <View>
+          <Label className="mb-2 text-[11px] uppercase tracking-widest">
+            Followed searches
+          </Label>
+          <View className="gap-2">
+            {followed.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => onPick(item.query)}
+                className="rounded-xl bg-surface-container-low p-3 active:opacity-80"
+              >
+                <Label className="text-[12px] text-primary">
+                  {item.query}
+                </Label>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : (
+        <Pressable
+          disabled={followPending || starterPrompts.length === 0}
+          onPress={() => onFollow(starterPrompts[0] ?? "best cafés near me")}
+          className="rounded-xl bg-surface-container-low p-4 active:opacity-80"
+        >
+          <LabelCaps>Follow a search</LabelCaps>
+          <Body className="mt-1 text-[13px]">
+            Zoe can keep a query warm, like cafés near you or albums your
+            friends rank high.
+          </Body>
+        </Pressable>
+      )}
+
+      {trending.length > 0 ? (
+        <View>
+          <Label className="mb-2 text-[11px] uppercase tracking-widest">
+            Trending in your city
+          </Label>
+          <View className="gap-1">
+            {trending.slice(0, 3).map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => onOpenObject(item.id)}
+                className="flex-row items-center rounded-xl bg-surface-container-low px-3 py-2 active:opacity-80"
+              >
+                <View className="w-8 h-8 rounded-full bg-background items-center justify-center">
+                  <Label className="text-[11px] text-primary">#{item.rank}</Label>
+                </View>
+                <View className="ml-3 flex-1">
+                  <Text className="font-headline text-on-surface text-[14px]">
+                    {item.title}
+                  </Text>
+                  <Label className="text-[10px]" numberOfLines={1}>
+                    {item.listTitle}
+                    {item.city ? ` · ${item.city}` : ""}
+                  </Label>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function SavedTasteShelf() {
+  const savedQuery = useSavedLibraryQuery({ limit: 8 });
+  const posts = savedQuery.data?.posts ?? [];
+  const unranked = savedQuery.data?.unrankedObjects ?? [];
+  if (!savedQuery.isLoading && posts.length === 0 && unranked.length === 0) {
+    return null;
+  }
+  return (
+    <View className="px-5 mb-8">
+      <View className="mb-3 flex-row items-baseline justify-between">
+        <LabelCaps>Saved taste</LabelCaps>
+        {unranked.length > 0 ? (
+          <Label className="text-[10px] text-primary">
+            {unranked.length} saved, not ranked
+          </Label>
+        ) : null}
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View className="flex-row gap-3">
+          {posts.slice(0, 6).map((post) => (
+            <View
+              key={post.id}
+              className="w-40 rounded-xl bg-surface-container-low p-3"
+            >
+              <Text
+                className="font-headline text-on-surface text-[14px]"
+                numberOfLines={2}
+              >
+                {post.headline}
+              </Text>
+              <Label className="mt-2 text-[10px]" numberOfLines={1}>
+                {post.why ?? "Saved by you"}
+              </Label>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+function GooglePlaceRow({
+  hit,
+  pending,
+  onPress,
+}: {
+  hit: ApiGooglePlaceHit;
+  pending: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={pending}
+      className="flex-row items-center py-2 px-1 active:opacity-70"
+    >
+      <View
+        style={{ width: 56, height: 56, borderRadius: 8 }}
+        className="bg-surface-container-low items-center justify-center"
+      >
+        <Icon name="place" size={20} color="#55343B" />
+      </View>
+      <View className="ml-3 flex-1">
+        <Text
+          className="font-headline text-on-surface text-[15px]"
+          numberOfLines={1}
+        >
+          {hit.title}
+        </Text>
+        <Label className="mt-0.5 text-[11px]" numberOfLines={1}>
+          {hit.subtitle ?? hit.primaryType ?? hit.type}
+        </Label>
+      </View>
+      {pending ? (
+        <ActivityIndicator size="small" color="#55343B" />
+      ) : (
+        <Icon name="add-location-alt" size={18} color="#827475" />
+      )}
+    </Pressable>
   );
 }
 
@@ -322,7 +723,7 @@ function ObjectRow({
           {hit.title}
         </Text>
         <Label className="mt-0.5 text-[11px]" numberOfLines={1}>
-          {hit.subtitle ?? hit.type}
+          {hit.subtitle ?? displayObjectType(hit.type)}
           {hit.city ? ` · ${hit.city}` : ""}
         </Label>
       </View>
@@ -366,6 +767,40 @@ function PostRow({
         <View className="mt-3 flex-row items-center">
           <Icon name="chevron-right" size={14} color="#827475" />
           <Label className="ml-1 text-[11px]">Open review</Label>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+function RankingListRow({
+  hit,
+  onPress,
+}: {
+  hit: ApiSearchListHit;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className="rounded-xl bg-surface-container-low p-4 active:opacity-90"
+    >
+      <View className="flex-row items-start">
+        <View className="w-12 h-12 rounded-lg bg-background items-center justify-center">
+          <Icon name="format-list-numbered" size={18} color="#55343B" />
+        </View>
+        <View className="ml-3 flex-1">
+          <HeadlineItalic className="text-primary text-[18px] leading-[22px]">
+            {hit.title}
+          </HeadlineItalic>
+          <Label className="mt-1 text-[11px]" numberOfLines={1}>
+            @{hit.owner.handle} · {hit.entries} ranked · {hit.category}
+          </Label>
+          {hit.description ? (
+            <Body className="mt-2 text-[13px]" numberOfLines={2}>
+              {hit.description}
+            </Body>
+          ) : null}
         </View>
       </View>
     </Pressable>
@@ -462,4 +897,9 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
     return () => clearTimeout(t);
   }, [value, delayMs]);
   return debounced;
+}
+
+function createSessionToken() {
+  const random = Math.random().toString(36).slice(2);
+  return `zoe-${Date.now().toString(36)}-${random}`;
 }

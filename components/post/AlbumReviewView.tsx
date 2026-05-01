@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { ScrollView, View, Text } from "react-native";
+import { Pressable, ScrollView, View, Text } from "react-native";
 
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -14,11 +14,13 @@ import {
   DiscussionSection,
   InteractionBar,
   PostTopBar,
+  RestaurantSocialSummary,
   TagRow,
 } from "@/components/post/PostChrome";
 import type { Comment, Post } from "@/data/types";
 import { getObject } from "@/data/objects";
 import { getUser } from "@/data/users";
+import { getSpotifyLinks, openSpotifyLinks } from "@/lib/music/spotifyLinks";
 import { gradients } from "@/theme/tokens";
 import type { PostInteraction } from "./types";
 
@@ -37,7 +39,9 @@ export function AlbumReviewView({
   interaction?: PostInteraction;
 }) {
   const author = getUser(post.authorId);
-  const object = getObject(post.objectId);
+  const object = post.objectId ? getObject(post.objectId) : undefined;
+  const spotifyLinks = getSpotifyLinks(object);
+  const hasSpotify = Boolean(spotifyLinks.uri || spotifyLinks.webUrl);
 
   return (
     <View className="flex-1 bg-background">
@@ -60,13 +64,18 @@ export function AlbumReviewView({
           <View className="items-center gap-5">
             <View className="w-full rounded-xl overflow-hidden bg-surface-container-low relative">
               <Image
-                source={{ uri: object?.heroImage }}
+                source={{ uri: post.imageUrl || object?.heroImage }}
                 style={{ aspectRatio: 1 }}
-                contentFit="cover"
+                contentFit={hasSpotify ? "contain" : "cover"}
                 transition={260}
                 className="w-full"
               />
             </View>
+            {hasSpotify ? (
+              <Label className="text-[10px] text-on-surface-variant">
+                Metadata by Spotify
+              </Label>
+            ) : null}
 
             {/* Gradient ranking ribbon */}
             <LinearGradient
@@ -100,6 +109,17 @@ export function AlbumReviewView({
               <Text className="font-headline-italic text-primary text-[18px] mt-1">
                 {object?.subtitle}
               </Text>
+              {hasSpotify ? (
+                <Pressable
+                  onPress={() => openSpotifyLinks(spotifyLinks).catch(() => undefined)}
+                  className="mt-4 flex-row items-center rounded-full border border-outline-variant/35 px-4 py-2 active:opacity-70"
+                >
+                  <Icon name="library-music" size={16} color="#55343B" />
+                  <Label className="ml-2 text-[11px] font-label-semibold uppercase tracking-widest text-primary">
+                    Listen on Spotify
+                  </Label>
+                </Pressable>
+              ) : null}
             </View>
           </View>
 
@@ -117,6 +137,9 @@ export function AlbumReviewView({
             </Body>
             <View className="mt-4">
               <TagRow tags={post.tags} />
+            </View>
+            <View className="mt-4">
+              <RestaurantSocialSummary post={post} />
             </View>
           </View>
 

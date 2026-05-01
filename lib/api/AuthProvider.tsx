@@ -8,10 +8,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { ImagePickerAsset } from "expo-image-picker";
 
 import {
   deleteAccount as deleteAccountEndpoint,
+  completeProfile as completeProfileEndpoint,
   fetchMe,
+  loginWithApple,
+  loginWithGoogle,
   loginUser,
   logoutUser,
   registerUser,
@@ -24,6 +28,7 @@ import {
   type PersistedSession,
 } from "./session";
 import type { ApiUser } from "./types";
+import { uploadAsset } from "./uploads";
 
 interface AuthContextValue {
   /** true while we're still reading SecureStore on first boot */
@@ -36,11 +41,22 @@ interface AuthContextValue {
   isSignedIn: boolean;
 
   signIn: (input: { email: string; password: string }) => Promise<void>;
+  signInWithGoogle: (input: {
+    idToken: string;
+    handle?: string;
+    displayName?: string;
+  }) => Promise<{ onboardingRequired: boolean }>;
+  signInWithApple: (input: {
+    idToken: string;
+    handle?: string;
+    displayName?: string;
+  }) => Promise<{ onboardingRequired: boolean }>;
   signUp: (input: {
     email: string;
     password: string;
     handle: string;
     displayName: string;
+    avatarAsset?: ImagePickerAsset | null;
   }) => Promise<void>;
   signOut: () => Promise<void>;
   /**
@@ -52,6 +68,17 @@ interface AuthContextValue {
   refreshUser: () => Promise<void>;
   /** Ask the server to send another verification email (throttled server-side). */
   resendVerificationEmail: () => Promise<void>;
+  completeProfile: (input: {
+    handle: string;
+    displayName: string;
+    bio?: string;
+    avatarUrl?: string | null;
+    homeCityId?: string | null;
+    preferredCityId?: string | null;
+    discoveryLocationMode?: "home_city" | "anywhere";
+    locationPermissionState?: "unknown" | "denied" | "granted";
+    interestTopics?: string[];
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -115,6 +142,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [adopt]);
 
+  const signInWithGoogle = useCallback<AuthContextValue["signInWithGoogle"]>(
+    async (input) => {
+      const res = await loginWithGoogle(input);
+      await adopt({
+        token: res.session.token,
+        expiresAt: res.session.expiresAt,
+        user: res.user,
+      });
+      return { onboardingRequired: Boolean(res.onboardingRequired) };
+    },
+    [adopt],
+  );
+
+  const signInWithApple = useCallback<AuthContextValue["signInWithApple"]>(
+    async (input) => {
+      const res = await loginWithApple(input);
+      await adopt({
+        token: res.session.token,
+        expiresAt: res.session.expiresAt,
+        user: res.user,
+      });
+      return { onboardingRequired: Boolean(res.onboardingRequired) };
+    },
+    [adopt],
+  );
+
   const signUp = useCallback<AuthContextValue["signUp"]>(async (input) => {
     const res = await registerUser({
       email: input.email.trim().toLowerCase(),
@@ -122,10 +175,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       handle: input.handle.trim().toLowerCase(),
       displayName: input.displayName.trim(),
     });
+    let user = res.user;
+    if (input.avatarAsset) {
+      try {
+        const uploaded = await uploadAsset(
+          input.avatarAsset,
+          "image",
+          res.session.token,
+        );
+        const completed = await completeProfileEndpoint(res.session.token, {
+          handle: user.handle,
+          displayName: user.displayName,
+          bio: user.bio ?? undefined,
+          avatarUrl: uploaded.publicUrl,
+          homeCityId: user.homeCityId ?? undefined,
+          preferredCityId: user.preferredCityId ?? undefined,
+          discoveryLocationMode: user.discoveryLocationMode,
+          locationPermissionState: user.locationPermissionState,
+          interestTopics: user.interestTopics ?? [],
+        });
+        user = completed.user;
+      } catch {
+        // Keep signup smooth if the image upload flakes after account creation.
+        user = res.user;
+      }
+    }
     await adopt({
       token: res.session.token,
       expiresAt: res.session.expiresAt,
-      user: res.user,
+      user,
     });
   }, [adopt]);
 
@@ -172,6 +250,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await resendVerificationEmailEndpoint(token);
     }, [session?.token]);
 
+  const completeProfile = useCallback<AuthContextValue["completeProfile"]>(
+    async (input) => {
+      const token = session?.token;
+      const expiresAt = session?.expiresAt;
+      if (!token || !expiresAt) throw new Error("Not signed in");
+      const { user } = await completeProfileEndpoint(token, input);
+      const next: PersistedSession = { token, expiresAt, user };
+      await saveSession({ token, expiresAt }, user);
+      setSession(next);
+    },
+    [session?.expiresAt, session?.token],
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       bootstrapping,
@@ -179,21 +270,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: session?.token ?? null,
       isSignedIn: Boolean(session?.token && session?.user),
       signIn,
+      signInWithGoogle,
+      signInWithApple,
       signUp,
       signOut,
       deleteAccount,
       refreshUser,
       resendVerificationEmail,
+      completeProfile,
     }),
     [
       bootstrapping,
       session,
       signIn,
+      signInWithGoogle,
+      signInWithApple,
       signUp,
       signOut,
       deleteAccount,
       refreshUser,
       resendVerificationEmail,
+      completeProfile,
     ],
   );
 

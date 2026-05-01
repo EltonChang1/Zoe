@@ -3,6 +3,7 @@ import { useCallback, useMemo } from "react";
 import { ActivityIndicator, Alert, Share, View } from "react-native";
 
 import { AlbumReviewView } from "@/components/post/AlbumReviewView";
+import { BlogStoryView } from "@/components/post/BlogStoryView";
 import { DiscoveryPhotoView } from "@/components/post/DiscoveryPhotoView";
 import { ProductHeroView } from "@/components/post/ProductHeroView";
 import type { PostInteraction } from "@/components/post/types";
@@ -77,9 +78,9 @@ export default function PostDetailScreen() {
   // so this stays a dumb projection. While we're here, register every
   // commenter + reply author in the client mock registry so avatars/handles
   // render correctly for users we haven't seen elsewhere yet.
-  const loadedComments = commentsQuery.data?.comments ?? [];
   const flatComments = useMemo<Comment[]>(() => {
     if (!data) return [];
+    const loadedComments = commentsQuery.data?.comments ?? [];
     const postAuthorId = data.post.authorId;
     const out: Comment[] = [];
 
@@ -130,7 +131,7 @@ export default function PostDetailScreen() {
       }
     }
     return out;
-  }, [data, loadedComments]);
+  }, [data, commentsQuery.data?.comments]);
 
   const onToggleLike = useCallback(() => {
     if (!isSignedIn || !id) return;
@@ -139,8 +140,28 @@ export default function PostDetailScreen() {
 
   const onToggleSave = useCallback(() => {
     if (!isSignedIn || !id) return;
-    saveMutation.mutate({ id, saved });
-  }, [isSignedIn, id, saved, saveMutation]);
+    saveMutation.mutate(
+      { id, saved },
+      {
+        onSuccess: () => {
+          if (!saved && mappedPost?.objectId) {
+            Alert.alert(
+              "Saved to your taste library",
+              "Want to make it part of your rankings too?",
+              [
+                { text: "Later", style: "cancel" },
+                {
+                  text: "Add to ranking",
+                  onPress: () =>
+                    router.push(`/rank/add?objectId=${mappedPost.objectId}`),
+                },
+              ],
+            );
+          }
+        },
+      },
+    );
+  }, [isSignedIn, id, saved, saveMutation, mappedPost?.objectId, router]);
 
   const onSubmitComment = useCallback(
     async (body: string, parentId?: string) => {
@@ -292,7 +313,9 @@ export default function PostDetailScreen() {
     // when the viewer can act on at least one option.
     onMore: isSignedIn ? onMore : undefined,
     onPressAuthor: () => router.push(`/user/${authorHandle}`),
-    onPressObject: () => router.push(`/object/${mappedPost.objectId}`),
+    onPressObject: mappedPost.objectId
+      ? () => router.push(`/object/${mappedPost.objectId}`)
+      : undefined,
     onSubmitComment,
     submittingComment: commentMutation.isPending,
     viewerId: user?.id,
@@ -307,6 +330,14 @@ export default function PostDetailScreen() {
   };
 
   switch (mappedPost.detailLayout) {
+    case "blog_story":
+      return (
+        <BlogStoryView
+          post={mappedPost}
+          comments={flatComments}
+          interaction={interaction}
+        />
+      );
     case "album_review":
       return (
         <AlbumReviewView

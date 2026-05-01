@@ -27,6 +27,7 @@ import { cn } from "@/lib/cn";
 import type { RankingEntry, RankingList, User } from "@/data/types";
 import { getObject } from "@/data/objects";
 import { getUser } from "@/data/users";
+import { getSpotifyLinks, openSpotifyLinks } from "@/lib/music/spotifyLinks";
 import {
   useAuth,
   useBlockUser,
@@ -195,7 +196,10 @@ export default function RankingListDetailScreen() {
 
           <View className="px-5 mt-8 gap-5">
             {list.entries.length === 0 ? (
-              <EmptyEntries isOwner={isOwner} onAdd={() => router.push("/rank/add")} />
+              <EmptyEntries
+                isOwner={isOwner}
+                onAdd={() => router.push(`/rank/add?listId=${list.id}`)}
+              />
             ) : (
               list.entries.map((entry) => (
                 <EntryRow
@@ -211,7 +215,7 @@ export default function RankingListDetailScreen() {
             <View className="px-5 mt-10">
               <Button
                 label="Add to this ranking"
-                onPress={() => router.push("/rank/add")}
+                onPress={() => router.push(`/rank/add?listId=${list.id}`)}
                 full
               />
             </View>
@@ -293,6 +297,9 @@ function EntryRow({
   onPress?: () => void;
 }) {
   const object = getObject(entry.objectId);
+  const spotifyLinks = getSpotifyLinks(object);
+  const hasSpotify = Boolean(spotifyLinks.uri || spotifyLinks.webUrl);
+  const imageUrl = entry.imageUrl || object?.heroImage;
 
   return (
     <Pressable
@@ -307,11 +314,11 @@ function EntryRow({
       }}
     >
       <View className="relative w-[112px] bg-surface-container-low">
-        {object?.heroImage ? (
+        {imageUrl ? (
           <Image
-            source={{ uri: object.heroImage }}
+            source={{ uri: imageUrl }}
             style={{ flex: 1, aspectRatio: 1 }}
-            contentFit="cover"
+            contentFit={hasSpotify ? "contain" : "cover"}
             transition={220}
           />
         ) : (
@@ -319,18 +326,20 @@ function EntryRow({
             <Icon name="image" size={24} color="#B0A49F" />
           </View>
         )}
-        <LinearGradient
-          colors={gradients.rankSpine}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 3,
-          }}
-        />
+        {!hasSpotify ? (
+          <LinearGradient
+            colors={gradients.rankSpine}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 3,
+            }}
+          />
+        ) : null}
       </View>
 
       <View className="flex-1 p-4 justify-between">
@@ -338,7 +347,7 @@ function EntryRow({
           <View className="flex-1 pr-3">
             <View className="flex-row items-baseline gap-2">
               <Text className="font-display-italic text-primary text-[24px] tracking-tightest">
-                #{entry.rank}
+                #{entry.rank} · {entry.score.toFixed(1)}
               </Text>
               {entry.movement && (
                 <MovementPill
@@ -375,6 +384,23 @@ function EntryRow({
           </View>
         )}
 
+        {hasSpotify ? (
+          <View className="mt-3 items-start">
+            <Pressable
+              onPress={() => openSpotifyLinks(spotifyLinks).catch(() => undefined)}
+              className="flex-row items-center rounded-full border border-outline-variant/35 px-3 py-1.5 active:opacity-70"
+            >
+              <Icon name="library-music" size={14} color="#55343B" />
+              <Label className="ml-1.5 text-[10px] font-label-semibold uppercase tracking-widest text-primary">
+                Listen
+              </Label>
+            </Pressable>
+            <Label className="mt-1 text-[9px] text-on-surface-variant">
+              Metadata by Spotify
+            </Label>
+          </View>
+        ) : null}
+
         {entry.note ? (
           <Body
             className="mt-2 text-[12px] leading-[16px] text-on-surface-variant"
@@ -382,6 +408,27 @@ function EntryRow({
           >
             {entry.note}
           </Body>
+        ) : null}
+
+        {entry.restaurantVisit ? (
+          <View className="mt-3 gap-1">
+            {entry.restaurantVisit.companions.length > 0 ? (
+              <Label className="text-[10px]" numberOfLines={1}>
+                With{" "}
+                {entry.restaurantVisit.companions
+                  .map((user) => `@${user.handle}`)
+                  .join(", ")}
+              </Label>
+            ) : null}
+            {entry.restaurantVisit.dishes.length > 0 ? (
+              <Label className="text-[10px]" numberOfLines={2}>
+                Ordered{" "}
+                {entry.restaurantVisit.dishes
+                  .map((dish) => dish.name)
+                  .join(", ")}
+              </Label>
+            ) : null}
+          </View>
         ) : null}
       </View>
     </Pressable>

@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,9 +16,22 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { GlassTopBar } from "@/components/nav/GlassTopBar";
 import { Icon } from "@/components/ui/Icon";
+import { MusicPicker } from "@/components/music/MusicPicker";
+import { PlacePicker } from "@/components/places/PlacePicker";
+import {
+  PairwiseCompareStep,
+  usePairwiseInsertion,
+} from "@/components/rank/PairwiseCompare";
+import {
+  RestaurantSocialFields,
+  emptyRestaurantSocialDraft,
+  isRestaurantLikeClientObject,
+  mentionedUserIdsFromDraft,
+  restaurantVisitInputFromDraft,
+  type RestaurantSocialDraft,
+} from "@/components/social/RestaurantSocialFields";
 import {
   Body,
-  Display,
   HeadlineItalic,
   Label,
   LabelCaps,
@@ -28,11 +41,14 @@ import {
   useAuth,
   useCreatePost,
   useObjectQuery,
-  useObjectSearchQuery,
   useOwnerRankingListsQuery,
+  useRankingListQuery,
 } from "@/lib/api";
 import type { ApiSearchObjectHit } from "@/lib/api/types";
 import { ApiHttpError } from "@/lib/api/client";
+import { pickAndUploadImage } from "@/lib/api/uploads";
+import { displayObjectType } from "@/lib/objects/display";
+import type { RankingEntry, RankingList } from "@/data/types";
 
 /**
  * Compose Post (PRD §12, VDK §16.4 — Post detail templates).
@@ -59,9 +75,10 @@ type PickedObject = {
   heroImage?: string | null;
 };
 
-type Layout = "discovery_photo" | "album_review" | "product_hero";
+type ComposeKind = "places" | "music" | "blog";
+type Layout = "discovery_photo" | "album_review" | "product_hero" | "blog_story";
 
-const LAYOUT_OPTIONS: Array<{ id: Layout; label: string; hint: string }> = [
+const LAYOUT_OPTIONS: { id: Layout; label: string; hint: string }[] = [
   {
     id: "discovery_photo",
     label: "Discovery photo",
@@ -77,6 +94,11 @@ const LAYOUT_OPTIONS: Array<{ id: Layout; label: string; hint: string }> = [
     label: "Product hero",
     hint: "Object front-and-center · editorial copy",
   },
+  {
+    id: "blog_story",
+    label: "Blog story",
+    hint: "Life post · image-led note",
+  },
 ];
 
 // Smart default layout based on object type — matches the server's default
@@ -85,6 +107,7 @@ const LAYOUT_OPTIONS: Array<{ id: Layout; label: string; hint: string }> = [
 function defaultLayoutFor(type: PickedObject["type"]): Layout {
   switch (type) {
     case "album":
+    case "track":
       return "album_review";
     case "perfume":
     case "fashion":
@@ -99,15 +122,18 @@ function defaultLayoutFor(type: PickedObject["type"]): Layout {
 export default function ComposePostScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { isSignedIn, user } = useAuth();
+  const { isSignedIn, user, token } = useAuth();
   const { objectId: seededObjectId } = useLocalSearchParams<{
     objectId?: string;
   }>();
 
-  const [step, setStep] = useState<"pick" | "compose">(
+  const [step, setStep] = useState<"pick" | "compose" | "compare">(
     seededObjectId ? "compose" : "pick",
   );
+  const [composeKind, setComposeKind] = useState<ComposeKind>("places");
   const [picked, setPicked] = useState<PickedObject | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Deep-link hydration. When the composer opens with `?objectId=...` (e.g.
   // from the object-detail "Post about this" CTA) we still need to populate
@@ -128,6 +154,8 @@ export default function ComposePostScreen() {
       city: o.city ?? null,
       heroImage: o.heroImage ?? null,
     });
+    setComposeKind(o.type === "album" || o.type === "track" ? "music" : "places");
+    setImageUrl(o.type === "album" || o.type === "track" ? o.heroImage ?? "" : "");
   }, [seededObjectId, picked, preseedQuery.data]);
 
   const [headline, setHeadline] = useState("");
@@ -135,11 +163,19 @@ export default function ComposePostScreen() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [attachedListId, setAttachedListId] = useState<string | null>(null);
+  const [rankingNote, setRankingNote] = useState("");
+  const [comparisonSeedKey, setComparisonSeedKey] = useState<string | null>(
+    null,
+  );
   const [layout, setLayout] = useState<Layout>("discovery_photo");
   const [locationLabel, setLocationLabel] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [socialDraft, setSocialDraft] = useState<RestaurantSocialDraft>(
+    emptyRestaurantSocialDraft,
+  );
 
   const mutation = useCreatePost();
+  const pairwise = usePairwiseInsertion();
 
   // Unauthenticated viewers bounce to sign-in; route matches Add-to-ranking's
   // guard shape so the onboarding loop is consistent.
@@ -153,33 +189,147 @@ export default function ComposePostScreen() {
   // chosen — but only if the user hasn't overridden it yet (state reset on
   // every pick is implicit since we re-run this effect).
   useEffect(() => {
+    if (composeKind === "blog") {
+      setLayout("blog_story");
+      return;
+    }
     if (picked) setLayout(defaultLayoutFor(picked.type));
-  }, [picked]);
+  }, [composeKind, picked]);
 
   const listsQuery = useOwnerRankingListsQuery(user?.handle ?? null);
   const ownLists = listsQuery.data?.lists ?? [];
+  const selectedListQuery = useRankingListQuery(attachedListId ?? undefined);
+  const selectedList = selectedListQuery.data?.list;
+  const existingRankedEntry =
+    picked && selectedList
+      ? selectedList.entries.find((entry) => entry.objectId === picked.id)
+      : undefined;
+  const rankingAttachmentReady =
+    !attachedListId ||
+    Boolean(existingRankedEntry) ||
+    pairwise.insertIndex != null;
+  const hasRequiredImage =
+    composeKind === "music"
+      ? Boolean(imageUrl || picked?.heroImage)
+      : Boolean(imageUrl);
+  const subjectReady = composeKind === "blog" || Boolean(picked);
+
+  useEffect(() => {
+    if (!attachedListId || !picked) {
+      pairwise.reset();
+      setComparisonSeedKey(null);
+      return;
+    }
+    if (!selectedList) return;
+
+    const key = `${attachedListId}:${picked.id}:${selectedList.entries.length}`;
+    if (comparisonSeedKey === key) return;
+
+    pairwise.reset();
+    setRankingNote("");
+    setComparisonSeedKey(key);
+
+    if (selectedList.entries.some((entry) => entry.objectId === picked.id)) {
+      setStep("compose");
+      return;
+    }
+
+    const doneIndex = pairwise.start(selectedList.entries.length);
+    setStep(doneIndex === null ? "compare" : "compose");
+  }, [
+    attachedListId,
+    picked,
+    selectedList,
+    comparisonSeedKey,
+    pairwise,
+    pairwise.reset,
+    pairwise.start,
+  ]);
 
   const canPublish =
-    Boolean(picked) &&
+    subjectReady &&
+    hasRequiredImage &&
     headline.trim().length > 0 &&
     headline.trim().length <= 160 &&
     caption.trim().length > 0 &&
     caption.trim().length <= 2000 &&
+    rankingAttachmentReady &&
+    !selectedListQuery.isLoading &&
+    !uploadingImage &&
     !mutation.isPending;
 
-  const handlePublish = async () => {
-    if (!picked) return;
+  const handleUploadImage = async () => {
+    if (!token) return;
     setSubmitError(null);
+    setUploadingImage(true);
     try {
+      const uploaded = await pickAndUploadImage(token, {
+        allowsEditing: false,
+        quality: 0.85,
+      });
+      if (uploaded) setImageUrl(uploaded.publicUrl);
+    } catch (e) {
+      setSubmitError(
+        e instanceof Error ? e.message : "Couldn't upload that image.",
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (composeKind !== "blog" && !picked) return;
+    setSubmitError(null);
+    const finalImageUrl = imageUrl || picked?.heroImage || "";
+    if (composeKind !== "music" && !imageUrl) {
+      setSubmitError("Upload a photo before publishing.");
+      return;
+    }
+    if (!finalImageUrl) {
+      setSubmitError("Add an image before publishing.");
+      return;
+    }
+    const rankingAttachment =
+      composeKind !== "blog" && attachedListId && existingRankedEntry
+        ? ({ mode: "existing", listId: attachedListId } as const)
+        : composeKind !== "blog" && attachedListId && pairwise.insertIndex != null
+          ? ({
+              mode: "insert",
+              listId: attachedListId,
+              insertAt: pairwise.insertIndex + 1,
+              note: rankingNote.trim() || undefined,
+            } as const)
+          : undefined;
+    try {
+      const restaurantEnabled =
+        composeKind !== "blog" && isRestaurantLikeClientObject(picked?.type);
+      const restaurantVisit = restaurantEnabled
+        ? restaurantVisitInputFromDraft(socialDraft)
+        : undefined;
       const res = await mutation.mutateAsync({
-        objectId: picked.id,
+        objectId: picked?.id,
+        postKind:
+          composeKind === "blog"
+            ? "blog"
+            : composeKind === "music"
+              ? "music"
+              : "place",
+        imageUrl: finalImageUrl,
         headline: headline.trim(),
         caption: caption.trim(),
         tags,
         detailLayout: layout,
-        rankingListId: attachedListId ?? undefined,
-        locationLabel: locationLabel.trim() || undefined,
-        aspect: layout === "album_review" ? "square" : "tall",
+        rankingAttachment,
+        locationLabel:
+          composeKind === "blog" ? undefined : locationLabel.trim() || undefined,
+        aspect:
+          layout === "album_review"
+            ? "square"
+            : layout === "product_hero"
+              ? "wide"
+              : "tall",
+        mentionedUserIds: mentionedUserIdsFromDraft(socialDraft),
+        restaurantVisit,
       });
       router.replace(`/post/${res.post.id}`);
     } catch (e) {
@@ -212,7 +362,11 @@ export default function ComposePostScreen() {
         }
         title={
           <Text className="font-display-italic text-primary text-[18px] tracking-tightest">
-            {step === "pick" ? "What are you sharing?" : "Compose"}
+            {step === "pick"
+              ? "What are you sharing?"
+              : step === "compare"
+                ? "Rank it"
+                : "Compose"}
           </Text>
         }
         trailing={
@@ -247,7 +401,8 @@ export default function ComposePostScreen() {
         >
           {step === "pick" ? (
             <PickStep
-              onPick={(hit) => {
+              onPick={(hit, kind) => {
+                setComposeKind(kind);
                 setPicked({
                   id: hit.id,
                   title: hit.title,
@@ -256,16 +411,64 @@ export default function ComposePostScreen() {
                   city: hit.city ?? null,
                   heroImage: hit.heroImage ?? null,
                 });
+                setSocialDraft(emptyRestaurantSocialDraft());
+                setImageUrl(kind === "music" ? hit.heroImage ?? "" : "");
+                if (!locationLabel.trim()) {
+                  setLocationLabel(hit.city ?? hit.subtitle ?? "");
+                }
+                setStep("compose");
+              }}
+              onBlog={() => {
+                setComposeKind("blog");
+                setPicked(null);
+                setAttachedListId(null);
+                setSocialDraft(emptyRestaurantSocialDraft());
+                pairwise.reset();
+                setComparisonSeedKey(null);
+                setLocationLabel("");
+                setLayout("blog_story");
+                setStep("compose");
+              }}
+            />
+          ) : step === "compare" && picked && selectedList ? (
+            <PairwiseCompareStep
+              picked={{
+                id: picked.id,
+                title: picked.title,
+                subtitle: picked.subtitle ?? undefined,
+                heroImage:
+                  picked.heroImage ??
+                  "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=1200&q=80",
+              }}
+              midObjectId={selectedList.entries[pairwise.mid]?.objectId}
+              midRank={pairwise.mid + 1}
+              eyebrow="Attach ranking"
+              body="Compare this post subject against your list so Zoe can place it honestly."
+              onAnswer={(newIsBetter) => {
+                const doneIndex = pairwise.answer(newIsBetter);
+                if (doneIndex !== null) setStep("compose");
+              }}
+              onTie={() => {
+                pairwise.tie();
                 setStep("compose");
               }}
             />
           ) : (
             <ComposeStep
               picked={picked}
+              composeKind={composeKind}
               onClearPick={() => {
                 setPicked(null);
+                setAttachedListId(null);
+                setImageUrl("");
+                setSocialDraft(emptyRestaurantSocialDraft());
+                pairwise.reset();
+                setComparisonSeedKey(null);
                 setStep("pick");
               }}
+              imageUrl={imageUrl || (composeKind === "music" ? picked?.heroImage ?? "" : "")}
+              uploadingImage={uploadingImage}
+              onUploadImage={handleUploadImage}
               headline={headline}
               onChangeHeadline={setHeadline}
               caption={caption}
@@ -279,12 +482,27 @@ export default function ComposePostScreen() {
               onChangeLayout={setLayout}
               ownLists={ownLists}
               attachedListId={attachedListId}
-              onToggleList={(id) =>
-                setAttachedListId(attachedListId === id ? null : id)
-              }
+              selectedListLoading={selectedListQuery.isLoading}
+              selectedList={selectedList}
+              existingRankedEntry={existingRankedEntry}
+              insertIndex={pairwise.insertIndex}
+              rankingNote={rankingNote}
+              onChangeRankingNote={setRankingNote}
+              onToggleList={(id) => {
+                setAttachedListId(attachedListId === id ? null : id);
+                pairwise.reset();
+                setComparisonSeedKey(null);
+                setRankingNote("");
+              }}
               locationLabel={locationLabel}
               onChangeLocation={setLocationLabel}
               submitError={submitError}
+              socialDraft={socialDraft}
+              onChangeSocialDraft={setSocialDraft}
+              restaurantEnabled={
+                composeKind !== "blog" &&
+                isRestaurantLikeClientObject(picked?.type)
+              }
               submitting={mutation.isPending}
               canPublish={canPublish}
               onPublish={handlePublish}
@@ -298,96 +516,91 @@ export default function ComposePostScreen() {
 
 // ---------------- Step 1 — Pick object ----------------
 
-function PickStep({ onPick }: { onPick: (hit: ApiSearchObjectHit) => void }) {
-  const [query, setQuery] = useState("");
-  const debounced = useDebouncedValue(query, 220);
-  const { data, isFetching, isError } = useObjectSearchQuery(debounced);
-  const results = data?.objects ?? [];
+function PickStep({
+  onPick,
+  onBlog,
+}: {
+  onPick: (hit: ApiSearchObjectHit, kind: Exclude<ComposeKind, "blog">) => void;
+  onBlog: () => void;
+}) {
+  const [mode, setMode] = useState<ComposeKind>("places");
 
   return (
     <View>
-      <LabelCaps>Step one</LabelCaps>
-      <Display className="mt-2 text-[32px] leading-[36px]">
-        Pick what you&apos;re sharing
-      </Display>
-      <Body className="mt-2 text-on-surface-variant">
-        Search the catalogue — cafés, albums, perfumes, places. If nothing
-        matches, publish a ranking entry first; new objects land in the
-        catalogue automatically.
-      </Body>
-
-      <View className="mt-6 border-b border-outline-variant/40 pb-3 flex-row items-center">
-        <Icon name="search" size={20} color="#504446" />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search an album, a place, a bottle…"
-          placeholderTextColor="rgba(80,68,70,0.55)"
-          autoFocus
-          className="flex-1 ml-3 font-headline-italic text-on-surface text-[20px]"
-          style={{ paddingVertical: 4 }}
-          autoCorrect={false}
-          autoCapitalize="none"
+      <View className="mb-5 flex-row rounded-xl bg-surface-container-low p-1">
+        <ModeButton
+          label="Places"
+          active={mode === "places"}
+          onPress={() => setMode("places")}
         />
-        {isFetching && <ActivityIndicator color="#55343B" />}
+        <ModeButton
+          label="Music"
+          active={mode === "music"}
+          onPress={() => setMode("music")}
+        />
+        <ModeButton
+          label="Blog"
+          active={mode === "blog"}
+          onPress={() => setMode("blog")}
+        />
       </View>
 
-      {query.trim().length < 2 && (
-        <Body className="mt-5 text-on-surface-variant">
-          Type at least two characters to start.
-        </Body>
+      {mode === "blog" ? (
+        <View className="rounded-xl border border-outline-variant/25 bg-surface-container-lowest p-5">
+          <LabelCaps>Step one</LabelCaps>
+          <HeadlineItalic className="mt-2 text-primary text-[28px] leading-[32px]">
+            Share a life post
+          </HeadlineItalic>
+          <Body className="mt-3 text-[14px] leading-[20px]">
+            Blog posts are image-led notes about your life, not tied to a place
+            or song.
+          </Body>
+          <View className="mt-5">
+            <Button label="Continue" onPress={onBlog} full />
+          </View>
+        </View>
+      ) : mode === "music" ? (
+        <MusicPicker
+          label="Step one"
+          title="Pick what you're sharing"
+          body="Search Zoe's catalogue or add an album or song from Spotify."
+          placeholder="Search albums, songs, artists..."
+          onPick={(hit) => onPick(hit, "music")}
+        />
+      ) : (
+        <PlacePicker
+          label="Step one"
+          title="Pick what you're sharing"
+          body="Search Zoe's catalogue or add a restaurant, café, bar, or spot from Google Places."
+          placeholder="Search an album, a place, a café..."
+          onPick={(hit) => onPick(hit, "places")}
+        />
       )}
-
-      {isError && (
-        <Body className="mt-5 text-rank-down">
-          Search hit a snag — try a different phrase.
-        </Body>
-      )}
-
-      {query.trim().length >= 2 && !isFetching && results.length === 0 && (
-        <Body className="mt-5 text-on-surface-variant">
-          No matches. Try a simpler phrase or a different spelling.
-        </Body>
-      )}
-
-      <View className="mt-4 gap-2">
-        {results.map((hit) => (
-          <Pressable
-            key={hit.id}
-            onPress={() => onPick(hit)}
-            className="flex-row items-center py-2 px-1 active:bg-surface-container-low rounded-lg"
-          >
-            {hit.heroImage ? (
-              <Image
-                source={{ uri: hit.heroImage }}
-                style={{ width: 52, height: 52, borderRadius: 8 }}
-                contentFit="cover"
-              />
-            ) : (
-              <View
-                style={{ width: 52, height: 52, borderRadius: 8 }}
-                className="bg-surface-container-low items-center justify-center"
-              >
-                <Icon name="image" size={18} color="#B0A49F" />
-              </View>
-            )}
-            <View className="ml-3 flex-1">
-              <Text
-                className="font-headline text-on-surface text-[15px]"
-                numberOfLines={1}
-              >
-                {hit.title}
-              </Text>
-              <Label className="mt-0.5 text-[11px]" numberOfLines={1}>
-                {hit.subtitle ?? hit.type}
-                {hit.city ? ` · ${hit.city}` : ""}
-              </Label>
-            </View>
-            <Icon name="chevron-right" size={20} color="#827475" />
-          </Pressable>
-        ))}
-      </View>
     </View>
+  );
+}
+
+function ModeButton({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={cn(
+        "flex-1 items-center rounded-lg py-2 active:opacity-75",
+        active && "bg-background",
+      )}
+    >
+      <Label className="font-label-semibold uppercase tracking-widest text-[11px]">
+        {label}
+      </Label>
+    </Pressable>
   );
 }
 
@@ -395,7 +608,11 @@ function PickStep({ onPick }: { onPick: (hit: ApiSearchObjectHit) => void }) {
 
 function ComposeStep(props: {
   picked: PickedObject | null;
+  composeKind: ComposeKind;
   onClearPick: () => void;
+  imageUrl: string;
+  uploadingImage: boolean;
+  onUploadImage: () => void;
   headline: string;
   onChangeHeadline: (s: string) => void;
   caption: string;
@@ -407,19 +624,32 @@ function ComposeStep(props: {
   onCommitTag: () => void;
   layout: Layout;
   onChangeLayout: (l: Layout) => void;
-  ownLists: Array<{ id: string; title: string }>;
+  ownLists: { id: string; title: string }[];
   attachedListId: string | null;
+  selectedListLoading: boolean;
+  selectedList?: RankingList;
+  existingRankedEntry?: RankingEntry;
+  insertIndex: number | null;
+  rankingNote: string;
+  onChangeRankingNote: (s: string) => void;
   onToggleList: (id: string) => void;
   locationLabel: string;
   onChangeLocation: (s: string) => void;
   submitError: string | null;
+  socialDraft: RestaurantSocialDraft;
+  onChangeSocialDraft: (draft: RestaurantSocialDraft) => void;
+  restaurantEnabled: boolean;
   submitting: boolean;
   canPublish: boolean;
   onPublish: () => void;
 }) {
   const {
     picked,
+    composeKind,
     onClearPick,
+    imageUrl,
+    uploadingImage,
+    onUploadImage,
     headline,
     onChangeHeadline,
     caption,
@@ -433,10 +663,19 @@ function ComposeStep(props: {
     onChangeLayout,
     ownLists,
     attachedListId,
+    selectedListLoading,
+    selectedList,
+    existingRankedEntry,
+    insertIndex,
+    rankingNote,
+    onChangeRankingNote,
     onToggleList,
     locationLabel,
     onChangeLocation,
     submitError,
+    socialDraft,
+    onChangeSocialDraft,
+    restaurantEnabled,
     submitting,
     canPublish,
     onPublish,
@@ -444,6 +683,7 @@ function ComposeStep(props: {
 
   const headlineCount = headline.trim().length;
   const captionCount = caption.trim().length;
+  const imageRequired = composeKind !== "music";
 
   return (
     <View>
@@ -465,7 +705,7 @@ function ComposeStep(props: {
             </View>
           )}
           <View className="ml-3 flex-1">
-            <LabelCaps>{picked.type}</LabelCaps>
+            <LabelCaps>{displayObjectType(picked.type)}</LabelCaps>
             <HeadlineItalic
               className="mt-0.5 text-primary text-[18px] leading-[22px]"
               numberOfLines={1}
@@ -484,7 +724,70 @@ function ComposeStep(props: {
             <Icon name="edit" size={18} color="#504446" />
           </Pressable>
         </View>
+      ) : composeKind === "blog" ? (
+        <View className="rounded-xl bg-surface-container-lowest border border-outline-variant/15 p-4">
+          <LabelCaps>Blog</LabelCaps>
+          <HeadlineItalic className="mt-1 text-primary text-[20px] leading-[24px]">
+            A life post
+          </HeadlineItalic>
+          <Body className="mt-2 text-[13px] leading-[19px]">
+            Share a moment without attaching it to a catalog object.
+          </Body>
+          <Pressable
+            onPress={onClearPick}
+            className="mt-3 flex-row items-center active:opacity-70"
+          >
+            <Icon name="edit" size={16} color="#504446" />
+            <Label className="ml-1 text-[11px]">Change type</Label>
+          </Pressable>
+        </View>
       ) : null}
+
+      <Field
+        label={imageRequired ? "Upload image" : "Image"}
+        counter={imageRequired ? "required" : "Spotify artwork"}
+      >
+        {imageUrl ? (
+          <View className="mt-2 rounded-xl overflow-hidden bg-surface-container-low">
+            <Image
+              source={{ uri: imageUrl }}
+              style={{ aspectRatio: composeKind === "music" ? 1 : 4 / 5 }}
+              contentFit={composeKind === "music" ? "contain" : "cover"}
+              transition={220}
+              className="w-full"
+            />
+          </View>
+        ) : (
+          <Pressable
+            onPress={onUploadImage}
+            disabled={uploadingImage}
+            className="mt-2 h-44 rounded-xl border border-dashed border-outline-variant/50 bg-surface-container-low items-center justify-center active:opacity-80"
+          >
+            {uploadingImage ? (
+              <ActivityIndicator color="#55343B" />
+            ) : (
+              <>
+                <Icon name="add-a-photo" size={24} color="#55343B" />
+                <Label className="mt-2 text-[11px] uppercase tracking-widest">
+                  Add photo
+                </Label>
+              </>
+            )}
+          </Pressable>
+        )}
+        {composeKind !== "music" && imageUrl ? (
+          <Pressable
+            onPress={onUploadImage}
+            disabled={uploadingImage}
+            className="mt-3 flex-row items-center active:opacity-70"
+          >
+            <Icon name="add-a-photo" size={16} color="#504446" />
+            <Label className="ml-1 text-[11px]">
+              {uploadingImage ? "Uploading…" : "Replace photo"}
+            </Label>
+          </Pressable>
+        ) : null}
+      </Field>
 
       {/* Headline */}
       <Field label="Headline" counter={`${headlineCount}/160`}>
@@ -501,11 +804,18 @@ function ComposeStep(props: {
       </Field>
 
       {/* Caption */}
-      <Field label="Review" counter={`${captionCount}/2000`}>
+      <Field
+        label={composeKind === "blog" ? "Story" : "Review"}
+        counter={`${captionCount}/2000`}
+      >
         <TextInput
           value={caption}
           onChangeText={onChangeCaption}
-          placeholder="Write a paragraph. Who's it for? When does it land? Why does it stay with you?"
+          placeholder={
+            composeKind === "blog"
+              ? "What happened? What did it feel like?"
+              : "Write a paragraph. Who's it for? When does it land? Why does it stay with you?"
+          }
           placeholderTextColor="rgba(80,68,70,0.55)"
           maxLength={2000}
           multiline
@@ -546,10 +856,17 @@ function ComposeStep(props: {
         </View>
       </Field>
 
+      <RestaurantSocialFields
+        draft={socialDraft}
+        onChange={onChangeSocialDraft}
+        restaurantEnabled={restaurantEnabled}
+      />
+
       {/* Layout */}
+      {composeKind !== "blog" ? (
       <Field label="Detail layout">
         <View className="gap-2 mt-2">
-          {LAYOUT_OPTIONS.map((opt) => {
+          {LAYOUT_OPTIONS.filter((opt) => opt.id !== "blog_story").map((opt) => {
             const selected = layout === opt.id;
             return (
               <Pressable
@@ -583,8 +900,10 @@ function ComposeStep(props: {
           })}
         </View>
       </Field>
+      ) : null}
 
       {/* Optional — attach a ranking list (own only) */}
+      {composeKind !== "blog" ? (
       <Field
         label="Attach a ranking"
         counter={attachedListId ? "1 selected" : "optional"}
@@ -625,11 +944,50 @@ function ComposeStep(props: {
                 </Pressable>
               );
             })}
+            {attachedListId ? (
+              <View className="rounded-xl bg-surface-container-low px-3 py-3 border border-outline-variant/20">
+                {selectedListLoading ? (
+                  <View className="flex-row items-center">
+                    <ActivityIndicator color="#55343B" />
+                    <Label className="ml-2 text-[11px]">
+                      Loading ranking...
+                    </Label>
+                  </View>
+                ) : existingRankedEntry ? (
+                  <Label className="text-[11px]">
+                    Already ranked #{existingRankedEntry.rank} ·{" "}
+                    {existingRankedEntry.score.toFixed(1)}
+                  </Label>
+                ) : insertIndex != null && selectedList ? (
+                  <View>
+                    <Label className="text-[11px]">
+                      Will publish as #{insertIndex + 1} in {selectedList.title}
+                    </Label>
+                    <TextInput
+                      value={rankingNote}
+                      onChangeText={onChangeRankingNote}
+                      placeholder="Optional ranking note"
+                      placeholderTextColor="rgba(80,68,70,0.55)"
+                      maxLength={600}
+                      multiline
+                      className="mt-2 font-body text-on-surface text-[13px]"
+                      style={{ paddingVertical: 4, minHeight: 44 }}
+                    />
+                  </View>
+                ) : (
+                  <Label className="text-[11px] text-rank-down">
+                    Finish the comparison to publish.
+                  </Label>
+                )}
+              </View>
+            ) : null}
           </View>
         )}
       </Field>
+      ) : null}
 
       {/* Location label */}
+      {composeKind !== "blog" ? (
       <Field label="Location (optional)">
         <TextInput
           value={locationLabel}
@@ -641,6 +999,7 @@ function ComposeStep(props: {
           style={{ paddingVertical: 6 }}
         />
       </Field>
+      ) : null}
 
       {submitError && (
         <Text className="mt-4 text-rank-down font-label text-[12px]">
@@ -687,12 +1046,3 @@ function Field({
 }
 
 // ---------------- misc ----------------
-
-function useDebouncedValue<T>(value: T, delayMs: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delayMs);
-    return () => clearTimeout(t);
-  }, [value, delayMs]);
-  return debounced;
-}

@@ -85,6 +85,10 @@ function RootNavigator() {
         options={{ presentation: "card", animation: "slide_from_right" }}
       />
       <Stack.Screen
+        name="complete-profile"
+        options={{ presentation: "card", animation: "slide_from_right" }}
+      />
+      <Stack.Screen
         name="post/[id]"
         options={{ presentation: "card", animation: "slide_from_right" }}
       />
@@ -118,6 +122,10 @@ function RootNavigator() {
       />
       <Stack.Screen
         name="settings/blocked"
+        options={{ presentation: "card", animation: "slide_from_right" }}
+      />
+      <Stack.Screen
+        name="settings/connected-apps"
         options={{ presentation: "card", animation: "slide_from_right" }}
       />
     </Stack>

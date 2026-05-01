@@ -38,13 +38,16 @@ export class HttpError extends Error {
   static tooManyRequests(message = "Too many requests") {
     return new HttpError(429, "too_many_requests", message);
   }
+  static serviceUnavailable(message = "Service unavailable", details?: unknown) {
+    return new HttpError(503, "service_unavailable", message, details);
+  }
 }
 
 export function sendError(c: Context, err: unknown) {
   if (err instanceof HttpError) {
     return c.json(
       { error: { code: err.code, message: err.message, details: err.details } },
-      err.status as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500,
+      err.status as 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500 | 503,
     );
   }
   // Unknown — never leak details.

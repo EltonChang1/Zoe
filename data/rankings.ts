@@ -9,9 +9,9 @@ export const rankings: RankingList[] = [
     description: "Rooms that change the way I spend an hour.",
     visibility: "public",
     entries: [
-      { objectId: "O021", rank: 1 },
-      { objectId: "O001", rank: 2, movement: "up", delta: 1 },
-      { objectId: "O012", rank: 3, movement: "new" },
+      { objectId: "O021", rank: 1, score: 10.0 },
+      { objectId: "O001", rank: 2, score: 7.2, movement: "up", delta: 1 },
+      { objectId: "O012", rank: 3, score: 5.0, movement: "new" },
     ],
     saves: 412,
     coverImage:
@@ -25,9 +25,9 @@ export const rankings: RankingList[] = [
     description: "Warm, close-range, stays interesting.",
     visibility: "public",
     entries: [
-      { objectId: "O008", rank: 1 },
-      { objectId: "O006", rank: 2 },
-      { objectId: "O007", rank: 3, movement: "up", delta: 1 },
+      { objectId: "O008", rank: 1, score: 10.0 },
+      { objectId: "O006", rank: 2, score: 7.2 },
+      { objectId: "O007", rank: 3, score: 5.0, movement: "up", delta: 1 },
     ],
     saves: 231,
     coverImage:
@@ -41,7 +41,7 @@ export const rankings: RankingList[] = [
     description: "Records welded to a period of my life.",
     visibility: "public",
     entries: [
-      { objectId: "O009", rank: 1 },
+      { objectId: "O009", rank: 1, score: 10.0 },
     ],
     saves: 984,
     coverImage:
@@ -54,7 +54,7 @@ export const rankings: RankingList[] = [
     category: "Fashion",
     description: "Concrete over carpet.",
     visibility: "public",
-    entries: [{ objectId: "O020", rank: 5 }],
+    entries: [{ objectId: "O020", rank: 5, score: 10.0 }],
     saves: 712,
     coverImage:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",

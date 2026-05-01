@@ -46,7 +46,7 @@ const shortInclude = Prisma.validator<Prisma.ShortInclude>()({
     select: { id: true, handle: true, displayName: true, avatarUrl: true },
   },
   object: {
-    select: { id: true, title: true, type: true, heroImage: true },
+    select: { id: true, title: true, type: true, heroImage: true, metadata: true },
   },
   _count: { select: { likedBy: true, savedBy: true, comments: true } },
 });
@@ -425,4 +425,3 @@ export const shortsRouter = new Hono<{ Variables: AuthVariables }>()
       return c.json({ ok: true });
     },
   );
-

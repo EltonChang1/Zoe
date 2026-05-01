@@ -20,9 +20,28 @@ enum ObjectType {
   bar
   perfume
   album
+  track
   fashion
   sneaker
   product
+}
+
+enum AuthProvider {
+  google
+  apple
+}
+
+enum ConnectedProvider {
+  spotify
+}
+
+enum MusicProvider {
+  spotify
+}
+
+enum MusicProviderItemType {
+  album
+  track
 }
 
 enum PostType {
@@ -35,12 +54,44 @@ enum DetailLayout {
   discovery_photo
   album_review
   product_hero
+  blog_story
+}
+
+enum PostKind {
+  place
+  music
+  blog
+  ranking_update
 }
 
 enum ListVisibility {
   public
   followers
   private
+}
+
+enum RankingListType {
+  official_city_connected
+  custom_personal
+}
+
+enum OfficialCityCategory {
+  places_to_go
+  restaurant
+  cafe
+}
+
+enum ContributionSource {
+  official_personal_lists
+  pairwise_votes
+  hybrid
+}
+
+enum CityMembershipRole {
+  viewer
+  participant
+  qualified_local
+  verified_local
 }
 
 enum RankMovement {
@@ -77,6 +128,31 @@ enum ReportStatus {
   dismissed
 }
 
+enum RestaurantBookmarkStatus {
+  want_to_try
+}
+
+enum RestaurantMealType {
+  breakfast
+  brunch
+  lunch
+  dinner
+  dessert
+  drinks
+  other
+}
+
+enum DiscoveryLocationMode {
+  home_city
+  anywhere
+}
+
+enum LocationPermissionState {
+  unknown
+  denied
+  granted
+}
+
 // -------- Auth -----------------------------------------------------------
 
 model User {
@@ -84,11 +160,18 @@ model User {
   email        String   @unique
   handle       String   @unique
   displayName  String
-  passwordHash String
+  passwordHash String?
   avatarUrl    String?
   bio          String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  homeCityId    String?
+  homeCity      City?    @relation("UserHomeCity", fields: [homeCityId], references: [id], onDelete: SetNull)
+  preferredCityId String?
+  preferredCity   City?  @relation("UserPreferredCity", fields: [preferredCityId], references: [id], onDelete: SetNull)
+  discoveryLocationMode DiscoveryLocationMode @default(home_city)
+  locationPermissionState LocationPermissionState @default(unknown)
+  interestTopics String[] @default([])
 
   /// When set, the address is considered verified (login allowed as normal).
   emailVerifiedAt                 DateTime?
@@ -100,15 +183,27 @@ model User {
   lastVerificationEmailSentAt     DateTime?
 
   sessions      Session[]
+  authProviders UserAuthProvider[]
+  connectedAccounts ConnectedAccount[]
+  oauthStates   OAuthState[]
   posts         Post[]
   lists         RankingList[]
   comments      Comment[]
   likes         Like[]
   saves         Save[]
+  mentionsMade  PostMention[] @relation("PostMentionCreator")
+  mentionedInPosts PostMention[] @relation("PostMentionUser")
+  restaurantVisits RestaurantVisit[] @relation("RestaurantVisitAuthor")
+  restaurantVisitCompanions RestaurantVisitCompanion[]
+  restaurantBookmarks UserRestaurantBookmark[]
+  recentSearches RecentSearch[]
+  followedSearches FollowedSearch[]
   shorts        Short[]
   shortLikes    ShortLike[]
   shortSaves    ShortSave[]
   shortComments ShortComment[]
+  cityMemberships UserCityMembership[]
+  pairwiseVotes   PairwiseVote[]
   followers     Follow[]       @relation("follower")
   following     Follow[]       @relation("followee")
 
@@ -121,6 +216,58 @@ model User {
   pushTokens     PushToken[]
 
   @@map("users")
+}
+
+model RecentSearch {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query            String
+  normalizedQuery  String
+  inferredCategory String?
+  lastResultType   String?
+  lastResultId     String?
+  hits             Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, normalizedQuery])
+  @@index([userId, updatedAt])
+  @@map("recent_searches")
+}
+
+model FollowedSearch {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query            String
+  normalizedQuery  String
+  inferredCategory String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, normalizedQuery])
+  @@index([userId, updatedAt])
+  @@map("followed_searches")
+}
+
+model UserAuthProvider {
+  id                String       @id @default(cuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider          AuthProvider
+  providerAccountId String
+  email             String?
+  emailVerified     Boolean      @default(false)
+  displayName       String?
+  avatarUrl         String?
+  rawProfile        Json?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("user_auth_providers")
 }
 
 model Session {
@@ -147,11 +294,20 @@ model Object {
   title           String
   subtitle        String?
   city            String?
+  cityId          String?
+  cityRef         City?      @relation("ObjectCity", fields: [cityId], references: [id], onDelete: SetNull)
   neighborhood    String?
   tags            String[]
   shortDescriptor String?
   heroImage       String?
   metadata        Json?
+  externalProvider String?
+  externalPlaceId  String?
+  externalPlaceIdRefreshedAt DateTime?
+  primaryType      String?
+  externalTypes    String[]   @default([])
+  latitude          Float?
+  longitude         Float?
   createdAt       DateTime   @default(now())
 
   // Generated tsvector column (see prisma/migrations/**/search.sql).
@@ -159,11 +315,90 @@ model Object {
 
   posts           Post[]
   entries         RankingEntry[]
+  restaurantVisits RestaurantVisit[]
+  restaurantBookmarks UserRestaurantBookmark[]
+  cityRankingEntries CityRankingEntry[]
+  pairwiseVoteAsA PairwiseVote[] @relation("PairwiseObjectA")
+  pairwiseVoteAsB PairwiseVote[] @relation("PairwiseObjectB")
+  pairwiseVoteSelected PairwiseVote[] @relation("PairwiseSelectedObject")
   shorts          Short[]
+  musicProviderItems MusicProviderItem[]
 
   @@index([type])
   @@index([city])
+  @@index([cityId])
+  @@index([latitude, longitude])
+  @@unique([externalProvider, externalPlaceId])
   @@map("objects")
+}
+
+model MusicProviderItem {
+  id             String                @id @default(cuid())
+  objectId       String
+  object         Object                @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  provider       MusicProvider
+  itemType       MusicProviderItemType
+  providerItemId String
+  spotifyUri     String?
+  webUrl         String
+  artworkUrl     String?
+  artists        String[]
+  albumName      String?
+  albumProviderId String?
+  releaseDate    String?
+  durationMs     Int?
+  explicit       Boolean              @default(false)
+  market         String?
+  rawMetadata    Json?
+  refreshedAt    DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@unique([provider, itemType, providerItemId])
+  @@unique([objectId, provider])
+  @@index([objectId])
+  @@index([provider, itemType])
+  @@map("music_provider_items")
+}
+
+model ConnectedAccount {
+  id                    String            @id @default(cuid())
+  userId                String
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider              ConnectedProvider
+  providerAccountId     String
+  displayName           String?
+  email                 String?
+  avatarUrl             String?
+  market                String?
+  scopes                String[]
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  accessTokenExpiresAt  DateTime?
+  rawProfile            Json?
+  disconnectedAt        DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@unique([userId, provider])
+  @@unique([provider, providerAccountId])
+  @@index([disconnectedAt])
+  @@map("connected_accounts")
+}
+
+model OAuthState {
+  state        String            @id
+  provider     ConnectedProvider
+  userId       String
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeVerifier String
+  redirectUri  String
+  expiresAt    DateTime
+  createdAt    DateTime          @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("oauth_states")
 }
 
 // -------- Social & content ----------------------------------------------
@@ -173,11 +408,13 @@ model Post {
   authorId       String
   author         User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  objectId       String
-  object         Object        @relation(fields: [objectId], references: [id])
+  objectId       String?
+  object         Object?       @relation(fields: [objectId], references: [id])
 
+  postKind       PostKind      @default(place)
   postType       PostType      @default(photo)
   detailLayout   DetailLayout  @default(discovery_photo)
+  imageUrl       String        @default("")
 
   headline       String
   caption        String
@@ -203,6 +440,8 @@ model Post {
   comments       Comment[]
   likes          Like[]
   saves          Save[]
+  mentions       PostMention[]
+  restaurantVisit RestaurantVisit? @relation("PostRestaurantVisit")
 
   @@index([authorId, publishedAt])
   @@index([publishedAt])
@@ -219,6 +458,12 @@ model RankingList {
   description String?
   visibility  ListVisibility @default(public)
   coverImage  String?
+  cityId      String?
+  city        City?          @relation("RankingListCity", fields: [cityId], references: [id], onDelete: SetNull)
+  listType    RankingListType @default(custom_personal)
+  countsTowardCityRanking Boolean @default(false)
+  linkedCityRankingListId String?
+  linkedCityRankingList   OfficialCityRankingList? @relation(fields: [linkedCityRankingListId], references: [id], onDelete: SetNull)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
@@ -227,6 +472,9 @@ model RankingList {
 
   @@index([ownerId])
   @@index([category])
+  @@index([cityId])
+  @@index([linkedCityRankingListId])
+  @@index([listType])
   @@map("ranking_lists")
 }
 
@@ -240,13 +488,214 @@ model RankingEntry {
   movement  RankMovement @default(stable)
   delta     Int?
   note      String?
+  imageUrl  String?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+  restaurantVisit RestaurantVisit? @relation("RankingEntryRestaurantVisit")
 
   @@unique([listId, objectId])
   @@unique([listId, rank])
   @@index([listId])
   @@map("ranking_entries")
+}
+
+model PostMention {
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation("PostMentionUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User     @relation("PostMentionCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId, createdAt])
+  @@index([createdById])
+  @@map("post_mentions")
+}
+
+model RestaurantVisit {
+  id             String              @id @default(cuid())
+  authorId       String
+  author         User                @relation("RestaurantVisitAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  objectId       String
+  object         Object              @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  postId         String?             @unique
+  post           Post?               @relation("PostRestaurantVisit", fields: [postId], references: [id], onDelete: Cascade)
+  rankingEntryId String?             @unique
+  rankingEntry   RankingEntry?       @relation("RankingEntryRestaurantVisit", fields: [rankingEntryId], references: [id], onDelete: Cascade)
+  visitedAt      DateTime?
+  mealType       RestaurantMealType?
+  priceTier      Int?
+  note           String?
+  labels         String[]            @default([])
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  companions RestaurantVisitCompanion[]
+  dishes     RestaurantVisitDish[]
+
+  @@index([authorId, createdAt])
+  @@index([objectId, createdAt])
+  @@map("restaurant_visits")
+}
+
+model RestaurantVisitCompanion {
+  visitId   String
+  visit     RestaurantVisit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+
+  @@id([visitId, userId])
+  @@index([userId, createdAt])
+  @@map("restaurant_visit_companions")
+}
+
+model RestaurantVisitDish {
+  id          String          @id @default(cuid())
+  visitId     String
+  visit       RestaurantVisit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  name        String
+  note        String?
+  recommended Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+
+  @@index([visitId])
+  @@index([name])
+  @@map("restaurant_visit_dishes")
+}
+
+model UserRestaurantBookmark {
+  id        String                   @id @default(cuid())
+  userId    String
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  objectId  String
+  object    Object                   @relation(fields: [objectId], references: [id], onDelete: Cascade)
+  status    RestaurantBookmarkStatus @default(want_to_try)
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+
+  @@unique([userId, objectId, status])
+  @@index([userId, status, createdAt])
+  @@index([objectId, status])
+  @@map("user_restaurant_bookmarks")
+}
+
+// -------- Rank Hub -------------------------------------------------------
+
+model City {
+  id                 String   @id @default(cuid())
+  name               String
+  state              String?
+  country            String
+  activeRankersCount Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  objects       Object[] @relation("ObjectCity")
+  officialLists OfficialCityRankingList[]
+  userLists     RankingList[] @relation("RankingListCity")
+  memberships   UserCityMembership[]
+  pairwiseVotes PairwiseVote[]
+  homeUsers      User[] @relation("UserHomeCity")
+  preferredUsers User[] @relation("UserPreferredCity")
+
+  @@unique([name, state, country])
+  @@map("cities")
+}
+
+model OfficialCityRankingList {
+  id                       String               @id @default(cuid())
+  cityId                   String
+  city                     City                 @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  title                    String
+  slug                     String
+  category                 OfficialCityCategory
+  isOfficial               Boolean              @default(true)
+  acceptsUserContribution  Boolean              @default(true)
+  contributionSource       ContributionSource   @default(hybrid)
+  activeRankersCount       Int                  @default(0)
+  lastRecalculatedAt       DateTime?
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+
+  entries       CityRankingEntry[]
+  userLists     RankingList[]
+  pairwiseVotes PairwiseVote[]
+
+  @@unique([cityId, slug])
+  @@index([cityId, category])
+  @@map("official_city_ranking_lists")
+}
+
+model CityRankingEntry {
+  id                    String                  @id @default(cuid())
+  cityRankingListId     String
+  cityRankingList       OfficialCityRankingList @relation(fields: [cityRankingListId], references: [id], onDelete: Cascade)
+  objectId              String
+  object                Object                  @relation(fields: [objectId], references: [id])
+  rank                  Int
+  previousRank          Int?
+  citytasteScore        Float                   @default(0)
+  rawRankPoints         Float                   @default(0)
+  confidenceMultiplier  Float                   @default(1)
+  recencyMultiplier     Float                   @default(1)
+  localRankersCount     Int                     @default(0)
+  movement              RankMovement            @default(new)
+  movementDelta         Int?
+  tagsSummary           String[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@unique([cityRankingListId, objectId])
+  @@unique([cityRankingListId, rank])
+  @@index([cityRankingListId])
+  @@index([objectId])
+  @@map("city_ranking_entries")
+}
+
+model UserCityMembership {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cityId      String
+  city        City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  role        CityMembershipRole @default(viewer)
+  isHomeCity  Boolean            @default(false)
+  trustWeight Float              @default(1)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@unique([userId, cityId])
+  @@index([cityId])
+  @@map("user_city_memberships")
+}
+
+model PairwiseVote {
+  id                        String                  @id @default(cuid())
+  userId                    String
+  user                      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cityId                    String
+  city                      City                    @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  officialCityRankingListId String
+  officialCityRankingList   OfficialCityRankingList @relation(fields: [officialCityRankingListId], references: [id], onDelete: Cascade)
+  objectAId                 String
+  objectA                   Object                  @relation("PairwiseObjectA", fields: [objectAId], references: [id])
+  objectBId                 String
+  objectB                   Object                  @relation("PairwiseObjectB", fields: [objectBId], references: [id])
+  selectedObjectId          String?
+  selectedObject            Object?                 @relation("PairwiseSelectedObject", fields: [selectedObjectId], references: [id])
+  skipped                   Boolean                 @default(false)
+  contextPrompt             String
+  trustWeightAtVoteTime     Float                   @default(1)
+  createdAt                 DateTime                @default(now())
+
+  @@index([userId, officialCityRankingListId, createdAt])
+  @@index([officialCityRankingListId, createdAt])
+  @@index([cityId])
+  @@map("pairwise_votes")
 }
 
 // -------- Graph ---------------------------------------------------------

@@ -10,11 +10,16 @@ export type ObjectCategory =
   | "bar"
   | "perfume"
   | "album"
+  | "track"
   | "fashion"
   | "sneaker"
   | "product";
 
-export type DetailLayout = "discovery_photo" | "album_review" | "product_hero";
+export type DetailLayout =
+  | "discovery_photo"
+  | "album_review"
+  | "product_hero"
+  | "blog_story";
 
 export interface User {
   id: UserId;
@@ -37,7 +42,7 @@ export interface RankedObject {
   tags: string[];
   shortDescriptor?: string;
   heroImage: string;
-  metadata?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface RankingContext {
@@ -47,15 +52,44 @@ export interface RankingContext {
   delta?: number; // +1, -2, etc.
 }
 
+export interface MentionUser {
+  id: UserId;
+  handle: string;
+  displayName: string;
+  avatar?: string;
+}
+
+export interface RestaurantDish {
+  id?: string;
+  name: string;
+  note?: string;
+  recommended?: boolean;
+}
+
+export interface RestaurantVisit {
+  id?: string;
+  visitedAt?: string;
+  mealType?: "breakfast" | "brunch" | "lunch" | "dinner" | "dessert" | "drinks" | "other";
+  priceTier?: number;
+  note?: string;
+  labels: string[];
+  companions: MentionUser[];
+  dishes: RestaurantDish[];
+}
+
 export interface Post {
   id: PostId;
   authorId: UserId;
-  objectId: ObjectId;
+  objectId?: ObjectId;
+  postKind?: "place" | "music" | "blog" | "ranking_update";
   postType: "photo" | "carousel" | "short_video";
   detailLayout: DetailLayout;
+  imageUrl?: string;
   headline: string;
   caption: string;
   tags: string[];
+  mentions?: MentionUser[];
+  restaurantVisit?: RestaurantVisit;
   ranking: RankingContext;
   likes: number;
   comments: number;
@@ -64,14 +98,18 @@ export interface Post {
   locationLabel?: string;
   aspect?: "tall" | "square" | "wide";
   featured?: boolean;
+  why?: string;
 }
 
 export interface RankingEntry {
   objectId: ObjectId;
   rank: number;
+  score: number;
   movement?: "up" | "down" | "new" | "stable";
   delta?: number;
   note?: string;
+  imageUrl?: string;
+  restaurantVisit?: RestaurantVisit;
 }
 
 export interface RankingList {
@@ -92,6 +130,7 @@ export interface ActivityCard {
   verb: "added" | "moved" | "saved" | "published";
   objectId?: ObjectId;
   listId?: RankingListId;
+  imageUrl?: string;
   rank?: number;
   movement?: "up" | "down" | "new";
   message: string;

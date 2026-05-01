@@ -46,6 +46,7 @@ import {
 } from "@/lib/api";
 import { confirmBlock, runReportFlow } from "@/components/moderation/actions";
 import type { ApiShort, ApiShortComment } from "@/lib/api/types";
+import { getSpotifyLinks, openSpotifyLinks } from "@/lib/music/spotifyLinks";
 import { formatRelativeTime } from "@/lib/time";
 import { gradients } from "@/theme/tokens";
 
@@ -253,6 +254,8 @@ function ShortFrame({
   const liked = short.viewer?.likedByMe ?? false;
   const saved = short.viewer?.savedByMe ?? false;
   const isAuthor = Boolean(user?.id && user.id === short.author.id);
+  const spotifyLinks = getSpotifyLinks(short.object);
+  const hasSpotify = Boolean(spotifyLinks.uri || spotifyLinks.webUrl);
 
   const onLike = () => {
     if (!isSignedIn) return router.push("/sign-in");
@@ -324,6 +327,7 @@ function ShortFrame({
       <ShortMedia
         heroImage={short.heroImage}
         videoUrl={short.videoUrl ?? null}
+        preserveArtwork={hasSpotify}
         active={active}
         muted={muted}
       />
@@ -450,7 +454,20 @@ function ShortFrame({
           {short.audioLabel ? (
             <DarkPill icon="music-note" label={short.audioLabel} />
           ) : null}
+          {hasSpotify ? (
+            <Pressable
+              onPress={() => openSpotifyLinks(spotifyLinks).catch(() => undefined)}
+              hitSlop={4}
+            >
+              <DarkPill icon="library-music" label="Listen on Spotify" />
+            </Pressable>
+          ) : null}
         </View>
+        {hasSpotify ? (
+          <Label className="mt-2 text-[10px] text-surface/60">
+            Metadata by Spotify
+          </Label>
+        ) : null}
       </View>
     </View>
   );

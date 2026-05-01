@@ -131,6 +131,10 @@ export default function ProfileScreen() {
     }
     Alert.alert(displayName, undefined, [
       {
+        text: "Connected apps",
+        onPress: () => router.push("/settings/connected-apps" as never),
+      },
+      {
         text: "Blocked users",
         // Cast until expo-router regenerates typed-route metadata for
         // the new `app/settings/blocked` screen on next dev boot.
@@ -476,7 +480,7 @@ function PostsGrid({
 }
 
 function PhotoTile({ post, onPress }: { post: Post; onPress: () => void }) {
-  const uri = getObject(post.objectId)?.heroImage;
+  const uri = post.imageUrl || (post.objectId ? getObject(post.objectId)?.heroImage : undefined);
   return (
     <Pressable
       onPress={onPress}

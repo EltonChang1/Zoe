@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -31,8 +32,12 @@ import {
   useObjectListsQuery,
   useObjectPostsQuery,
   useObjectQuery,
+  useWantToTryRestaurant,
 } from "@/lib/api";
 import type { ApiObjectDetail } from "@/lib/api/types";
+import { getSpotifyLinks, openSpotifyLinks } from "@/lib/music/spotifyLinks";
+import { displayObjectType } from "@/lib/objects/display";
+import { isRestaurantLikeClientObject } from "@/components/social/RestaurantSocialFields";
 
 /**
  * Object detail (VDK §15.3, Spec SCREEN 09).
@@ -47,7 +52,7 @@ import type { ApiObjectDetail } from "@/lib/api/types";
  */
 type Tab = "reviews" | "rankings";
 
-const TABS: Array<{ id: Tab; label: string; icon: IconName }> = [
+const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "reviews", label: "Reviews", icon: "grid-view" },
   { id: "rankings", label: "Ranked in", icon: "star-border" },
 ];
@@ -61,10 +66,13 @@ export default function ObjectDetailScreen() {
   const postsQuery = useObjectPostsQuery(id);
   const listsQuery = useObjectListsQuery(id);
   const { isSignedIn } = useAuth();
+  const wantMutation = useWantToTryRestaurant();
 
   const object = objectQuery.data;
   const posts: Post[] = postsQuery.data?.posts ?? [];
   const lists: RankingList[] = listsQuery.data?.lists ?? [];
+  const googleMapsUri = object ? getGoogleMapsUri(object) : null;
+  const spotifyLinks = object ? getSpotifyLinks(object) : null;
 
   const [tab, setTab] = useState<Tab>("reviews");
 
@@ -96,6 +104,28 @@ export default function ObjectDetailScreen() {
     } else {
       router.push("/rank/add");
     }
+  };
+
+  const onToggleWantToTry = () => {
+    if (!object) return;
+    if (!isSignedIn) {
+      router.push("/sign-in");
+      return;
+    }
+    wantMutation.mutate({
+      objectId: object.id,
+      wanted: Boolean(object.viewer?.wantToTry),
+    });
+  };
+
+  const onOpenGoogleMaps = () => {
+    if (!googleMapsUri) return;
+    Linking.openURL(googleMapsUri).catch(() => undefined);
+  };
+
+  const onOpenSpotify = () => {
+    if (!spotifyLinks) return;
+    openSpotifyLinks(spotifyLinks).catch(() => undefined);
   };
 
   const refreshing =
@@ -183,6 +213,50 @@ export default function ObjectDetailScreen() {
             </View>
           </View>
 
+          {googleMapsUri ? (
+            <View className="mt-3 px-5">
+              <Button
+                label="Open in Google Maps"
+                variant="secondary"
+                onPress={onOpenGoogleMaps}
+                full
+              />
+            </View>
+          ) : null}
+
+          {spotifyLinks?.uri || spotifyLinks?.webUrl ? (
+            <View className="mt-3 px-5">
+              <Button
+                label="Listen on Spotify"
+                variant="secondary"
+                onPress={onOpenSpotify}
+                full
+              />
+            </View>
+          ) : null}
+
+          {isRestaurantLikeClientObject(object.type) ? (
+            <View className="mt-3 px-5">
+              <Button
+                label={
+                  object.viewer?.wantToTry
+                    ? "Remove want to try"
+                    : "Want to try"
+                }
+                variant={object.viewer?.wantToTry ? "secondary" : "primary"}
+                onPress={onToggleWantToTry}
+                disabled={wantMutation.isPending}
+                full
+              />
+            </View>
+          ) : null}
+
+          <SocialProofPanel object={object} />
+
+          {isRestaurantLikeClientObject(object.type) ? (
+            <RestaurantContextPanel object={object} />
+          ) : null}
+
           {/* Tabs */}
           <View className="mt-8 flex-row border-t border-outline-variant/30">
             {TABS.map((t) => (
@@ -237,9 +311,141 @@ export default function ObjectDetailScreen() {
   );
 }
 
+function SocialProofPanel({ object }: { object: ApiObjectDetail }) {
+  const proof = object.socialProof;
+  if (!proof) return null;
+  const rankText = proof.topCityRank
+    ? `#${proof.topCityRank.rank} in ${proof.topCityRank.city}`
+    : null;
+  return (
+    <View className="mt-5 px-5">
+      <View className="rounded-xl bg-surface-container-low p-4">
+        <LabelCaps>Why people trust it</LabelCaps>
+        <View className="mt-3 flex-row gap-3">
+          <ProofStat
+            label="Ranked in"
+            value={`${proof.rankingAppearances}`}
+          />
+          <ProofStat label="Saved" value={`${proof.savedPosts}`} />
+          <ProofStat label="Friend saves" value={`${proof.friendSaves}`} />
+        </View>
+        {rankText ? (
+          <View className="mt-3 flex-row items-center">
+            <Icon name="emoji-events" size={16} color="#55343B" />
+            <Label className="ml-2 text-[11px] text-primary">
+              {rankText} · {proof.topCityRank?.listTitle}
+            </Label>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function ProofStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-1">
+      <Text className="font-display text-primary text-[24px]">{value}</Text>
+      <Label className="text-[10px] uppercase tracking-widest">{label}</Label>
+    </View>
+  );
+}
+
+function getGoogleMapsUri(object: ApiObjectDetail) {
+  const uri = object.metadata?.googleMapsUri;
+  return typeof uri === "string" ? uri : null;
+}
+
+function RestaurantContextPanel({ object }: { object: ApiObjectDetail }) {
+  const visits = object.restaurantVisits ?? [];
+  const topDishes = topRestaurantDishes(visits);
+  const recentWithPeople = visits.filter(
+    (visit) => visit.author || visit.companions.length > 0,
+  );
+
+  if (visits.length === 0 && topDishes.length === 0) {
+    return (
+      <View className="mx-5 mt-6 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-4">
+        <LabelCaps>Restaurant pulse</LabelCaps>
+        <Body className="mt-2 text-[13px] leading-[19px] text-on-surface-variant">
+          No Zoe visits yet. Add dishes and who you went with when you post or rank it.
+        </Body>
+      </View>
+    );
+  }
+
+  return (
+    <View className="mx-5 mt-6 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-4 gap-4">
+      <View>
+        <LabelCaps>Top dishes</LabelCaps>
+        {topDishes.length > 0 ? (
+          <View className="mt-2 gap-2">
+            {topDishes.map((dish) => (
+              <View
+                key={dish.name}
+                className="flex-row items-center justify-between rounded-lg bg-surface-container-low px-3 py-2"
+              >
+                <Text className="font-headline text-on-surface text-[14px]">
+                  {dish.name}
+                </Text>
+                <Label className="text-[10px]">{dish.count}</Label>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Body className="mt-2 text-[13px] text-on-surface-variant">
+            No dishes logged yet.
+          </Body>
+        )}
+      </View>
+
+      {recentWithPeople.length > 0 ? (
+        <View>
+          <LabelCaps>Friend context</LabelCaps>
+          <View className="mt-2 gap-2">
+            {recentWithPeople.slice(0, 4).map((visit) => (
+              <View key={visit.id} className="rounded-lg bg-surface-container-low px-3 py-2">
+                <Text className="font-label text-on-surface text-[12px]">
+                  {visit.author ? `@${visit.author.handle}` : "Someone"} went
+                  {visit.companions.length > 0
+                    ? ` with ${visit.companions
+                        .map((companion) => `@${companion.user.handle}`)
+                        .join(", ")}`
+                    : ""}
+                </Text>
+                {visit.labels.length > 0 ? (
+                  <Label className="mt-1 text-[10px]">
+                    {visit.labels.map((label) => `#${label}`).join(" ")}
+                  </Label>
+                ) : null}
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function topRestaurantDishes(visits: NonNullable<ApiObjectDetail["restaurantVisits"]>) {
+  const counts = new Map<string, number>();
+  for (const visit of visits) {
+    for (const dish of visit.dishes) {
+      counts.set(dish.name, (counts.get(dish.name) ?? 0) + (dish.recommended ? 2 : 1));
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+}
+
 // ---------------- Hero ----------------
 
 function Hero({ object }: { object: ApiObjectDetail }) {
+  const spotifyLinks = getSpotifyLinks(object);
+  const isSpotifyMusic = Boolean(spotifyLinks.uri || spotifyLinks.webUrl);
+
   return (
     <View>
       {object.heroImage ? (
@@ -247,15 +453,25 @@ function Hero({ object }: { object: ApiObjectDetail }) {
           <Image
             source={{ uri: object.heroImage }}
             style={{ aspectRatio: 16 / 10 }}
-            contentFit="cover"
+            contentFit={isSpotifyMusic ? "contain" : "cover"}
             transition={280}
             className="w-full"
           />
         </View>
       ) : null}
 
+      {isSpotifyMusic ? (
+        <View className="mt-2 px-6 items-end">
+          <Label className="text-[10px] text-on-surface-variant">
+            Metadata by Spotify
+          </Label>
+        </View>
+      ) : null}
+
       <View className="px-6 pt-6">
-        <LabelCaps className="text-primary">{object.type}</LabelCaps>
+        <LabelCaps className="text-primary">
+          {displayObjectType(object.type)}
+        </LabelCaps>
         <Display className="mt-2 text-[32px] leading-[36px]">
           {object.title}
         </Display>
